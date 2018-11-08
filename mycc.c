@@ -11,7 +11,8 @@ struct Token{
 enum token_kind{
     TK_EOF = 0,  
     TK_INT = 1,  
-    TK_PLUS = 2  
+    TK_PLUS = 2,  
+    TK_MINUS = 3  
 };
 
 struct Token tokens[NUM_TK];
@@ -40,6 +41,9 @@ void tokenize(){
 
             if(ch == '+'){
                 tokens[idx++].kind = TK_PLUS;
+            }
+            else if(ch == '-'){
+                tokens[idx++].kind = TK_MINUS;
             }
         } 
     }
@@ -78,15 +82,23 @@ int main(){
 
     while(!end_tokens()){
         struct Token *tk2 = get_token();
-        if(tk2->kind != TK_PLUS){
-            printf("Error. need PLUS token.\n");
-        }
-
         struct Token *tk3 = get_token();
+
         if(tk3->kind != TK_INT){
             printf("Error. need INT token.\n");
+            return -1;
         }
-        printf("  addl $%d, %%eax\n", tk3->value);
+
+        if(tk2->kind == TK_PLUS){
+            printf("  addl $%d, %%eax\n", tk3->value);
+        }
+        else if(tk2->kind == TK_MINUS){
+            printf("  subl $%d, %%eax\n", tk3->value);
+        }
+        else{
+            printf("Error. need PLUS/MINUS token.\n");
+            return -1;
+        }
     }
     printf("  ret\n");
     return 0;

@@ -16,5 +16,7 @@ runtest() {
 }
 
 runtest "3+2" 5
-runtest "42+58" 100
 runtest "254+1" 255
+runtest "200-30" 170
+runtest "8-5+3" 6
+runtest "100-40+20-10" 70
