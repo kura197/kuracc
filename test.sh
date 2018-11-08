@@ -15,4 +15,6 @@ runtest() {
     rm tmp tmp.s
 }
 
-runtest "3" 3
+runtest "3+2" 5
+runtest "42+58" 100
+runtest "254+1" 255
