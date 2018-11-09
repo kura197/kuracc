@@ -1,3 +1,5 @@
 *.o
+*.out
+*.s
 *.pdf
 mycc
