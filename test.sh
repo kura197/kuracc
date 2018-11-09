@@ -15,6 +15,7 @@ runtest() {
     rm tmp 
 }
 
+
 runtest "3+2" 5
 runtest "3+4+1" 8
 runtest "80-30" 50

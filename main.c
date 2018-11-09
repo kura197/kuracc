@@ -11,45 +11,44 @@ void read_eq_neq();
 void read_add_sub(){
     read_mul_div(); 
     while(read_token()->kind == '+' || read_token()->kind == '-'){
-        printf("  pushq %%rax\n");
         struct Token* tk = get_token();
         read_mul_div();
         printf("  pop %%rbx\n");
+        printf("  pop %%rax\n");
         if(tk->kind == '+'){
             printf("  addl %%ebx, %%eax\n");
         }
         else if(tk->kind == '-'){
-            printf("  subl %%eax, %%ebx\n");
-            printf("  movl %%ebx, %%eax\n");
+            printf("  subl %%ebx, %%eax\n");
         }
         else{
             fprintf(stderr, "Error(read_add_sub). read token : %s.\n", token_name[tk->kind]);
             assert(0);
         }
+        printf("  pushq %%rax\n");
     }
 }
 
 void read_mul_div(){
     read_term();
     while(read_token()->kind == '*' || read_token()->kind == '/'){
-        printf("  pushq %%rax\n");
-        struct Token* tk2 = get_token();
+        struct Token* tk = get_token();
         read_term();
-        printf("  pushq %%rax\n");
         printf("  pop %%rbx\n");
         printf("  pop %%rax\n");
 
-        if(tk2->kind == '*'){
+        if(tk->kind == '*'){
             printf("  imul %%ebx, %%eax\n");
         }
-        else if(tk2->kind == '/'){
+        else if(tk->kind == '/'){
             printf("  cltd\n");
             printf("  div %%ebx\n");
         }
         else{
-            fprintf(stderr, "Error(read_mul_div). read token : %d.", tk2->kind);
+            fprintf(stderr, "Error(read_mul_div). read token : %d.", tk->kind);
             assert(0);
         }
+        printf("  pushq %%rax\n");
     }
 }
 
@@ -65,6 +64,7 @@ void read_term(){
     }
     else if(tk1->kind == TK_INT){
         printf("  movl $%d, %%eax\n", tk1->value);
+        printf("  pushq %%rax\n");
     }
     else{
         fprintf(stderr, "Error(read_term). read token : %s.\n", token_name[tk1->kind]);
@@ -79,18 +79,17 @@ void read_eq_neq(){
         assert(0);
     }
 
-    printf("  pushq %%rax\n");
     read_add_sub();
-    printf("  pushq %%rax\n");
 
-    printf("  popq %%rax\n");
     printf("  popq %%rbx\n");
+    printf("  popq %%rax\n");
     printf("  cmpl %%eax, %%ebx\n");
     if(tk->kind == TK_EQ)   
         printf("  sete %%al\n");
     if(tk->kind == TK_NEQ)   
         printf("  setne %%al\n");
     printf("  movzbl %%al, %%eax\n");
+    printf("  pushq %%rax\n");
 }
 
 int main(){
@@ -114,6 +113,7 @@ int main(){
     if(read_token()->kind != TK_EOF){
         assert(0);
     }
+    printf("  pop %%rax\n");
     printf("  ret\n");
 
     return 0;
