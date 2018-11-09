@@ -5,11 +5,12 @@ SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 OUTPUT = mycc
 
+HEADER = token.h
 
 $(OUTPUT): $(OBJS)
-	cc -o $@ $<
+	cc -o $@ $^
 
-$(OBJS): 
+$(OBJS): $(HEADER)
 
 test: $(OUTPUT)
 	./test.sh

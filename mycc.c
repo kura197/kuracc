@@ -1,90 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#define NUM_TK 1000
+#include <assert.h>
+#include "token.h"
 
 void read_add_sub();
 void read_mul_div();
-
-struct Token{
-    int kind;
-    int value;
-};
-
-enum token_kind{
-    TK_INT = 0,  
-    TK_PLUS = 1,  
-    TK_MINUS = 2,
-    TK_MUL = 3, 
-    TK_DIV = 4,  
-    TK_EOF = 5  
-};
-
-struct Token tokens[NUM_TK];
-int token_idx;
-int num_tokens;
-
-void tokenize(){
-    char input[32];
-    int idx = 0;
-    scanf("%s", input);
-
-    int n = 0;
-    char values[16];
-    int num_values = 0;
-    char ch;
-    while((ch = input[n++]) != '\0'){
-        if('0' <= ch && ch <= '9'){
-            values[num_values++] = ch;
-        }else{
-            if(num_values > 0){
-                values[num_values] = '\0';
-                tokens[idx].value = strtol(values, NULL, 10);
-                tokens[idx++].kind = TK_INT;
-                num_values = 0;
-            }
-
-            if(ch == '+'){
-                tokens[idx++].kind = TK_PLUS;
-            }
-            else if(ch == '-'){
-                tokens[idx++].kind = TK_MINUS;
-            }
-            else if(ch == '*'){
-                tokens[idx++].kind = TK_MUL;
-            }
-            else if(ch == '/'){
-                tokens[idx++].kind = TK_DIV;
-            }
-        } 
-    }
-    if(num_values > 0){
-        values[num_values] = '\0';
-        tokens[idx].value = strtol(values, NULL, 10);
-        tokens[idx++].kind = TK_INT;
-        num_values = 0;
-    }
-    tokens[idx].kind = TK_EOF;
-    num_tokens += idx;
-}
-
-struct Token* read_token(){
-    struct Token* token;
-    token = &tokens[token_idx];
-    return token;
-}
-
-struct Token* get_token(){
-    struct Token* token;
-    token = &tokens[token_idx++];
-    return token;
-}
-
-int end_tokens(){
-    int rem = num_tokens - token_idx;
-    if(rem == 0) return 1;
-    else return 0;
-}
+void read_term();
 
 void read_add_sub(){
     read_mul_div(); 
@@ -102,7 +23,8 @@ void read_add_sub(){
             printf("  movl %%ebx, %%eax\n");
         }
         else{
-            printf("Error(read_add_sub). read token : %d.", tk->kind);
+            fprintf(stderr, "Error(read_add_sub). read token : %d.", tk->kind);
+            assert(0);
         }
     }
 }
@@ -110,7 +32,8 @@ void read_add_sub(){
 void read_mul_div(){
     struct Token* tk1 = get_token();
     if(tk1->kind != TK_INT){
-        printf("Error(read_mul_div). read token : %d\n", tk1->kind);
+        fprintf(stderr, "Error(read_mul_div). read token : %d\n", tk1->kind);
+        assert(0);
     }
     printf("  movl $%d, %%eax\n", tk1->value);
 
@@ -128,8 +51,18 @@ void read_mul_div(){
             printf("  div %%ebx\n");
         }
         else{
-            printf("Error(read_mul_div). read token : %d.", tk2->kind);
+            fprintf(stderr, "Error(read_mul_div). read token : %d.", tk2->kind);
+            assert(0);
         }
+    }
+}
+
+void read_term(){
+    struct Token* tk1 = get_token();
+    //if(tk1->kind == )
+    if(tk1->kind != TK_INT){
+        fprintf(stderr, "Error(read_term). read token : %d.", tk1->kind);
+        assert(0);
     }
 }
 
