@@ -24,3 +24,9 @@ runtest "6*4" 24
 runtest "4/2" 2
 runtest "6*4/2" 12
 runtest "5+2*4-8" 5
+runtest "2*(4+6)" 20
+runtest "(4+6)*2" 20
+runtest "(4*6)-2" 22
+runtest "(3+6)/(1+2)" 3
+runtest "(3+6)*(1+2)/(4+5)" 3
+runtest "(3+6)*((1+2+12)/(4+5-6))" 45

@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+struct Token tokens[NUM_TK];
+int token_idx;
+int num_tokens;
+
 void tokenize(){
     char input[32];
     int idx = 0;
@@ -23,16 +27,22 @@ void tokenize(){
             }
 
             if(ch == '+'){
-                tokens[idx++].kind = TK_PLUS;
+                tokens[idx++].kind = '+';
             }
             else if(ch == '-'){
-                tokens[idx++].kind = TK_MINUS;
+                tokens[idx++].kind = '-';
             }
             else if(ch == '*'){
-                tokens[idx++].kind = TK_MUL;
+                tokens[idx++].kind = '*';
             }
             else if(ch == '/'){
-                tokens[idx++].kind = TK_DIV;
+                tokens[idx++].kind = '/';
+            }
+            else if(ch == '('){
+                tokens[idx++].kind = '(';
+            }
+            else if(ch == ')'){
+                tokens[idx++].kind = ')';
             }
         } 
     }
