@@ -19,14 +19,17 @@ runtest "3+2" 5
 runtest "3+4+1" 8
 runtest "80-30" 50
 runtest "8-5+3" 6
-runtest "100-40+20-10" 70
 runtest "6*4" 24
 runtest "4/2" 2
 runtest "6*4/2" 12
 runtest "5+2*4-8" 5
 runtest "2*(4+6)" 20
 runtest "(4+6)*2" 20
-runtest "(4*6)-2" 22
 runtest "(3+6)/(1+2)" 3
-runtest "(3+6)*(1+2)/(4+5)" 3
 runtest "(3+6)*((1+2+12)/(4+5-6))" 45
+runtest "6==3" 0
+runtest "2==2" 1
+runtest "10!=10" 0
+runtest "10!=7" 1
+runtest "(3+6) == (3*3)" 1
+

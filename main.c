@@ -6,18 +6,7 @@
 void read_add_sub();
 void read_mul_div();
 void read_term();
-
-//for debug purpose
-char *token_name[] = {
-    "TK_INT",
-    "TK_EOF",
-    ['+'] = "+",
-    ['-'] = "-",
-    ['*'] = "*",
-    ['/'] = "/",
-    ['('] = "(",
-    [')'] = ")"
-};
+void read_eq_neq();
 
 void read_add_sub(){
     read_mul_div(); 
@@ -83,12 +72,44 @@ void read_term(){
     }
 }
 
+void read_eq_neq(){
+    struct Token* tk = get_token();
+    if(tk->kind != TK_EQ && tk->kind != TK_NEQ){
+        fprintf(stderr, "Error(read_eq_neq). read token : %s.\n", token_name[tk->kind]);
+        assert(0);
+    }
+
+    printf("  pushq %%rax\n");
+    read_add_sub();
+    printf("  pushq %%rax\n");
+
+    printf("  popq %%rax\n");
+    printf("  popq %%rbx\n");
+    printf("  cmpl %%eax, %%ebx\n");
+    if(tk->kind == TK_EQ)   
+        printf("  sete %%al\n");
+    if(tk->kind == TK_NEQ)   
+        printf("  setne %%al\n");
+    printf("  movzbl %%al, %%eax\n");
+}
+
 int main(){
     tokenize();
+    //dump_tokens();
     printf(".global main\n");
     printf("main:\n");
 
-    read_add_sub();
+    while(1){
+        struct Token* tk = read_token();
+        if(tk->kind == TK_EQ || tk->kind == TK_NEQ){
+            read_eq_neq();
+        }
+        else if(tk->kind == TK_INT || tk->kind == '('){
+            read_add_sub();
+        }
+        else
+            break;
+    }
 
     if(read_token()->kind != TK_EOF){
         assert(0);
