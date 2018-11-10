@@ -3,10 +3,10 @@
 
 #define NUM_TK 1000
 
-struct Token{
+typedef struct Token{
     int kind;
     int value;
-};
+}Token_t;
 
 enum token_kind{
     TK_INT = 0,  
@@ -21,7 +21,7 @@ struct Token* get_token();
 int end_tokens();
 void dump_tokens();
 
-extern struct Token tokens[NUM_TK];
+extern Token_t tokens[NUM_TK];
 extern int token_idx;
 extern int num_tokens;
 extern char *token_name[];

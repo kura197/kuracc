@@ -34,3 +34,5 @@ runtest "10!=10" 0
 runtest "10!=7" 1
 runtest "(3+6) == (3*3)" 1
 
+echo 'Success!!\n'
+

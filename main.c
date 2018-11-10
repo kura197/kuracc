@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "token.h"
+#include "vector_map.h"
 
 void read_add_sub();
 void read_mul_div();
@@ -11,7 +13,7 @@ void read_eq_neq();
 void read_add_sub(){
     read_mul_div(); 
     while(read_token()->kind == '+' || read_token()->kind == '-'){
-        struct Token* tk = get_token();
+        Token_t* tk = get_token();
         read_mul_div();
         printf("  pop %%rbx\n");
         printf("  pop %%rax\n");
@@ -32,7 +34,7 @@ void read_add_sub(){
 void read_mul_div(){
     read_term();
     while(read_token()->kind == '*' || read_token()->kind == '/'){
-        struct Token* tk = get_token();
+        Token_t* tk = get_token();
         read_term();
         printf("  pop %%rbx\n");
         printf("  pop %%rax\n");
@@ -53,10 +55,10 @@ void read_mul_div(){
 }
 
 void read_term(){
-    struct Token* tk1 = get_token();
+    Token_t* tk1 = get_token();
     if(tk1->kind == '('){
         read_add_sub();
-        struct Token* tk2 = get_token();
+        Token_t* tk2 = get_token();
         if(tk2->kind != ')'){
             fprintf(stderr, "Error(read_term). read token : %s.\n", token_name[tk2->kind]);
             assert(0);
@@ -73,7 +75,7 @@ void read_term(){
 }
 
 void read_eq_neq(){
-    struct Token* tk = get_token();
+    Token_t* tk = get_token();
     if(tk->kind != TK_EQ && tk->kind != TK_NEQ){
         fprintf(stderr, "Error(read_eq_neq). read token : %s.\n", token_name[tk->kind]);
         assert(0);
@@ -92,14 +94,18 @@ void read_eq_neq(){
     printf("  pushq %%rax\n");
 }
 
-int main(){
+int main(int argc, char* argv[]){
+    if(argc == 2 && !strcmp(argv[1], "test")){
+        test_vector(); 
+        return 0;
+    }
     tokenize();
     //dump_tokens();
     printf(".global main\n");
     printf("main:\n");
 
     while(1){
-        struct Token* tk = read_token();
+        Token_t* tk = read_token();
         if(tk->kind == TK_EQ || tk->kind == TK_NEQ){
             read_eq_neq();
         }

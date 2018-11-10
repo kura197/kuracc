@@ -5,7 +5,8 @@ SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 OUTPUT = mycc
 
-HEADER = token.h
+HEADER = token.h \
+		 vector_map.h
 
 $(OUTPUT): $(OBJS)
 	cc -o $@ $^

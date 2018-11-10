@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Token tokens[NUM_TK];
+Token_t tokens[NUM_TK];
 int token_idx;
 int num_tokens;
 
@@ -81,14 +81,14 @@ void tokenize(){
     num_tokens += idx;
 }
 
-struct Token* read_token(){
-    struct Token* token;
+Token_t* read_token(){
+    Token_t* token;
     token = &tokens[token_idx];
     return token;
 }
 
-struct Token* get_token(){
-    struct Token* token;
+Token_t* get_token(){
+    Token_t* token;
     token = &tokens[token_idx++];
     return token;
 }
@@ -101,7 +101,7 @@ int end_tokens(){
 
 void dump_tokens(){
     for(int i = 0; i < num_tokens; i++){
-        struct Token tk = tokens[i];
+        Token_t tk = tokens[i];
         if(tk.kind == TK_INT){
             fprintf(stderr, "%d : %s (%d)\n", i, token_name[tk.kind], tk.value);
         }
