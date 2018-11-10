@@ -95,12 +95,16 @@ void read_eq_neq(){
 }
 
 int main(int argc, char* argv[]){
-    if(argc == 2 && !strcmp(argv[1], "test")){
+    if(argc == 0){
+        fprintf(stderr, "usage : ./mycc code [test]");
+        return -1;
+    }
+    if(argc == 3 && !strcmp(argv[2], "test")){
         test_vector(); 
         test_map(); 
         return 0;
     }
-    tokenize();
+    tokenize(argv[1]);
     //dump_tokens();
     printf(".global main\n");
     printf("main:\n");

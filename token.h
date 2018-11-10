@@ -15,7 +15,7 @@ enum token_kind{
     TK_EOF = 3  
 };
 
-void tokenize();
+void tokenize(char *p);
 struct Token* read_token();
 struct Token* get_token();
 int end_tokens();

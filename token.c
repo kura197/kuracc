@@ -17,68 +17,66 @@ char *token_name[] = {
     ['*'] = "*",
     ['/'] = "/",
     ['('] = "(",
-    [')'] = ")"
+    [')'] = ")",
+    [';'] = ";"
 };
 
-void tokenize(){
-    char input[32];
+void tokenize(char* p){
     int idx = 0;
-    scanf("%[^\n]", input);
-
     int n = 0;
-    char ch;
-    while((ch = input[n++]) != '\0'){
-        if('0' <= ch && ch <= '9'){
+    while(*p){
+        if('0' <= *p && *p <= '9'){
             char values[16];
             int num_values = 0;
-            values[num_values++] = ch;
+            values[num_values++] = *p;
             while(1){
-                ch = input[n];
-                if('0' <= ch && ch <= '9')
-                    values[num_values++] = ch;
+                char next = *(p+1);
+                if('0' <= next && next <= '9')
+                    values[num_values++] = next;
                 else 
                     break;
-                n++;
+                p++;
             }
             values[num_values] = '\0';
             tokens[idx].value = strtol(values, NULL, 10);
             tokens[idx++].kind = TK_INT;
         }
-        else if(ch == '+'){
+        else if(*p == '+'){
             tokens[idx++].kind = '+';
         }
-        else if(ch == '-'){
+        else if(*p == '-'){
             tokens[idx++].kind = '-';
         }
-        else if(ch == '*'){
+        else if(*p == '*'){
             tokens[idx++].kind = '*';
         }
-        else if(ch == '/'){
+        else if(*p == '/'){
             tokens[idx++].kind = '/';
         }
-        else if(ch == '('){
+        else if(*p == '('){
             tokens[idx++].kind = '(';
         }
-        else if(ch == ')'){
+        else if(*p == ')'){
             tokens[idx++].kind = ')';
         }
-        else if(ch == '='){
-            ch = input[n];
-            if(ch == '='){
+        else if(*p == '='){
+            char next = *(p+1);
+            if(next == '='){
                 tokens[idx++].kind = TK_EQ;
-                n++;
+                p++;
             }
         }
-        else if(ch == '!'){
-            ch = input[n];
-            if(ch == '='){
+        else if(*p == '!'){
+            char next = *(p+1);
+            if(next == '='){
                 tokens[idx++].kind = TK_NEQ;
-                n++;
+                p++;
             }
         }
-        else if(ch == ';'){
+        else if(*p == ';'){
             tokens[idx++].kind = ';';
         }
+        p++;
     }
     tokens[idx].kind = TK_EOF;
     num_tokens += idx;

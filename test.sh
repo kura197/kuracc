@@ -1,7 +1,7 @@
 #! /bin/sh
 
 runtest() {
-    echo "$1" | ./mycc > tmp.s
+    ./mycc "$1" > tmp.s
 
     gcc -o tmp tmp.s
     ./tmp
