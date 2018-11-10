@@ -113,6 +113,10 @@ int main(int argc, char* argv[]){
         else if(tk->kind == TK_INT || tk->kind == '('){
             read_add_sub();
         }
+        else if(tk->kind == ';'){
+            get_token();
+            printf("  pop %%rax\n");
+        }
         else
             break;
     }
@@ -120,7 +124,6 @@ int main(int argc, char* argv[]){
     if(read_token()->kind != TK_EOF){
         assert(0);
     }
-    printf("  pop %%rax\n");
     printf("  ret\n");
 
     return 0;

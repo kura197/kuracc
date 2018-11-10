@@ -76,6 +76,9 @@ void tokenize(){
                 n++;
             }
         }
+        else if(ch == ';'){
+            tokens[idx++].kind = ';';
+        }
     }
     tokens[idx].kind = TK_EOF;
     num_tokens += idx;
