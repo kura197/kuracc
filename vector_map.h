@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 typedef struct Vector{
-    void** val;     
+    void** item;     
     size_t len;
     size_t cap;
 }Vector_t;
@@ -18,6 +18,9 @@ Vector_t *vector_new();
 void vector_push(Vector_t *vec, void *item);
 void *vector_get(Vector_t *vec, size_t idx);
 size_t vector_size(Vector_t *vec);
+int search(Vector_t *vec, char* str);
+
 void test_vector();
+void test_map();
 
 #endif

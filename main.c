@@ -97,6 +97,7 @@ void read_eq_neq(){
 int main(int argc, char* argv[]){
     if(argc == 2 && !strcmp(argv[1], "test")){
         test_vector(); 
+        test_map(); 
         return 0;
     }
     tokenize();
