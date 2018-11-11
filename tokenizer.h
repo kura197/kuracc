@@ -20,6 +20,7 @@ struct Token* read_token();
 struct Token* get_token();
 int end_tokens();
 void dump_tokens();
+void consume_token(char token);
 
 extern Token_t tokens[NUM_TK];
 extern int token_idx;

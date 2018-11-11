@@ -1,4 +1,4 @@
-#include "token.h"
+#include "tokenizer.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,7 +23,6 @@ char *token_name[] = {
 
 void tokenize(char* p){
     int idx = 0;
-    int n = 0;
     while(*p){
         if('0' <= *p && *p <= '9'){
             char values[16];
@@ -86,6 +85,14 @@ Token_t* read_token(){
     Token_t* token;
     token = &tokens[token_idx];
     return token;
+}
+
+void consume_token(char token){
+    if(tokens[token_idx].kind == token)
+        token_idx++;
+    else{
+        fprintf(stderr, "does not match consume_token\n");
+    }
 }
 
 Token_t* get_token(){

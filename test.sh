@@ -22,7 +22,7 @@ runtest "80-30;" 50
 runtest "8-5+3;" 6
 runtest "6*4;" 24
 runtest "4/2;" 2
-runtest "6*4/2;" 12
+runtest "6*3/2;" 9
 runtest "5+2*4-8;" 5
 runtest "2*(4+6);" 20
 runtest "(4+6)*2;" 20
@@ -35,6 +35,7 @@ runtest "10!=7;" 1
 runtest "(3+6) == (3*3);" 1
 runtest "5+4;  8-3;" 5
 runtest "5+4*3;  8-3; 10*2-5;" 15
+runtest "5+4*3;  8*3; 4*3 == 8+4*2/2;" 1
 
 echo 'Success!!\n'
 
