@@ -6,13 +6,15 @@
 typedef struct Token{
     int kind;
     int value;
+    char* name;
 }Token_t;
 
 enum token_kind{
     TK_INT = 0,  
     TK_EQ = 1,
     TK_NEQ = 2,
-    TK_EOF = 3  
+    TK_ID = 3,
+    TK_EOF = 4,
 };
 
 void tokenize(char *p);

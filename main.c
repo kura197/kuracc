@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
     Vector_t *vec = vector_new();
     Token_t *next = read_token();
     while(next->kind != TK_EOF){
-        Node_t *node = equ_expr();
+        Node_t *node = assign_expr();
         vector_push(vec, (Node_t*)node);
         //dump_node(node, 0);
         consume_token(';');
@@ -33,12 +33,16 @@ int main(int argc, char* argv[]){
 
     printf(".global main\n");
     printf("main:\n");
+    printf("  pushq %%rbp\n");
+    printf("  movq %%rsp, %%rbp\n");
+    printf("  subq $%d, %%rsp\n", 8*(1+(int)vector_size(var)));
 
     for(int i = 0; i < vector_size(vec); i++){
         codegen((Node_t*)vector_get(vec, i));
         printf("  pop %%rax\n");
     }
-
+    printf("  movq %%rbp, %%rsp\n");
+    printf("  pop %%rbp\n");
     printf("  ret\n");
 
     return 0;

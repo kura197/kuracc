@@ -31,7 +31,7 @@ size_t vector_size(Vector_t *vec){
     return vec->len;
 }
 
-int search(Vector_t *vec, char* str){
+int vector_search(Vector_t *vec, char* str){
     for(int i = vec->len-1; i>=0; i--){
         Map_t* map = (Map_t*)vec->item[i];
         if(!strcmp(str, map->name)){
@@ -39,6 +39,13 @@ int search(Vector_t *vec, char* str){
         }
     }
     return -1;
+}
+
+Map_t* map_create(char* name, int val){
+    Map_t* map = (Map_t*)malloc(sizeof(Map_t));
+    map->name = name;
+    map->val = val;
+    return map;
 }
 
 void test_vector(){
@@ -70,31 +77,31 @@ void test_vector(){
 void test_map(){
     Vector_t* vec = vector_new();
 
-    Map_t map[5] = {
-        {"John", 5},
-        {"Bob", 12},
-        {"Alice", 40},
-        {"Rob", 23},
-        {"Peter", 10}
-    };
+    Map_t* map[5];
+
+    map[0] = map_create("John", 5);
+    map[1] = map_create("Bob", 12);
+    map[2] = map_create("Alice", 40);
+    map[3] = map_create("Rob", 23);
+    map[4] = map_create("Peter", 10);
 
     for(int i = 0; i < 5; i++){
-        vector_push(vec, (Map_t*)&map[i]);
+        vector_push(vec, (Map_t*)map[i]);
     }
 
     Map_t* test = vector_get(vec, 3);
-    if(test->val != map[3].val){
+    if(test->val != map[3]->val){
         printf("val : %d\n", test->val);
         assert(0);
     }
 
-    if(search(vec, "Bob") != 12){
-        printf("search : %d\n", search(vec,"Bob"));
+    if(vector_search(vec, "Bob") != 12){
+        printf("search : %d\n", vector_search(vec,"Bob"));
         assert(0);
     }
 
-    if(search(vec, "Yumi") != -1){
-        printf("search : %d\n", search(vec,"Yumi"));
+    if(vector_search(vec, "Yumi") != -1){
+        printf("search : %d\n", vector_search(vec,"Yumi"));
         assert(0);
     }
 

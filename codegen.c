@@ -59,6 +59,32 @@ void codegen(Node_t* node){
             printf("  movzbl %%al, %%eax\n");
             printf("  pushq %%rax\n");
             break;
+
+        case '=':
+            codegen_lval(node->lhs);
+            codegen(node->rhs);
+            printf("  pop %%rbx\n");
+            printf("  pop %%rax\n");
+            printf("  movl %%ebx, (%%rax)\n");
+            //do not need this.
+            printf("  pushq %%rax\n");
+            break;
+
+        case TK_ID:
+            printf("  movl -%d(%%rbp), %%eax\n", vector_search(var, node->name));
+            printf("  pushq %%rax\n");
+            break;
     }
 }
 
+
+void codegen_lval(Node_t* node){
+    if(node->op == TK_ID){
+        printf("  leaq -%d(%%rbp), %%rax\n", vector_search(var, node->name));
+        printf("  pushq  %%rax\n");
+    }
+    else{
+        fprintf(stderr, "not ID lvalue\n");
+        assert(0);
+    }
+}

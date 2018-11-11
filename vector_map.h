@@ -14,11 +14,12 @@ typedef struct Map{
     int val;
 }Map_t;
 
-Vector_t *vector_new();
+Vector_t* vector_new();
 void vector_push(Vector_t *vec, void *item);
 void *vector_get(Vector_t *vec, size_t idx);
 size_t vector_size(Vector_t *vec);
-int search(Vector_t *vec, char* str);
+int vector_search(Vector_t *vec, char* str);
+Map_t* map_create(char* name, int val);
 
 void test_vector();
 void test_map();

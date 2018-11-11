@@ -1,6 +1,7 @@
 #include "tokenizer.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 Token_t tokens[NUM_TK];
 int token_idx;
@@ -11,6 +12,7 @@ char *token_name[] = {
     "TK_INT",
     "TK_EQ",
     "TK_NEQ",
+    "TK_ID",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -18,7 +20,8 @@ char *token_name[] = {
     ['/'] = "/",
     ['('] = "(",
     [')'] = ")",
-    [';'] = ";"
+    [';'] = ";",
+    ['='] = "="
 };
 
 void tokenize(char* p){
@@ -39,6 +42,9 @@ void tokenize(char* p){
             values[num_values] = '\0';
             tokens[idx].value = strtol(values, NULL, 10);
             tokens[idx++].kind = TK_INT;
+        }
+        else if(*p == ' '){
+            ;
         }
         else if(*p == '+'){
             tokens[idx++].kind = '+';
@@ -64,6 +70,9 @@ void tokenize(char* p){
                 tokens[idx++].kind = TK_EQ;
                 p++;
             }
+            else{
+                tokens[idx++].kind = '=';
+            }
         }
         else if(*p == '!'){
             char next = *(p+1);
@@ -74,6 +83,33 @@ void tokenize(char* p){
         }
         else if(*p == ';'){
             tokens[idx++].kind = ';';
+        }
+        else{
+            tokens[idx].kind = TK_ID;
+            int num = 0;
+            while(1){
+                p++;
+                int out = 0;
+                switch(*p){
+                    case ' ':
+                    case '+':
+                    case '-':
+                    case '*':
+                    case '/':
+                    case '(':
+                    case ')':
+                    case '=':
+                    case '!':
+                    case ';': out = 1; break;
+                }
+                if(out) break;
+                else num++;
+            }
+            p--;
+            tokens[idx].name = (char*)malloc((num+1)*sizeof(char));
+            strncpy(tokens[idx].name, p-num, num+1);
+            tokens[idx].name[num+1] = '\0';
+            idx++;
         }
         p++;
     }
@@ -112,6 +148,9 @@ void dump_tokens(){
         Token_t tk = tokens[i];
         if(tk.kind == TK_INT){
             fprintf(stderr, "%d : %s (%d)\n", i, token_name[tk.kind], tk.value);
+        }
+        else if(tk.kind == TK_ID){
+            fprintf(stderr, "%d : %s (%s)\n", i, token_name[tk.kind], tk.name);
         }
         else{
             fprintf(stderr, "%d : %s \n", i, token_name[tk.kind]);

@@ -4,5 +4,6 @@
 #include "parser.h"
 
 void codegen(Node_t *node);
+void codegen_lval(Node_t *node);
 
 #endif
