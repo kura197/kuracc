@@ -20,8 +20,7 @@ enum ast_kind{
     AST_NEQ,
     AST_ID,
     AST_POST_FIX,
-    //AST_FUNC,
-    AST_FUNC_ARG
+    AST_ARG_LIST
 };
 
 Node_t* new_node(int op, Node_t* lhs, Node_t* rhs);

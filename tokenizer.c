@@ -104,6 +104,7 @@ void tokenize(char* p){
                     case ')':
                     case '=':
                     case '!':
+                    case ',':
                     case ';': out = 1; break;
                 }
                 if(out) break;

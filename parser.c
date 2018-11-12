@@ -6,11 +6,12 @@
 Map_t* var;
 
 char *ast_name[] = {
-    "TK_INT",
-    "TK_EQ",
-    "TK_NEQ",
-    "TK_ID",
-    "TK_FUNC",
+    "AST_INT",
+    "AST_EQ",
+    "AST_NEQ",
+    "AST_ID",
+    "AST_POST_FIX",
+    "AST_ARG_LIST",
     ['+'] = "+",
     ['-'] = "-",
     ['*'] = "*",
@@ -70,18 +71,18 @@ Node_t* add_expr(){
 }
 
 Node_t* mul_expr(){
-    Node_t* node = primary_expr();
+    Node_t* node = postfix_expr();
 
     Token_t* next = read_token(0);
     while(next->kind == '*' || next->kind == '/'){
         if(next->kind == '*'){
             consume_token('*');
-            node = new_node('*', node, primary_expr());
+            node = new_node('*', node, postfix_expr());
 
         }
         else if(next->kind == '/'){
             consume_token('/');
-            node = new_node('/', node, primary_expr());
+            node = new_node('/', node, postfix_expr());
         }
         next = read_token(0);
     }
@@ -155,10 +156,13 @@ Node_t* postfix_expr(){
     while(1){
         if(next->kind == '('){
             consume_token('(');
-            node->op = AST_POST_FIX;
+            map_pop(var);
             next = read_token(0);
             if(next->kind != ')'){
                 node = new_node(AST_POST_FIX, node, arg_expr_list());
+            }
+            else{
+                node = new_node(AST_POST_FIX, node, NULL);
             }
             consume_token(')');
         }
@@ -171,9 +175,15 @@ Node_t* postfix_expr(){
 Node_t* arg_expr_list(){
     Node_t* node = assign_expr();
     Token_t* next = read_token(0);
-    while(next->kind == ','){
-        consume_token(',');
-        node = new_node(AST_FUNC_ARG, node, assign_expr());
+    while(1){
+        if(next->kind == ','){
+            consume_token(',');
+            node = new_node(AST_ARG_LIST, node, assign_expr());
+        }
+        else{
+            node = new_node(AST_ARG_LIST, node, NULL);
+            break;
+        }
         next = read_token(0);
     }
     return node;
@@ -184,10 +194,12 @@ void dump_node(Node_t* node, int num){
         dump_node(node->lhs, num+1);
     }
 
-    if(node->op == TK_INT)
-        printf("%3d : %s(%d)\n", num, token_name[node->op], node->val);
+    if(node->op == AST_INT)
+        printf("%3d : %s(%d)\n", num, ast_name[node->op], node->val);
+    else if(node->op == AST_ID)
+        printf("%3d : %s(%s)\n", num, ast_name[node->op], node->name);
     else
-        printf("%3d : %s\n", num, token_name[node->op]);
+        printf("%3d : %s\n", num, ast_name[node->op]);
 
     if(node->rhs != NULL){
         dump_node(node->rhs, num+1);

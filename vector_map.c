@@ -31,6 +31,10 @@ size_t vector_size(Vector_t *vec){
     return vec->len;
 }
 
+void vector_pop(Vector_t *vec){
+    vec->len--;
+}
+
 Map_t* map_new(){
     Map_t* map = (Map_t*)malloc(sizeof(Map_t));
     map->key = vector_new();
@@ -55,6 +59,11 @@ int* map_search(Map_t* map, char* key){
 
 size_t map_size(Map_t* map){
     return vector_size(map->key);
+}
+
+void map_pop(Map_t* map){
+    vector_pop(map->key);
+    vector_pop(map->val);
 }
 
 void test_vector(){
