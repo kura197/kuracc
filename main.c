@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
     printf("  pushq %%rbp\n");
     printf("  movq %%rsp, %%rbp\n");
     if(var != NULL)
-        printf("  subq $%d, %%rsp\n", 8*(1+(int)vector_size(var)));
+        printf("  subq $%d, %%rsp\n", 8*(1+(int)map_size(var)));
 
     for(int i = 0; i < vector_size(vec); i++){
         codegen((Node_t*)vector_get(vec, i));

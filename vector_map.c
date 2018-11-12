@@ -31,21 +31,30 @@ size_t vector_size(Vector_t *vec){
     return vec->len;
 }
 
-int vector_search(Vector_t *vec, char* str){
-    for(int i = vec->len-1; i>=0; i--){
-        Map_t* map = (Map_t*)vec->item[i];
-        if(!strcmp(str, map->name)){
-            return map->val;
-        }
-    }
-    return -1;
+Map_t* map_new(){
+    Map_t* map = (Map_t*)malloc(sizeof(Map_t));
+    map->key = vector_new();
+    map->val = vector_new();
+    return map;
 }
 
-Map_t* map_create(char* name, int val){
-    Map_t* map = (Map_t*)malloc(sizeof(Map_t));
-    map->name = name;
-    map->val = val;
-    return map;
+void map_push(Map_t* map, char* key, int val){
+    vector_push(map->key, (char*)key);
+    int* v = (int*)malloc(sizeof(int));
+    *v = val;
+    vector_push(map->val, v);
+}
+
+int* map_search(Map_t* map, char* key){
+    for(int i = vector_size(map->key)-1; i >= 0; i--){
+        if(!strcmp(vector_get(map->key, i), key))
+            return (int*)vector_get(map->val, i);
+    }
+    return NULL;
+}
+
+size_t map_size(Map_t* map){
+    return vector_size(map->key);
 }
 
 void test_vector(){
@@ -75,33 +84,26 @@ void test_vector(){
 }
 
 void test_map(){
-    Vector_t* vec = vector_new();
+    Map_t* map = map_new();
+    map_push(map, "John", 5);
+    map_push(map, "Bob", 12);
+    map_push(map, "Alice", 40);
+    map_push(map, "Rob", 23);
+    map_push(map, "Peter", 10);
 
-    Map_t* map[5];
-
-    map[0] = map_create("John", 5);
-    map[1] = map_create("Bob", 12);
-    map[2] = map_create("Alice", 40);
-    map[3] = map_create("Rob", 23);
-    map[4] = map_create("Peter", 10);
-
-    for(int i = 0; i < 5; i++){
-        vector_push(vec, (Map_t*)map[i]);
+    int* alice = map_search(map, "Alice");
+    if(alice == NULL){
+        printf("Address is NULL\n");
+        assert(0);
     }
-
-    Map_t* test = vector_get(vec, 3);
-    if(test->val != map[3]->val){
-        printf("val : %d\n", test->val);
+    if(*alice != 40){
+        printf("val : %d\n", *alice);
         assert(0);
     }
 
-    if(vector_search(vec, "Bob") != 12){
-        printf("search : %d\n", vector_search(vec,"Bob"));
-        assert(0);
-    }
-
-    if(vector_search(vec, "Yumi") != -1){
-        printf("search : %d\n", vector_search(vec,"Yumi"));
+    int* yumi = map_search(map, "Yumi");
+    if(yumi != NULL){
+        printf("search : %p\n", yumi);
         assert(0);
     }
 

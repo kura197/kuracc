@@ -71,7 +71,7 @@ void codegen(Node_t* node){
             break;
 
         case TK_ID:
-            printf("  movl -%d(%%rbp), %%eax\n", vector_search(var, node->name));
+            printf("  movl -%d(%%rbp), %%eax\n", *map_search(var, node->name));
             printf("  pushq %%rax\n");
             break;
     }
@@ -80,7 +80,7 @@ void codegen(Node_t* node){
 
 void codegen_lval(Node_t* node){
     if(node->op == TK_ID){
-        printf("  leaq -%d(%%rbp), %%rax\n", vector_search(var, node->name));
+        printf("  leaq -%d(%%rbp), %%rax\n", *map_search(var, node->name));
         printf("  pushq  %%rax\n");
     }
     else{

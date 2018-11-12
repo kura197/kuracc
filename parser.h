@@ -22,6 +22,6 @@ Node_t* expr_term();
 Node_t* equ_expr();
 Node_t* assign_expr();
 
-extern Vector_t* var;
+extern Map_t* var;
 
 #endif

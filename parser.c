@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-Vector_t* var;
+Map_t* var;
 
 Node_t* new_node(int op, Node_t* lhs, Node_t* rhs){
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
@@ -78,9 +78,9 @@ Node_t* expr_term(){
     }
     else if(next->kind == TK_ID){
         consume_token(TK_ID);
-        if(var == NULL) var = vector_new();
-        if(vector_search(var, next->name) < 0){
-            vector_push(var, (Map_t*)map_create(next->name, 8*(1+vector_size(var))));
+        if(var == NULL) var = map_new();
+        if(map_search(var, next->name) == NULL){
+            map_push(var, next->name, 8*(1+map_size(var)));
         }
         return new_node_ID(next->name);
     }
