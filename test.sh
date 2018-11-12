@@ -40,7 +40,7 @@ runtest "a = 4; a;" 4
 runtest "a = 4; a = a + 1; a;" 5
 runtest "a = 4; b = 5; c = a + b; c;" 9
 runtest "foo = 5; hoge = 2; foo;" 5
-runtest "5;" 5 "test.o"
+runtest "foo();" 5 "test.o"
 
 echo 'Success!!'
 

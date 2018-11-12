@@ -9,7 +9,7 @@ void codegen(Node_t* node){
     }
 
     switch(node->op){
-        case TK_INT:
+        case AST_INT:
             printf("  movl $%d, %%eax\n", node->val);
             printf("  pushq %%rax\n");
             break;
@@ -45,8 +45,8 @@ void codegen(Node_t* node){
             printf("  pushq %%rax\n");
             break;
 
-        case TK_EQ:
-        case TK_NEQ:
+        case AST_EQ:
+        case AST_NEQ:
             codegen(node->lhs);
             codegen(node->rhs);
             printf("  popq %%rbx\n");
@@ -70,9 +70,13 @@ void codegen(Node_t* node){
             printf("  pushq %%rax\n");
             break;
 
-        case TK_ID:
+        case AST_ID:
             printf("  movl -%d(%%rbp), %%eax\n", *map_search(var, node->name));
             printf("  pushq %%rax\n");
+            break;
+
+        case AST_POST_FIX:
+            printf("  call %s\n", node->name);
             break;
     }
 }

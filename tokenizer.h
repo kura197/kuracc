@@ -18,7 +18,7 @@ enum token_kind{
 };
 
 void tokenize(char *p);
-struct Token* read_token();
+struct Token* read_token(int n);
 struct Token* get_token();
 int end_tokens();
 void dump_tokens();

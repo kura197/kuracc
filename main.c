@@ -22,13 +22,14 @@ int main(int argc, char* argv[]){
     //dump_tokens();
 
     Vector_t *vec = vector_new();
-    Token_t *next = read_token();
+    Token_t *next = read_token(0);
     while(next->kind != TK_EOF){
-        Node_t *node = assign_expr();
+        //Node_t *node = assign_expr();
+        Node_t *node = postfix_expr();
         vector_push(vec, (Node_t*)node);
         //dump_node(node, 0);
         consume_token(';');
-        next = read_token();
+        next = read_token(0);
     }
 
     printf(".global main\n");

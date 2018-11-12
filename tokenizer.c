@@ -21,6 +21,7 @@ char *token_name[] = {
     ['('] = "(",
     [')'] = ")",
     [';'] = ";",
+    [','] = ",",
     ['='] = "="
 };
 
@@ -84,6 +85,9 @@ void tokenize(char* p){
         else if(*p == ';'){
             tokens[idx++].kind = ';';
         }
+        else if(*p == ','){
+            tokens[idx++].kind = ',';
+        }
         else{
             tokens[idx].kind = TK_ID;
             int num = 0;
@@ -117,9 +121,9 @@ void tokenize(char* p){
     num_tokens += idx;
 }
 
-Token_t* read_token(){
+Token_t* read_token(int n){
     Token_t* token;
-    token = &tokens[token_idx];
+    token = &tokens[token_idx+n];
     return token;
 }
 
