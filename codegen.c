@@ -105,6 +105,12 @@ void codegen(Node_t* node){
             printf("  call %s\n", node->lhs->name);
             if(rem > 0) printf("  addq $%d, %%rsp\n", rem);
             break;
+
+        case AST_FUNC:
+            codegen(node->rhs);
+
+        case AST_COMP_STMT:
+            codegen_comp_stmt(node);
     }
 }
 
@@ -136,4 +142,8 @@ int codegen_arg(Node_t* node, int num){
     }
 
     return num;
+}
+
+void codegen_comp_stmt(Node_t* node){
+    ;    
 }

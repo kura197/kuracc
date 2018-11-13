@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
     Vector_t *vec = vector_new();
     Token_t *next = read_token(0);
     while(next->kind != TK_EOF){
-        Node_t *node = parse();
+        Node_t *node = translation_unit();
         vector_push(vec, (Node_t*)node);
         if(dump_ast){
             printf("\ndump AST\n");

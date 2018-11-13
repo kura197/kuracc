@@ -12,14 +12,15 @@ char *ast_name[] = {
     "AST_ID",
     "AST_POST_FIX",
     "AST_ARG_LIST",
+    "AST_FUNC",
+    "AST_COMP_STMT",
+    "AST_DEC",
+    "AST_EXPR",
+    "AST_PARA_LIST",
     ['+'] = "+",
     ['-'] = "-",
     ['*'] = "*",
     ['/'] = "/",
-    ['('] = "(",
-    [')'] = ")",
-    [';'] = ";",
-    [','] = ",",
     ['='] = "="
 };
 
@@ -189,8 +190,87 @@ Node_t* arg_expr_list(){
     return node;
 }
 
-Node_t* parse(){
-    Node_t* node = assign_expr();   
+Node_t* translation_unit(){
+    Node_t* node = function_definition();   
+    return node;
+}
+
+Node_t* function_definition(){
+    Node_t* node = declarator();
+    node = new_node(AST_FUNC, node, compound_stmt());
+    return node;
+}
+
+Node_t* compound_stmt(){
+    Token_t* next = read_token(0);
+    if(next->kind == '{'){
+        consume_token('{');
+        Node_t* node;
+        if(read_token(0)->kind == '}'){
+            node = new_node(AST_COMP_STMT, NULL, NULL);
+            return node;
+        }
+
+        node = block_item();
+        while(1){
+            next = read_token(0);
+            if(next->kind == '}') {
+                node = new_node(AST_COMP_STMT, node, NULL);
+                break;
+            }
+            else if(next->kind == TK_EOF){
+                error(next);
+                assert(0);
+            }
+            node = new_node(AST_COMP_STMT, node, block_item());
+        }
+        consume_token('}');
+        return node;
+    }
+    else{
+        error(next);
+        assert(0);
+    }
+    return NULL;
+}
+
+Node_t* stmt(){
+    Node_t* node;
+    Token_t* next = read_token(0);
+    if(next->kind == '{'){
+        node = compound_stmt();
+    }
+    else{
+        node = expr_stmt();
+    }
+    return node;
+}
+
+Node_t* expr_stmt(){
+    Node_t* node = expr();
+    Token_t* next = read_token(0);
+    if(next->kind != ';'){
+        error(next);
+        assert(0);
+    }
+    consume_token(';');
+    return node;
+}
+
+Node_t* expr(){
+    Node_t* node = assign_expr();
+    Token_t* next = read_token(0);
+    while(next->kind == ','){
+        consume_token(',');
+        node = new_node(AST_EXPR, node, assign_expr());
+        next = read_token(0);
+    }
+    return node;
+}
+
+Node_t* block_item(){
+    //Node_t* node = declaration();
+    Node_t* node = stmt();
     return node;
 }
 
@@ -202,10 +282,19 @@ Node_t* declaration(){
 }
 
 Node_t* declarator(){
+    Node_t* node;
     Token_t* next = read_token(0);
     if(next->kind == TK_ID){
         consume_token(TK_ID);
-        return new_node_ID(next->name);
+        node = new_node_ID(next->name);
+        next = read_token(0);
+        if(next->kind == '('){
+            consume_token('(');
+            next = read_token(0);
+            if(next->kind != ')') node = new_node(AST_DEC, node, para_list());
+            consume_token(')');
+        }
+        return node;
     }
     //else if(next->kind == '('){
     //    consume_token('(');
@@ -216,6 +305,17 @@ Node_t* declarator(){
         assert(0);
     }
     return NULL;
+}
+
+Node_t* para_list(){
+    Node_t* node = declarator();
+    Token_t* next = read_token(0);
+    while(next->kind == ','){
+        consume_token(',');
+        node = new_node(AST_PARA_LIST, node, declarator());
+        next = read_token(0);
+    }
+    return node;
 }
 
 void dump_node(Node_t* node, int num){

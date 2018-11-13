@@ -63,7 +63,7 @@ runtest_print "add(5,8,20);" 33 "test.o"
 runtest_print "a = 5; b = 8; c = a*b; add(a,b,c);" 53 "test.o"
 runtest_print "a = 5; b = 8; c = a*b; add(a*b,b,c);" 88 "test.o"
 
-#runtest_return "main(){3;}" 3
+runtest_return "main(){3;}" 3
 
 echo 'Success!!'
 
