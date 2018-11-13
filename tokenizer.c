@@ -22,6 +22,8 @@ char *token_name[] = {
     [')'] = ")",
     [';'] = ";",
     [','] = ",",
+    ['{'] = "{",
+    ['}'] = "}",
     ['='] = "="
 };
 
@@ -88,6 +90,12 @@ void tokenize(char* p){
         else if(*p == ','){
             tokens[idx++].kind = ',';
         }
+        else if(*p == '{'){
+            tokens[idx++].kind = '{';
+        }
+        else if(*p == '}'){
+            tokens[idx++].kind = '}';
+        }
         else{
             tokens[idx].kind = TK_ID;
             int num = 0;
@@ -105,6 +113,8 @@ void tokenize(char* p){
                     case '=':
                     case '!':
                     case ',':
+                    case '{':
+                    case '}':
                     case ';': out = 1; break;
                 }
                 if(out) break;

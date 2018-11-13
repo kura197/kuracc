@@ -18,7 +18,7 @@ runtest_return() {
 runtest_print() {
     ./mycc "$1" > tmp.s
 
-    gcc -o tmp tmp.s $3
+    gcc -o tmp tmp.s ./test/$3
     ./tmp
     out=`./tmp`
 
@@ -62,6 +62,8 @@ runtest_print "a = 10; print(a/2*5);" 25 "test.o"
 runtest_print "add(5,8,20);" 33 "test.o"
 runtest_print "a = 5; b = 8; c = a*b; add(a,b,c);" 53 "test.o"
 runtest_print "a = 5; b = 8; c = a*b; add(a*b,b,c);" 88 "test.o"
+
+#runtest_return "main(){3;}" 3
 
 echo 'Success!!'
 

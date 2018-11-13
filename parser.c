@@ -189,17 +189,22 @@ Node_t* arg_expr_list(){
     return node;
 }
 
+Node_t* parse(){
+    Node_t* node = assign_expr();   
+    return node;
+}
+
 void dump_node(Node_t* node, int num){
     if(node->lhs != NULL){
         dump_node(node->lhs, num+1);
     }
 
     if(node->op == AST_INT)
-        printf("%3d : %s(%d)\n", num, ast_name[node->op], node->val);
+        printf("%d : %s(%d)\n", num, ast_name[node->op], node->val);
     else if(node->op == AST_ID)
-        printf("%3d : %s(%s)\n", num, ast_name[node->op], node->name);
+        printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else
-        printf("%3d : %s\n", num, ast_name[node->op]);
+        printf("%d : %s\n", num, ast_name[node->op]);
 
     if(node->rhs != NULL){
         dump_node(node->rhs, num+1);

@@ -34,6 +34,7 @@ Node_t* equ_expr();
 Node_t* assign_expr();
 Node_t* postfix_expr();
 Node_t* arg_expr_list();
+Node_t* parse();
 
 extern Map_t* var;
 extern char *ast_name[];

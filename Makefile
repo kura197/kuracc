@@ -10,6 +10,8 @@ HEADER = tokenizer.h \
 		 parser.h \
 		 codegen.h
 
+.PHONY: test
+
 $(OUTPUT): $(OBJS)
 	cc -o $@ $^
 
