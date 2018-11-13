@@ -194,6 +194,30 @@ Node_t* parse(){
     return node;
 }
 
+Node_t* declaration(){
+    //Node_t* node = type_specifier();
+    //node = new_node(AST_DEC, node, declarator());
+    Node_t* node = declarator();
+    return node;
+}
+
+Node_t* declarator(){
+    Token_t* next = read_token(0);
+    if(next->kind == TK_ID){
+        consume_token(TK_ID);
+        return new_node_ID(next->name);
+    }
+    //else if(next->kind == '('){
+    //    consume_token('(');
+    //    Node_t* node = declarator();
+    //}
+    else{
+        error(next);
+        assert(0);
+    }
+    return NULL;
+}
+
 void dump_node(Node_t* node, int num){
     if(node->lhs != NULL){
         dump_node(node->lhs, num+1);
