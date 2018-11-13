@@ -63,22 +63,10 @@ int main(int argc, char* argv[]){
     }
 
     printf(".global main\n");
-    printf("main:\n");
-    printf("  pushq %%rbp\n");
-    printf("  movq %%rsp, %%rbp\n");
-    if(var != NULL && (int)map_size(var) != 0){
-        printf("  subq $%d, %%rsp\n", 8*(1+(int)map_size(var)));
-        rsp_allign += 8*(1+(int)map_size(var));
-    }
 
     for(int i = 0; i < vector_size(vec); i++){
         codegen((Node_t*)vector_get(vec, i));
-        printf("  pop %%rax\n");
     }
-    printf("  movq %%rbp, %%rsp\n");
-    printf("  pop %%rbp\n");
-    printf("  ret\n");
-
     return 0;
 }
 

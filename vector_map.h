@@ -22,8 +22,8 @@ size_t vector_size(Vector_t *vec);
 void vector_pop(Vector_t *vec);
 
 Map_t* map_new();
-void map_push(Map_t* map, char* key, int val);
-int* map_search(Map_t* map, char* key);
+void map_push(Map_t* map, char* key, void* val);
+void* map_search(Map_t* map, char* key);
 size_t map_size(Map_t* map);
 void map_pop(Map_t* map);
 

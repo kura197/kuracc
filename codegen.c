@@ -3,6 +3,7 @@
 #include "codegen.h"
 
 int rsp_allign;
+Map_t* var;
 
 void codegen(Node_t* node){
     if(node == NULL){
@@ -82,7 +83,7 @@ void codegen(Node_t* node){
             break;
 
         case AST_ID:
-            printf("  movl -%d(%%rbp), %%eax\n", *map_search(var, node->name));
+            printf("  movl -%d(%%rbp), %%eax\n", *(int*)map_search(var, node->name));
             printf("  pushq %%rax\n");
             rsp_allign += 4;
             break;
@@ -100,14 +101,46 @@ void codegen(Node_t* node){
                 else if(arg == 4) printf("  pop %%r8\n");
                 else if(arg == 5) printf("  pop %%r9\n");
             }
-            int rem = 16 - rsp_allign % 16;
+            rsp_allign -= 4*num_arg;
+            int rem = 16 - (rsp_allign % 16);
             if(rem > 0) printf("  subq $%d, %%rsp\n", rem);
             printf("  call %s\n", node->lhs->name);
             if(rem > 0) printf("  addq $%d, %%rsp\n", rem);
             break;
 
         case AST_FUNC:
+            printf("\n%s:\n", node->name);
+            printf("  pushq %%rbp\n");
+            printf("  movq %%rsp, %%rbp\n");
+
+            var = node->var;
+            rsp_allign = 4;
+            if(node->num_var > 0){
+                printf("  subq $%d, %%rsp\n", 8*(1+node->num_var));
+                rsp_allign += 8*(1+node->num_arg);
+            }
+            for(int arg = 0; arg < node->num_arg; arg++){
+                //max:6
+                if(arg == 0)
+                    printf("  movq %%rdi, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                else if(arg == 1)
+                    printf("  movq %%rsi, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                else if(arg == 2)
+                    printf("  movq %%rdx, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                else if(arg == 3)
+                    printf("  movq %%rcx, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                else if(arg == 4)
+                    printf("  movq %%r8, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                else if(arg == 5)
+                    printf("  movq %%r9, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+            }
+
             codegen(node->rhs);
+            printf("  pop %%rax\n");
+
+            printf("  movq %%rbp, %%rsp\n");
+            printf("  pop %%rbp\n");
+            printf("  ret\n");
             break;
 
         case AST_COMP_STMT:
@@ -119,7 +152,7 @@ void codegen(Node_t* node){
 
 void codegen_lval(Node_t* node){
     if(node->op == TK_ID){
-        printf("  leaq -%d(%%rbp), %%rax\n", *map_search(var, node->name));
+        printf("  leaq -%d(%%rbp), %%rax\n", *(int*)map_search(var, node->name));
         printf("  pushq  %%rax\n");
         rsp_allign += 4;
     }

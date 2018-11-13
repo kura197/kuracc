@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 Map_t* var;
+int num_var;
 
 char *ast_name[] = {
     "AST_INT",
@@ -98,9 +99,10 @@ Node_t* primary_expr(){
     }
     else if(next->kind == TK_ID){
         consume_token(TK_ID);
-        if(var == NULL) var = map_new();
-        if(map_search(var, next->name) == NULL){
-            map_push(var, next->name, 8*(1+map_size(var)));
+        if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
+            int* loc = (int*)malloc(sizeof(int));
+            *loc = 8*(1+num_var++);
+            map_push(var, next->name, loc);
         }
         return new_node_ID(next->name);
     }
@@ -157,7 +159,6 @@ Node_t* postfix_expr(){
     while(1){
         if(next->kind == '('){
             consume_token('(');
-            map_pop(var);
             next = read_token(0);
             if(next->kind != ')'){
                 node = new_node(AST_POST_FIX, node, arg_expr_list());
@@ -197,7 +198,43 @@ Node_t* translation_unit(){
 
 Node_t* function_definition(){
     Node_t* node = declarator();
+    Node_t* tmp = node;
+    while(tmp->op != AST_ID){
+        tmp = tmp->lhs;
+    }
+    char* name = tmp->name;
+    tmp = node;
+
+    num_var = 0;
+    var = map_new();
     node = new_node(AST_FUNC, node, compound_stmt());
+    node->num_var = num_var;
+    node->var = var;
+    node->name = name;
+
+    node->num_arg = 0;
+    if(tmp->rhs != NULL){
+        tmp = tmp->rhs;
+        if(tmp->op == AST_ID){
+            node->num_arg = 1;
+            node->arg_name[0] = tmp->name;
+        }
+        else if(tmp->op == AST_ARG_LIST){
+            while(1){
+                if(tmp->rhs != NULL && tmp->rhs->op == AST_ID) {
+                    node->arg_name[node->num_arg++] = tmp->rhs->name;
+                }
+                if(tmp->lhs != NULL && tmp->lhs->op == AST_ID){
+                    node->arg_name[node->num_arg++] = tmp->rhs->name;
+                    break;
+                }
+                if(tmp->lhs != NULL){
+                    tmp = tmp->lhs;
+                }
+                else assert(0);
+            }
+        }
+    }
     return node;
 }
 

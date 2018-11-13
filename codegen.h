@@ -8,7 +8,4 @@ void codegen_lval(Node_t *node);
 int codegen_arg(Node_t* node, int num);
 void codegen_comp_stmt(Node_t* node);
 
-
-extern int rsp_allign;
-
 #endif

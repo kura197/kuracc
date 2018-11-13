@@ -8,10 +8,16 @@ typedef struct Node{
     int op;
     struct Node *lhs;
     struct Node *rhs;
-    //op == TK_INT
+    //op == AST_INT
     int val; 
-    //op == TK_ID
+    //op == AST_ID
     char *name;
+    //op == AST_FUNC
+    int num_arg;
+    int num_var;
+    Map_t* var;
+    //char** arg_name;
+    char* arg_name[6];
 }Node_t;
 
 enum ast_kind{
@@ -50,7 +56,7 @@ Node_t* stmt();
 Node_t* expr_stmt();
 Node_t* expr();
 
-extern Map_t* var;
+//extern Map_t* var;
 extern char *ast_name[];
 
 #endif

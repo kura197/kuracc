@@ -42,17 +42,15 @@ Map_t* map_new(){
     return map;
 }
 
-void map_push(Map_t* map, char* key, int val){
+void map_push(Map_t* map, char* key, void* val){
     vector_push(map->key, (char*)key);
-    int* v = (int*)malloc(sizeof(int));
-    *v = val;
-    vector_push(map->val, v);
+    vector_push(map->val, val);
 }
 
-int* map_search(Map_t* map, char* key){
+void* map_search(Map_t* map, char* key){
     for(int i = vector_size(map->key)-1; i >= 0; i--){
         if(!strcmp(vector_get(map->key, i), key))
-            return (int*)vector_get(map->val, i);
+            return vector_get(map->val, i);
     }
     return NULL;
 }
@@ -94,11 +92,21 @@ void test_vector(){
 
 void test_map(){
     Map_t* map = map_new();
-    map_push(map, "John", 5);
-    map_push(map, "Bob", 12);
-    map_push(map, "Alice", 40);
-    map_push(map, "Rob", 23);
-    map_push(map, "Peter", 10);
+
+    int* val[5];
+    for(int i = 0; i < 5; i++){
+        val[i] = (int*)malloc(sizeof(int));
+    }
+    *val[0] = 5;
+    *val[1] = 12;
+    *val[2] = 40;
+    *val[3] = 23;
+    *val[4] = 10;
+    map_push(map, "John", val[0]);
+    map_push(map, "Bob", val[1]);
+    map_push(map, "Alice", val[2]);
+    map_push(map, "Rob", val[3]);
+    map_push(map, "Peter", val[4]);
 
     int* alice = map_search(map, "Alice");
     if(alice == NULL){
