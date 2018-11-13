@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
             printf("\ndump AST\n");
             dump_node(node, 0);
         }
-        consume_token(';');
+        //consume_token(';');
         next = read_token(0);
     }
 

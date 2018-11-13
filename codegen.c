@@ -108,9 +108,11 @@ void codegen(Node_t* node){
 
         case AST_FUNC:
             codegen(node->rhs);
+            break;
 
         case AST_COMP_STMT:
             codegen_comp_stmt(node);
+            break;
     }
 }
 
@@ -145,5 +147,15 @@ int codegen_arg(Node_t* node, int num){
 }
 
 void codegen_comp_stmt(Node_t* node){
-    ;    
+    if(node->op != AST_COMP_STMT){
+        codegen(node);
+    }
+    else{
+        if(node->lhs != NULL){
+            codegen_comp_stmt(node->lhs);
+        }
+        if(node->rhs != NULL){
+            codegen_comp_stmt(node->rhs);
+        }
+    }
 }
