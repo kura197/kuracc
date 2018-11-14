@@ -106,6 +106,7 @@ void codegen(Node_t* node){
             if(rem > 0) printf("  subq $%d, %%rsp\n", rem);
             printf("  call %s\n", node->lhs->name);
             if(rem > 0) printf("  addq $%d, %%rsp\n", rem);
+            printf("  pushq %%rax\n");
             break;
 
         case AST_FUNC:
@@ -119,6 +120,7 @@ void codegen(Node_t* node){
                 printf("  subq $%d, %%rsp\n", 8*(1+node->num_var));
                 rsp_allign += 8*(1+node->num_arg);
             }
+            //printf("num_arg:%d\n", node->num_arg);
             for(int arg = 0; arg < node->num_arg; arg++){
                 //max:6
                 if(arg == 0)

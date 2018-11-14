@@ -219,18 +219,20 @@ Node_t* function_definition(){
             node->num_arg = 1;
             node->arg_name[0] = tmp->name;
         }
-        else if(tmp->op == AST_ARG_LIST){
+        else if(tmp->op == AST_PARA_LIST){
             while(1){
+                int end = 0;
+                if(tmp->lhs != NULL && tmp->lhs->op == AST_ID){
+                    node->arg_name[node->num_arg++] = tmp->lhs->name;
+                    end = 1;
+                }
                 if(tmp->rhs != NULL && tmp->rhs->op == AST_ID) {
                     node->arg_name[node->num_arg++] = tmp->rhs->name;
                 }
-                if(tmp->lhs != NULL && tmp->lhs->op == AST_ID){
-                    node->arg_name[node->num_arg++] = tmp->rhs->name;
-                    break;
-                }
-                if(tmp->lhs != NULL){
+                if(tmp->lhs != NULL && tmp->lhs->op != AST_ID){
                     tmp = tmp->lhs;
                 }
+                else if(end) break;
                 else assert(0);
             }
         }

@@ -64,7 +64,10 @@ runtest_print "main(){a = 5; b = 8; c = a*b; add(a,b,c);}" 53 "test.o"
 runtest_print "main(){a = 5; b = 8; c = a*b; add(a*b,b,c);}" 88 "test.o"
 
 runtest_return "foo(a){a;} main(){foo(5);}" 5
-runtest_return "main(a,b){c=a+b; c;}" 5
+runtest_return "add(c,d){c+d;} main(){add(2,3);}" 5
+runtest_return "add(a,b){a+b;} main(){a=5;b=10;add(a,b);}" 15
+runtest_return "add(a,b){a+b;} main(){a=5;b=10;add(3,2);}" 5
+runtest_return "add(a,b){a+b;} main(){a=5;b=10;c=50;d=100;add(add(a,b),add(c,d));}" 165
 
 echo 'Success!!'
 
