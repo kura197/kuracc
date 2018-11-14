@@ -189,6 +189,18 @@ void codegen(Node_t* node){
             break;
 
         case AST_FOR:
+            tmp_num_jmp = num_jmp;
+            num_jmp++;
+            if(node->lfor != NULL) codegen(node->lfor);
+            printf("  jmp .L%dmid\n", tmp_num_jmp);
+            printf(".L%dright:\n", tmp_num_jmp);
+            if(node->rfor != NULL) codegen(node->rfor);
+            codegen(node->lhs);
+            printf(".L%dmid:\n", tmp_num_jmp);
+            if(node->mfor != NULL) codegen(node->mfor);
+            printf("  pop %%rax\n");
+            printf("  cmp $0, %%rax\n");
+            printf("  jne .L%dright\n", tmp_num_jmp);
             break;
 
         default:

@@ -72,6 +72,9 @@ runtest_return "main(){a=0; while(a != 3){a = a+1;} a;}" 3
 runtest_return "main(){a=1; if(a == 3){a = a+1;} if(a == 1){a = a*10;} a;}" 10
 runtest_return "main(){a=1; if(a == 3){a = a+1;}else{a = a*10;} a;}" 10
 runtest_return "main(){a=1; if(a == 3){a = a+1;}else if(a == 1){a = a*10;}else{a = 0;} a;}" 10
+runtest_return "main(){a=0; for(a=0; a!=3; a=a+1){1;} a;}" 3
+runtest_return "main(){a=0; b=1; for(a=0; a!=3; a=a+1){b = b*2;} b;}" 8
+runtest_return "main(){a=0; b=1; for(;a!=3; a=a+1){b = b*2;} b;}" 8
 
 echo 'Success!!'
 
