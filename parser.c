@@ -17,6 +17,11 @@ char *ast_name[] = {
     "AST_COMP_STMT",
     "AST_DEC",
     "AST_EXPR",
+    "AST_WHILE",
+    "AST_IF",
+    "AST_ELSE",
+    "AST_DO",
+    "AST_FOR",
     "AST_PARA_LIST",
     ['+'] = "+",
     ['-'] = "-",
@@ -279,8 +284,85 @@ Node_t* stmt(){
     if(next->kind == '{'){
         node = compound_stmt();
     }
+    else if(next->kind == TK_WHILE || next->kind == TK_DO || next->kind == TK_FOR){
+        node = iter_stmt();
+    }
+    else if(next->kind == TK_IF || next->kind == TK_SWITCH){
+        node = sel_stmt();
+    }
     else{
         node = expr_stmt();
+    }
+    return node;
+}
+
+Node_t* sel_stmt(){
+    Node_t* node;
+    Token_t* next = read_token(0);
+    if(next->kind == TK_IF){
+        consume_token(TK_IF);
+        consume_token('(');
+        Node_t* lhs = expr();
+        consume_token(')');
+        Node_t* rhs = stmt();
+        node = new_node(AST_IF, lhs, rhs);
+        next = read_token(0);
+        if(next->kind == TK_ELSE){
+            consume_token(TK_ELSE);
+            node->else_stmt = stmt();
+        }
+    }
+    else if(next->kind == TK_SWITCH){
+        printf("not yet implemented\n");
+        assert(0);
+    }
+    else{
+        error(next);
+        assert(0);
+    }
+    return node;
+}
+
+Node_t* iter_stmt(){
+    Node_t* node;
+    Token_t* next = read_token(0);
+    if(next->kind == TK_WHILE){
+        consume_token(TK_WHILE);
+        consume_token('(');
+        Node_t* lhs = expr();
+        consume_token(')');
+        Node_t* rhs = stmt();
+        node = new_node(AST_WHILE, lhs, rhs);
+    }
+    else if(next->kind == TK_FOR){
+        consume_token(TK_FOR);
+        consume_token('(');
+        Node_t* tmp[3];
+        for(int i = 0; i < 2; i++){
+            next = read_token(0);
+            if(next->kind == ';')
+                consume_token(';');
+            else{
+                tmp[i] = expr();
+                consume_token(';');
+            }
+        }
+        next = read_token(0);
+        if(next->kind != ')')
+            tmp[2] = expr();
+        consume_token(')');
+        node = new_node(AST_FOR, stmt(), NULL);
+        node->lfor = tmp[0];
+        node->mfor = tmp[1];
+        node->rfor = tmp[2];
+    }
+    else if(next->kind == TK_DO){
+        printf("not yet implemented\n");
+        assert(0);
+    }
+    else{
+        error(next);
+        assert(0);
     }
     return node;
 }

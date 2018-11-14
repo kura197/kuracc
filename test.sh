@@ -68,6 +68,10 @@ runtest_return "add(c,d){c+d;} main(){add(2,3);}" 5
 runtest_return "add(a,b){a+b;} main(){a=5;b=10;add(a,b);}" 15
 runtest_return "add(a,b){a+b;} main(){a=5;b=10;add(3,2);}" 5
 runtest_return "add(a,b){a+b;} main(){a=5;b=10;c=50;d=100;add(add(a,b),add(c,d));}" 165
+runtest_return "main(){a=0; while(a != 3){a = a+1;} a;}" 3
+runtest_return "main(){a=1; if(a == 3){a = a+1;} if(a == 1){a = a*10;} a;}" 10
+runtest_return "main(){a=1; if(a == 3){a = a+1;}else{a = a*10;} a;}" 10
+runtest_return "main(){a=1; if(a == 3){a = a+1;}else if(a == 1){a = a*10;}else{a = 0;} a;}" 10
 
 echo 'Success!!'
 

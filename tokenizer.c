@@ -13,6 +13,12 @@ char *token_name[] = {
     "TK_EQ",
     "TK_NEQ",
     "TK_ID",
+    "TK_IF",
+    "TK_ELSE",
+    "TK_WHILE",
+    "TK_FOR",
+    "TK_DO",
+    "TK_SWITCH",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -97,7 +103,6 @@ void tokenize(char* p){
             tokens[idx++].kind = '}';
         }
         else{
-            tokens[idx].kind = TK_ID;
             int num = 0;
             while(1){
                 p++;
@@ -120,11 +125,34 @@ void tokenize(char* p){
                 if(out) break;
                 else num++;
             }
+            char tmp[64];
             p--;
-            tokens[idx].name = (char*)malloc((num+1)*sizeof(char));
-            strncpy(tokens[idx].name, p-num, num+1);
-            tokens[idx].name[num+1] = '\0';
-            idx++;
+            strncpy(tmp, p-num, num+1);
+            tmp[num+1] = '\0';
+            if(!strcmp(tmp, "if")){
+                tokens[idx++].kind = TK_IF;
+            }
+            else if(!strcmp(tmp, "else")){
+                tokens[idx++].kind = TK_ELSE;
+            }
+            else if(!strcmp(tmp, "while")){
+                tokens[idx++].kind = TK_WHILE;
+            }
+            else if(!strcmp(tmp, "for")){
+                tokens[idx++].kind = TK_FOR;
+            }
+            else if(!strcmp(tmp, "do")){
+                tokens[idx++].kind = TK_DO;
+            }
+            else if(!strcmp(tmp, "switch")){
+                tokens[idx++].kind = TK_SWITCH;
+            }
+            else{
+                tokens[idx].kind = TK_ID;
+                tokens[idx].name = (char*)malloc((num+1)*sizeof(char));
+                strcpy(tokens[idx].name, tmp);
+                idx++;
+            }
         }
         p++;
     }

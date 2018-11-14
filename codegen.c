@@ -4,6 +4,7 @@
 
 int rsp_allign;
 Map_t* var;
+int num_jmp;
 
 void codegen(Node_t* node){
     if(node == NULL){
@@ -11,6 +12,7 @@ void codegen(Node_t* node){
     }
 
     int num_arg;
+    int tmp_num_jmp;
     switch(node->op){
         case AST_INT:
             printf("  movl $%d, %%eax\n", node->val);
@@ -78,8 +80,8 @@ void codegen(Node_t* node){
             rsp_allign -= 8;
             printf("  movl %%ebx, (%%rax)\n");
             //do not need this.
-            printf("  pushq %%rax\n");
-            rsp_allign += 4;
+            //printf("  pushq %%rax\n");
+            //rsp_allign += 4;
             break;
 
         case AST_ID:
@@ -147,6 +149,51 @@ void codegen(Node_t* node){
 
         case AST_COMP_STMT:
             codegen_comp_stmt(node);
+            break;
+
+        case AST_WHILE:
+            tmp_num_jmp = num_jmp;
+            num_jmp++;
+            printf(".L%dbegin:\n", tmp_num_jmp);
+            codegen(node->lhs);
+            printf("  pop %%rax\n");
+            printf("  cmp $0, %%rax\n");
+            printf("  je .L%dend\n", tmp_num_jmp);
+            codegen(node->rhs);
+            printf("  jmp .L%dbegin\n", tmp_num_jmp);
+            printf(".L%dend:\n", tmp_num_jmp);
+            break;
+
+        case AST_IF:
+            tmp_num_jmp = num_jmp;
+            num_jmp++;
+            if(node->else_stmt == NULL){
+                codegen(node->lhs);
+                printf("  pop %%rax\n");
+                printf("  cmp $0, %%rax\n");
+                printf("  je .L%dend\n", tmp_num_jmp);
+                codegen(node->rhs);
+                printf(".L%dend:\n", tmp_num_jmp);
+            }
+            else{
+                codegen(node->lhs);
+                printf("  pop %%rax\n");
+                printf("  cmp $0, %%rax\n");
+                printf("  je .L%dlatt\n", tmp_num_jmp);
+                codegen(node->rhs);
+                printf("  jmp .L%dend\n", tmp_num_jmp);
+                printf(".L%dlatt:\n", tmp_num_jmp);
+                codegen(node->else_stmt);
+                printf(".L%dend:\n", tmp_num_jmp);
+            }
+            break;
+
+        case AST_FOR:
+            break;
+
+        default:
+            printf("node : %s\n", ast_name[node->op]);
+            assert(0);
             break;
     }
 }

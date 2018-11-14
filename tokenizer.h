@@ -10,11 +10,17 @@ typedef struct Token{
 }Token_t;
 
 enum token_kind{
-    TK_INT = 0,  
-    TK_EQ = 1,
-    TK_NEQ = 2,
-    TK_ID = 3,
-    TK_EOF = 4,
+    TK_INT,  
+    TK_EQ,
+    TK_NEQ,
+    TK_ID,
+    TK_IF,
+    TK_ELSE,
+    TK_WHILE,
+    TK_FOR,
+    TK_DO,
+    TK_SWITCH,
+    TK_EOF,
 };
 
 void tokenize(char *p);

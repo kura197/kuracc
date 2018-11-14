@@ -8,16 +8,28 @@ typedef struct Node{
     int op;
     struct Node *lhs;
     struct Node *rhs;
+
     //op == AST_INT
     int val; 
+
     //op == AST_ID
     char *name;
+
     //op == AST_FUNC
     int num_arg;
     int num_var;
     Map_t* var;
+
     //char** arg_name;
     char* arg_name[6];
+
+    //for
+    struct Node* lfor;
+    struct Node* mfor;
+    struct Node* rfor;
+
+    //if
+    struct Node* else_stmt;
 }Node_t;
 
 enum ast_kind{
@@ -31,6 +43,11 @@ enum ast_kind{
     AST_COMP_STMT,
     AST_DEC,
     AST_EXPR,
+    AST_WHILE,
+    AST_IF,
+    AST_ELSE,
+    AST_DO,
+    AST_FOR,
     AST_PARA_LIST
 };
 
@@ -49,10 +66,12 @@ Node_t* translation_unit();
 Node_t* declarator();
 Node_t* declaration();
 Node_t* function_definition();
-Node_t* compound_stmt();
 Node_t* block_item();
 Node_t* para_list();
 Node_t* stmt();
+Node_t* compound_stmt();
+Node_t* sel_stmt();
+Node_t* iter_stmt();
 Node_t* expr_stmt();
 Node_t* expr();
 
