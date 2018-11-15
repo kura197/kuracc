@@ -63,9 +63,9 @@ void codegen(Node_t* node){
             printf("  popq %%rax\n");
             rsp_allign -= 8;
             printf("  cmpl %%eax, %%ebx\n");
-            if(node->op == TK_EQ)   
+            if(node->op == AST_EQ)   
                 printf("  sete %%al\n");
-            if(node->op == TK_NEQ)   
+            if(node->op == AST_NEQ)   
                 printf("  setne %%al\n");
             printf("  movzbl %%al, %%eax\n");
             printf("  pushq %%rax\n");
@@ -212,7 +212,7 @@ void codegen(Node_t* node){
 
 
 void codegen_lval(Node_t* node){
-    if(node->op == TK_ID){
+    if(node->op == AST_ID){
         printf("  leaq -%d(%%rbp), %%rax\n", *(int*)map_search(var, node->name));
         printf("  pushq  %%rax\n");
         rsp_allign += 4;

@@ -3,10 +3,15 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include "tokenizer.h"
 #include "vector_map.h"
 #include "parser.h"
 #include "codegen.h"
+
+char *map_file(char *filename);
 
 int main(int argc, char* argv[]){
     if(argc == 1){
@@ -14,7 +19,9 @@ int main(int argc, char* argv[]){
         return -1;
     }
 
-    char* p = argv[1];
+    //char* p = argv[1];
+    char* p = map_file(argv[1]);
+
     int opt;
     int dump_tk = 0;
     int dump_ast = 0;
@@ -70,3 +77,16 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
+char *map_file(char *filename){
+    struct stat sbuf;
+    char* ptr;
+    int fd;
+    if((fd = open(filename, O_RDWR)) < 0){
+        printf("File open error.\n");
+        assert(0);
+    }
+    fstat(fd, &sbuf);
+    ptr = mmap(NULL, sbuf.st_size+1, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+    ptr[sbuf.st_size] = '\0';
+    return ptr;
+}

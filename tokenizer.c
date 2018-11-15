@@ -10,6 +10,7 @@ int num_tokens;
 //for debug purpose
 char *token_name[] = {
     "TK_INT",
+    "TK_KW_INT",
     "TK_EQ",
     "TK_NEQ",
     "TK_ID",
@@ -53,6 +54,9 @@ void tokenize(char* p){
             tokens[idx++].kind = TK_INT;
         }
         else if(*p == ' '){
+            ;
+        }
+        else if(*p == '\n'){
             ;
         }
         else if(*p == '+'){
@@ -146,6 +150,9 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "switch")){
                 tokens[idx++].kind = TK_SWITCH;
+            }
+            else if(!strcmp(tmp, "int")){
+                tokens[idx++].kind = TK_KW_INT;
             }
             else{
                 tokens[idx].kind = TK_ID;
