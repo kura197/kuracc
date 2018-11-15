@@ -4,6 +4,10 @@
 #include "tokenizer.h"
 #include "vector_map.h"
 
+typedef struct Para{
+    Vector_t* decl;
+}Para_t;
+
 typedef struct Node{
     int op;
     struct Node *lhs;
@@ -21,8 +25,9 @@ typedef struct Node{
     Map_t* var;
 
     //char** arg_name;
-    int arg_type[6];
-    char* arg_name[6];
+    //int arg_type[6];
+    //char* arg_name[6];
+    Para_t* args;
 
     //for
     struct Node* lfor;
@@ -78,7 +83,6 @@ Node_t* declarator();
 Node_t* declaration();
 Node_t* function_definition();
 Node_t* block_item();
-Node_t* para_list();
 Node_t* stmt();
 Node_t* compound_stmt();
 Node_t* sel_stmt();
@@ -86,9 +90,11 @@ Node_t* iter_stmt();
 Node_t* expr_stmt();
 Node_t* expr();
 int type_specifier();
+Para_t* get_paras();
 Node_t* para_declaration();
+Node_t* new_node_DEC(char* name);
 
-//extern Map_t* var;
+
 extern char *ast_name[];
 
 #endif

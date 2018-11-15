@@ -53,8 +53,16 @@ Node_t* new_node_ID(char* ID){
     return node;
 }
 
+Node_t* new_node_DEC(char* name){
+    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    node->op = AST_DEC;
+    node->name = name;
+    return node;
+}
+
 void error(Token_t* tk){
     fprintf(stderr, "read token : %s\n", token_name[tk->kind]);
+    assert(0);
 }
 
 Node_t* add_expr(){
@@ -207,46 +215,18 @@ Node_t* function_definition(){
     var = map_new();
     int type = type_specifier();
     Node_t* node = declarator();
-    Node_t* tmp = node;
-    while(tmp->op != AST_ID){
-        tmp = tmp->lhs;
-    }
-    char* name = tmp->name;
-    tmp = node;
+    char* name = node->name;
+    Para_t* args = node->args;
+    int num_arg = node->num_arg;
 
     node = new_node(AST_FUNC, node, compound_stmt());
     node->num_var = num_var;
     node->var = var;
     node->name = name;
     node->type = type;
+    node->args = args;
+    node->num_arg = num_arg;
 
-    node->num_arg = 0;
-    if(tmp->rhs != NULL){
-        tmp = tmp->rhs;
-        if(tmp->op == AST_ID){
-            node->num_arg = 1;
-            node->arg_name[0] = tmp->name;
-        }
-        else if(tmp->op == AST_PARA_LIST){
-            while(1){
-                int end = 0;
-                if(tmp->lhs != NULL && tmp->lhs->op == AST_ID){
-                    node->arg_type[node->num_arg] = tmp->lhs->type;
-                    node->arg_name[node->num_arg++] = tmp->lhs->name;
-                    end = 1;
-                }
-                if(tmp->rhs != NULL && tmp->rhs->op == AST_ID) {
-                    node->arg_type[node->num_arg] = tmp->rhs->type;
-                    node->arg_name[node->num_arg++] = tmp->rhs->name;
-                }
-                if(tmp->lhs != NULL && tmp->lhs->op != AST_ID){
-                    tmp = tmp->lhs;
-                }
-                else if(end) break;
-                else assert(0);
-            }
-        }
-    }
     return node;
 }
 
@@ -418,18 +398,21 @@ Node_t* declarator(){
     Node_t* node;
     Token_t* next = read_token(0);
     if(next->kind == TK_ID){
+        consume_token(TK_ID);
         if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
             int* loc = (int*)malloc(sizeof(int));
             *loc = 8*(1+num_var++);
             map_push(var, next->name, loc);
         }
-        consume_token(TK_ID);
-        node = new_node_ID(next->name);
+        node = new_node_DEC(next->name);
         next = read_token(0);
         if(next->kind == '('){
             consume_token('(');
             next = read_token(0);
-            if(next->kind != ')') node = new_node(AST_DEC, node, para_list());
+            if(next->kind != ')') {
+                node->args = get_paras();
+                node->num_arg = (int)vector_size(node->args->decl);
+            }
             consume_token(')');
         }
         return node;
@@ -459,15 +442,19 @@ int type_specifier(){
     return type;
 }
 
-Node_t* para_list(){
+Para_t* get_paras(){
+    Para_t* paras = (Para_t*)malloc(sizeof(Para_t));
+    paras->decl = vector_new();
     Node_t* node = para_declaration();
+    vector_push(paras->decl, (Node_t*)node);
     Token_t* next = read_token(0);
     while(next->kind == ','){
         consume_token(',');
-        node = new_node(AST_PARA_LIST, node, para_declaration());
+        node = para_declaration();
+        vector_push(paras->decl, (Node_t*)node);
         next = read_token(0);
     }
-    return node;
+    return paras;
 }
 
 Node_t* para_declaration(){
@@ -485,6 +472,8 @@ void dump_node(Node_t* node, int num){
     if(node->op == AST_INT)
         printf("%d : %s(%d)\n", num, ast_name[node->op], node->val);
     else if(node->op == AST_ID)
+        printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
+    else if(node->op == AST_DEC)
         printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else
         printf("%d : %s\n", num, ast_name[node->op]);

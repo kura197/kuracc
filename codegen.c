@@ -104,7 +104,8 @@ void codegen(Node_t* node){
                 else if(arg == 5) printf("  pop %%r9\n");
             }
             rsp_allign -= 4*num_arg;
-            int rem = 16 - (rsp_allign % 16);
+            int diff_allign = rsp_allign % 16;
+            int rem = (diff_allign != 0) ? 16 - (diff_allign) : 0;
             if(rem > 0) printf("  subq $%d, %%rsp\n", rem);
             printf("  call %s\n", node->lhs->name);
             if(rem > 0) printf("  addq $%d, %%rsp\n", rem);
@@ -120,23 +121,24 @@ void codegen(Node_t* node){
             rsp_allign = 4;
             if(node->num_var > 0){
                 printf("  subq $%d, %%rsp\n", 8*(1+node->num_var));
-                rsp_allign += 8*(1+node->num_arg);
+                rsp_allign += 8*(1+node->num_var);
             }
             //printf("num_arg:%d\n", node->num_arg);
             for(int arg = 0; arg < node->num_arg; arg++){
                 //max:6
+                Node_t* node_arg = (Node_t*)vector_get(node->args->decl, arg);
                 if(arg == 0)
-                    printf("  movq %%rdi, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                    printf("  movq %%rdi, -%d(%%rbp)\n", *(int*)map_search(var, node_arg->name));
                 else if(arg == 1)
-                    printf("  movq %%rsi, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                    printf("  movq %%rsi, -%d(%%rbp)\n", *(int*)map_search(var, node_arg->name));
                 else if(arg == 2)
-                    printf("  movq %%rdx, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                    printf("  movq %%rdx, -%d(%%rbp)\n", *(int*)map_search(var, node_arg->name));
                 else if(arg == 3)
-                    printf("  movq %%rcx, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                    printf("  movq %%rcx, -%d(%%rbp)\n", *(int*)map_search(var, node_arg->name));
                 else if(arg == 4)
-                    printf("  movq %%r8, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                    printf("  movq %%r8, -%d(%%rbp)\n",  *(int*)map_search(var, node_arg->name));
                 else if(arg == 5)
-                    printf("  movq %%r9, -%d(%%rbp)\n", *(int*)map_search(var, node->arg_name[arg]));
+                    printf("  movq %%r9, -%d(%%rbp)\n",  *(int*)map_search(var, node_arg->name));
             }
 
             codegen(node->rhs);
@@ -241,7 +243,7 @@ int codegen_arg(Node_t* node, int num){
 }
 
 void codegen_comp_stmt(Node_t* node){
-    if(node->op != AST_COMP_STMT){
+    if(node->op != AST_COMP_STMT && node->op != AST_DEC){
         codegen(node);
     }
     else{

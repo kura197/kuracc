@@ -1,20 +1,23 @@
 
-add(a,b){
-    int c = a+b;
+int add(int a,int b){
+    int c;
+    c = a+b;
     c;
 }
 
-sub(a,b){
-    int c = a-b;
+int sub(int a,int b){
+    int c;
+    c = a-b;
     c;
 }
 
-mul(a,b){
-    int c = a*b;
+int mul(int a,int b){
+    int c;
+    c = a*b;
     c;
 }
 
-main(){
+int main(){
     int a;
     int b;
     int c;
