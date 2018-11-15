@@ -8,7 +8,8 @@ OUTPUT = mycc
 HEADER = tokenizer.h \
 		 vector_map.h \
 		 parser.h \
-		 codegen.h
+		 codegen.h \
+		 semantic.h
 
 .PHONY: test
 

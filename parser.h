@@ -96,5 +96,6 @@ Node_t* new_node_DEC(char* name);
 
 
 extern char *ast_name[];
+extern Map_t* global_var;
 
 #endif

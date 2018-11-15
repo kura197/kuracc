@@ -4,7 +4,9 @@
 #include <stdio.h>
 
 Map_t* var;
+Map_t* global_var;
 int num_var;
+int global;
 
 char *ast_name[] = {
     "AST_INT",
@@ -204,6 +206,7 @@ Node_t* arg_expr_list(){
 }
 
 Node_t* translation_unit(){
+    global = 1;
     var = map_new();
     num_var = 0;
     Node_t* node = function_definition();   
@@ -219,6 +222,7 @@ Node_t* function_definition(){
     Para_t* args = node->args;
     int num_arg = node->num_arg;
 
+    global = 0;
     node = new_node(AST_FUNC, node, compound_stmt());
     node->num_var = num_var;
     node->var = var;
@@ -227,6 +231,7 @@ Node_t* function_definition(){
     node->args = args;
     node->num_arg = num_arg;
 
+    global = 1;
     return node;
 }
 
@@ -399,6 +404,22 @@ Node_t* declarator(){
     Token_t* next = read_token(0);
     if(next->kind == TK_ID){
         consume_token(TK_ID);
+        //if(global){
+        //    ;
+        //}
+        //else{
+        //    if(read_token(0)->kind != '('){
+        //        if(map_search(var, next->name) == NULL){
+        //            int* loc = (int*)malloc(sizeof(int));
+        //            *loc = 8*(1+num_var++);
+        //            map_push(var, next->name, loc);
+        //        }
+        //        else{
+        //            fprintf(stderr, "redifinition of %s\n", next->name);
+        //            assert(0);
+        //        }
+        //    } 
+        //}
         if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
             int* loc = (int*)malloc(sizeof(int));
             *loc = 8*(1+num_var++);

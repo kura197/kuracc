@@ -10,6 +10,7 @@
 #include "vector_map.h"
 #include "parser.h"
 #include "codegen.h"
+#include "semantic.h"
 
 char *map_file(char *filename);
 
@@ -58,6 +59,7 @@ int main(int argc, char* argv[]){
 
     Vector_t *vec = vector_new();
     Token_t *next = read_token(0);
+    global_var = map_new();
     while(next->kind != TK_EOF){
         Node_t *node = translation_unit();
         vector_push(vec, (Node_t*)node);
@@ -65,9 +67,12 @@ int main(int argc, char* argv[]){
             printf("\ndump AST\n");
             dump_node(node, 0);
         }
-        //consume_token(';');
         next = read_token(0);
     }
+
+    //for(int i = 0; i < (int)vector_size(vec); i++){
+    //    sem_analy(vector_get(vec, i), -1);
+    //}
 
     printf(".global main\n");
 
