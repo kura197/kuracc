@@ -18,7 +18,7 @@ $(OUTPUT): $(OBJS)
 $(OBJS): $(HEADER)
 
 test: $(OUTPUT)
-	./test.sh
+	./run_test.sh
 
 clean:
 	rm $(OUTPUT) *.o

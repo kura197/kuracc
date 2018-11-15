@@ -104,11 +104,10 @@ Node_t* primary_expr(){
     }
     else if(next->kind == TK_ID){
         consume_token(TK_ID);
-        if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
-            int* loc = (int*)malloc(sizeof(int));
-            *loc = 8*(1+num_var++);
-            map_push(var, next->name, loc);
-        }
+        //if(map_search(var, next->name) == NULL){
+        //    fprintf(stderr, "%s was not declarated\n", next->name);
+        //    assert(0);
+        //}
         return new_node_ID(next->name);
     }
     else if(next->kind == '('){
@@ -197,11 +196,16 @@ Node_t* arg_expr_list(){
 }
 
 Node_t* translation_unit(){
+    var = map_new();
+    num_var = 0;
     Node_t* node = function_definition();   
     return node;
 }
 
 Node_t* function_definition(){
+    num_var = 0;
+    var = map_new();
+    int type = type_specifier();
     Node_t* node = declarator();
     Node_t* tmp = node;
     while(tmp->op != AST_ID){
@@ -210,12 +214,11 @@ Node_t* function_definition(){
     char* name = tmp->name;
     tmp = node;
 
-    num_var = 0;
-    var = map_new();
     node = new_node(AST_FUNC, node, compound_stmt());
     node->num_var = num_var;
     node->var = var;
     node->name = name;
+    node->type = type;
 
     node->num_arg = 0;
     if(tmp->rhs != NULL){
@@ -228,10 +231,12 @@ Node_t* function_definition(){
             while(1){
                 int end = 0;
                 if(tmp->lhs != NULL && tmp->lhs->op == AST_ID){
+                    node->arg_type[node->num_arg] = tmp->lhs->type;
                     node->arg_name[node->num_arg++] = tmp->lhs->name;
                     end = 1;
                 }
                 if(tmp->rhs != NULL && tmp->rhs->op == AST_ID) {
+                    node->arg_type[node->num_arg] = tmp->rhs->type;
                     node->arg_name[node->num_arg++] = tmp->rhs->name;
                 }
                 if(tmp->lhs != NULL && tmp->lhs->op != AST_ID){
@@ -390,15 +395,22 @@ Node_t* expr(){
 }
 
 Node_t* block_item(){
-    //Node_t* node = declaration();
-    Node_t* node = stmt();
+    Node_t* node;
+    Token_t* next = read_token(0);
+    if(next->kind == TK_KW_INT){
+        node = declaration();
+    }
+    else{
+        node = stmt();
+    }
     return node;
 }
 
 Node_t* declaration(){
-    //Node_t* node = type_specifier();
-    //node = new_node(AST_DEC, node, declarator());
+    int type = type_specifier();
     Node_t* node = declarator();
+    node->type = type;
+    consume_token(';');
     return node;
 }
 
@@ -406,6 +418,11 @@ Node_t* declarator(){
     Node_t* node;
     Token_t* next = read_token(0);
     if(next->kind == TK_ID){
+        if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
+            int* loc = (int*)malloc(sizeof(int));
+            *loc = 8*(1+num_var++);
+            map_push(var, next->name, loc);
+        }
         consume_token(TK_ID);
         node = new_node_ID(next->name);
         next = read_token(0);
@@ -428,14 +445,35 @@ Node_t* declarator(){
     return NULL;
 }
 
+int type_specifier(){
+    int type = TYPE_UNKNOWN;
+    Token_t* next = read_token(0);
+    if(next->kind == TK_KW_INT){
+        consume_token(TK_KW_INT);
+        type = TYPE_INT;
+    }
+    else{
+        printf("not yet implemented\n");
+        assert(0);
+    }
+    return type;
+}
+
 Node_t* para_list(){
-    Node_t* node = declarator();
+    Node_t* node = para_declaration();
     Token_t* next = read_token(0);
     while(next->kind == ','){
         consume_token(',');
-        node = new_node(AST_PARA_LIST, node, declarator());
+        node = new_node(AST_PARA_LIST, node, para_declaration());
         next = read_token(0);
     }
+    return node;
+}
+
+Node_t* para_declaration(){
+    int type = type_specifier();
+    Node_t* node = declarator();
+    node->type = type;
     return node;
 }
 

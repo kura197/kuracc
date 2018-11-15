@@ -21,6 +21,7 @@ typedef struct Node{
     Map_t* var;
 
     //char** arg_name;
+    int arg_type[6];
     char* arg_name[6];
 
     //for
@@ -30,6 +31,8 @@ typedef struct Node{
 
     //if
     struct Node* else_stmt;
+
+    int type;
 }Node_t;
 
 enum ast_kind{
@@ -49,6 +52,14 @@ enum ast_kind{
     AST_DO,
     AST_FOR,
     AST_PARA_LIST
+};
+
+enum type{
+    TYPE_UNKNOWN,
+    TYPE_VOID,
+    TYPE_CHAR,
+    TYPE_INT,
+    TYPE_LONG
 };
 
 Node_t* new_node(int op, Node_t* lhs, Node_t* rhs);
@@ -74,6 +85,8 @@ Node_t* sel_stmt();
 Node_t* iter_stmt();
 Node_t* expr_stmt();
 Node_t* expr();
+int type_specifier();
+Node_t* para_declaration();
 
 //extern Map_t* var;
 extern char *ast_name[];
