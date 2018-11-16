@@ -1,7 +1,23 @@
 
+int print();
+
+int factor(int x){
+    int y;
+    int z;
+    y = x-1;
+    if(x != 1){
+        z = x*factor(y);
+    }
+    else{
+        z = x;
+    }
+    z;
+}
 
 int main(){
+    int z;
     int a;
     a = 10;
-    print(a);
+    z = factor(a);
+    print(z);
 }

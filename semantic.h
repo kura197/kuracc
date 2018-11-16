@@ -38,4 +38,6 @@ SymTable_t* sym_table_new();
 Symbol_t* sym_new(char* name, int type, struct Node* ast, int name_space, int num_var);
 void sem_analy(struct Node* ast, int level);
 
+extern Map_t* global;
+
 #endif

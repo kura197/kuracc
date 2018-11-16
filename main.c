@@ -59,7 +59,6 @@ int main(int argc, char* argv[]){
 
     Vector_t *vec = vector_new();
     Token_t *next = read_token(0);
-    global_var = map_new();
     while(next->kind != TK_EOF){
         Node_t *node = translation_unit();
         vector_push(vec, (Node_t*)node);
@@ -70,6 +69,7 @@ int main(int argc, char* argv[]){
         next = read_token(0);
     }
 
+    global = map_new();
     for(int i = 0; i < (int)vector_size(vec); i++){
         sem_analy(vector_get(vec, i), -1);
     }

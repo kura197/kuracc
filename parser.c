@@ -3,10 +3,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-//Map_t* var;
-Map_t* global_var;
-//int num_var;
-int global;
 
 char *ast_name[] = {
     "AST_INT",
@@ -24,6 +20,7 @@ char *ast_name[] = {
     "AST_ELSE",
     "AST_DO",
     "AST_FOR",
+    "AST_FUNC_DEC",
     "AST_PARA_LIST",
     ['+'] = "+",
     ['-'] = "-",
@@ -206,32 +203,29 @@ Node_t* arg_expr_list(){
 }
 
 Node_t* translation_unit(){
-    global = 1;
-    //var = map_new();
-    //num_var = 0;
     Node_t* node = function_definition();   
     return node;
 }
 
 Node_t* function_definition(){
-    //num_var = 0;
-    //var = map_new();
     int type = type_specifier();
     Node_t* node = declarator();
     char* name = node->name;
     Vector_t* args = node->args;
     int num_arg = node->num_arg;
 
-    global = 0;
-    node = new_node(AST_FUNC, node, compound_stmt());
-    //node->num_var = num_var;
-    //node->var = var;
-    node->name = name;
-    node->type = type;
-    node->args = args;
-    node->num_arg = num_arg;
+    Token_t* next = read_token(0);
+    if(next->kind == '{'){
+        node = new_node(AST_FUNC, node, compound_stmt());
+        node->name = name;
+        node->type = type;
+        node->args = args;
+        node->num_arg = num_arg;
+    }
+    else if(next->kind == ';'){
+        consume_token(';');
+    }
 
-    global = 1;
     return node;
 }
 
@@ -404,31 +398,11 @@ Node_t* declarator(){
     Token_t* next = read_token(0);
     if(next->kind == TK_ID){
         consume_token(TK_ID);
-        //if(global){
-        //    ;
-        //}
-        //else{
-        //    if(read_token(0)->kind != '('){
-        //        if(map_search(var, next->name) == NULL){
-        //            int* loc = (int*)malloc(sizeof(int));
-        //            *loc = 8*(1+num_var++);
-        //            map_push(var, next->name, loc);
-        //        }
-        //        else{
-        //            fprintf(stderr, "redifinition of %s\n", next->name);
-        //            assert(0);
-        //        }
-        //    } 
-        //}
-        //if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
-        //    int* loc = (int*)malloc(sizeof(int));
-        //    *loc = 8*(1+num_var++);
-        //    map_push(var, next->name, loc);
-        //}
         node = new_node_DEC(next->name);
         next = read_token(0);
         if(next->kind == '('){
             consume_token('(');
+            node->op = AST_FUNC_DEC;
             next = read_token(0);
             if(next->kind != ')') {
                 node->args = get_paras();
@@ -495,6 +469,8 @@ void dump_node(Node_t* node, int num){
     else if(node->op == AST_ID)
         printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else if(node->op == AST_DEC)
+        printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
+    else if(node->op == AST_FUNC_DEC)
         printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else
         printf("%d : %s\n", num, ast_name[node->op]);

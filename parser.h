@@ -55,6 +55,7 @@ enum ast_kind{
     AST_ELSE,
     AST_DO,
     AST_FOR,
+    AST_FUNC_DEC,
     AST_PARA_LIST
 };
 

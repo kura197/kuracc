@@ -212,6 +212,9 @@ void codegen(Node_t* node){
             printf("  jne .L%dright\n", tmp_num_jmp);
             break;
 
+        case AST_FUNC_DEC:
+            break;
+
         default:
             printf("node : %s\n", ast_name[node->op]);
             assert(0);

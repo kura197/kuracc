@@ -1,4 +1,6 @@
 
+int print();
+
 int main(){
     int a;
     a = 1;
