@@ -70,9 +70,9 @@ int main(int argc, char* argv[]){
         next = read_token(0);
     }
 
-    //for(int i = 0; i < (int)vector_size(vec); i++){
-    //    sem_analy(vector_get(vec, i), -1);
-    //}
+    for(int i = 0; i < (int)vector_size(vec); i++){
+        sem_analy(vector_get(vec, i), -1);
+    }
 
     printf(".global main\n");
 

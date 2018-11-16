@@ -6,6 +6,8 @@
 
 #define MAX_BLOCK_DEPTH 128
 
+struct Node;
+
 enum NameSpace{
     NS_GLOBAL,
     NS_LOCAL,
@@ -18,22 +20,22 @@ typedef struct Symbol{
     int type;
     struct Node *ast;
     int name_space;
+    int offset;
 }Symbol_t;
 
 typedef struct SymTable{
-    Vector_t *global;
-    Vector_t *arg;
-    Vector_t *label;
-    Vector_t *string;
+    Map_t *global;
+    Map_t *arg;
+    Map_t *label;
+    Map_t *string;
     int local_index;
-    Vector_t *local[MAX_BLOCK_DEPTH];
+    int num_var;
+    Map_t *local[MAX_BLOCK_DEPTH];
 }SymTable_t;
 
 
 SymTable_t* sym_table_new();
-Symbol_t* sym_new(char* name, int type, Node_t* ast, int name_space);
-void sem_analy(Node_t* ast, int level);
-
-extern SymTable_t* sym_table;
+Symbol_t* sym_new(char* name, int type, struct Node* ast, int name_space, int num_var);
+void sem_analy(struct Node* ast, int level);
 
 #endif

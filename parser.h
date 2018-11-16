@@ -3,10 +3,7 @@
 
 #include "tokenizer.h"
 #include "vector_map.h"
-
-typedef struct Para{
-    Vector_t* decl;
-}Para_t;
+#include "semantic.h"
 
 typedef struct Node{
     int op;
@@ -21,13 +18,13 @@ typedef struct Node{
 
     //op == AST_FUNC
     int num_arg;
-    int num_var;
-    Map_t* var;
+    //int num_var;
+    //Map_t* var;
 
     //char** arg_name;
     //int arg_type[6];
     //char* arg_name[6];
-    Para_t* args;
+    Vector_t* args;
 
     //for
     struct Node* lfor;
@@ -38,6 +35,8 @@ typedef struct Node{
     struct Node* else_stmt;
 
     int type;
+
+    struct SymTable* sym_table;
 }Node_t;
 
 enum ast_kind{
@@ -90,7 +89,7 @@ Node_t* iter_stmt();
 Node_t* expr_stmt();
 Node_t* expr();
 int type_specifier();
-Para_t* get_paras();
+Vector_t* get_paras();
 Node_t* para_declaration();
 Node_t* new_node_DEC(char* name);
 

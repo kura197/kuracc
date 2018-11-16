@@ -3,9 +3,9 @@
 #include <assert.h>
 #include <stdio.h>
 
-Map_t* var;
+//Map_t* var;
 Map_t* global_var;
-int num_var;
+//int num_var;
 int global;
 
 char *ast_name[] = {
@@ -207,25 +207,25 @@ Node_t* arg_expr_list(){
 
 Node_t* translation_unit(){
     global = 1;
-    var = map_new();
-    num_var = 0;
+    //var = map_new();
+    //num_var = 0;
     Node_t* node = function_definition();   
     return node;
 }
 
 Node_t* function_definition(){
-    num_var = 0;
-    var = map_new();
+    //num_var = 0;
+    //var = map_new();
     int type = type_specifier();
     Node_t* node = declarator();
     char* name = node->name;
-    Para_t* args = node->args;
+    Vector_t* args = node->args;
     int num_arg = node->num_arg;
 
     global = 0;
     node = new_node(AST_FUNC, node, compound_stmt());
-    node->num_var = num_var;
-    node->var = var;
+    //node->num_var = num_var;
+    //node->var = var;
     node->name = name;
     node->type = type;
     node->args = args;
@@ -420,11 +420,11 @@ Node_t* declarator(){
         //        }
         //    } 
         //}
-        if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
-            int* loc = (int*)malloc(sizeof(int));
-            *loc = 8*(1+num_var++);
-            map_push(var, next->name, loc);
-        }
+        //if(read_token(0)->kind != '(' && map_search(var, next->name) == NULL){
+        //    int* loc = (int*)malloc(sizeof(int));
+        //    *loc = 8*(1+num_var++);
+        //    map_push(var, next->name, loc);
+        //}
         node = new_node_DEC(next->name);
         next = read_token(0);
         if(next->kind == '('){
@@ -432,7 +432,7 @@ Node_t* declarator(){
             next = read_token(0);
             if(next->kind != ')') {
                 node->args = get_paras();
-                node->num_arg = (int)vector_size(node->args->decl);
+                node->num_arg = (int)vector_size(node->args);
             }
             consume_token(')');
         }
@@ -463,16 +463,16 @@ int type_specifier(){
     return type;
 }
 
-Para_t* get_paras(){
-    Para_t* paras = (Para_t*)malloc(sizeof(Para_t));
-    paras->decl = vector_new();
+Vector_t* get_paras(){
+    Vector_t* paras = (Vector_t*)malloc(sizeof(Vector_t));
+    paras = vector_new();
     Node_t* node = para_declaration();
-    vector_push(paras->decl, (Node_t*)node);
+    vector_push(paras, (Node_t*)node);
     Token_t* next = read_token(0);
     while(next->kind == ','){
         consume_token(',');
         node = para_declaration();
-        vector_push(paras->decl, (Node_t*)node);
+        vector_push(paras, (Node_t*)node);
         next = read_token(0);
     }
     return paras;
