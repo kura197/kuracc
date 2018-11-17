@@ -80,17 +80,39 @@ void codegen(Node_t* node){
             printf("  pop %%rbx\n");
             printf("  pop %%rax\n");
             rsp_allign -= 8;
-            printf("  movl %%ebx, (%%rax)\n");
+            printf("  movq %%rbx, (%%rax)\n");
             //do not need this.
             //printf("  pushq %%rax\n");
             //rsp_allign += 4;
             break;
 
         case AST_ID:
-            sym = map_search(symt->local[0], node->name);
-            if(sym == NULL) sym = map_search(symt->arg, node->name);
-            if(sym == NULL) sym = map_search(symt->global, node->name);
-            if(sym == NULL) assert(0);
+            if(node->unary != NULL){
+                int unary = *(int*)vector_get(node->unary, 0);
+                if(unary == '&'){
+                    codegen_lval(node);
+                }
+                else if(unary == '*'){
+                    sym = get_sym(node->name);
+                    printf("  movq -%d(%%rbp), %%rdx\n", sym->offset);
+                    printf("  movq (%%rdx), %%rax\n");
+                    for(int i = 1; i < vector_size(node->unary); i++){
+                        unary = *(int*)vector_get(node->unary, i);
+                        if(unary == '*'){
+                            printf("  movq %%rax, %%rdx\n");
+                            printf("  movq (%%rdx), %%rax\n");
+                        }
+                        else{
+                            fprintf(stderr, "not yet implemented\n");
+                            assert(0);
+                        }
+                    }
+                    printf("  pushq %%rax\n");
+                    rsp_allign += 4;
+                }
+                break;
+            }
+            sym = get_sym(node->name);
             printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
             printf("  pushq %%rax\n");
             rsp_allign += 4;
@@ -212,8 +234,14 @@ void codegen(Node_t* node){
             printf("  jne .L%dright\n", tmp_num_jmp);
             break;
 
+        case AST_UNARY_EXPR:
+            codegen(node->rhs);
+            break;
+
+        case AST_UNARY_OP:
         case AST_FUNC_DEC:
             break;
+
 
         default:
             printf("node : %s\n", ast_name[node->op]);
@@ -225,10 +253,11 @@ void codegen(Node_t* node){
 
 void codegen_lval(Node_t* node){
     if(node->op == AST_ID){
-        sym = map_search(symt->local[0], node->name);
-        if(sym == NULL) sym = map_search(symt->arg, node->name);
-        if(sym == NULL) sym = map_search(symt->global, node->name);
-        if(sym == NULL) assert(0);
+        if(node->unary != NULL && *(int*)vector_get(node->unary, 0) == '*'){
+            codegen(node);
+            return;
+        }
+        sym = get_sym(node->name);
         printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
         printf("  pushq  %%rax\n");
         rsp_allign += 4;
@@ -268,4 +297,12 @@ void codegen_comp_stmt(Node_t* node){
             codegen_comp_stmt(node->rhs);
         }
     }
+}
+
+Symbol_t* get_sym(char* name){
+    Symbol_t* sym = map_search(symt->local[0], name);
+    if(sym == NULL) sym = map_search(symt->arg, name);
+    if(sym == NULL) sym = map_search(symt->global, name);
+    if(sym == NULL) assert(0);
+    return sym;
 }

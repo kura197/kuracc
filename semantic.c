@@ -19,7 +19,7 @@ SymTable_t* sym_table_new(){
     return symt;
 }
 
-Symbol_t* sym_new(char* name, int type, Node_t* ast, int name_space, int offset){
+Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, int offset){
     Symbol_t* sym = (Symbol_t*)malloc(sizeof(Symbol_t));
     sym->name = name;
     sym->type = type;
@@ -30,6 +30,7 @@ Symbol_t* sym_new(char* name, int type, Node_t* ast, int name_space, int offset)
 }
 
 void sem_analy(Node_t* ast, int level){
+    int *unary;
     switch(ast->op){
         case AST_FUNC:
             if(ast->lhs != NULL) sem_analy(ast->lhs, level);
@@ -70,6 +71,22 @@ void sem_analy(Node_t* ast, int level){
         case AST_COMP_STMT:
             level++;
             if(ast->lhs != NULL) sem_analy(ast->lhs, level);
+            if(ast->rhs != NULL) sem_analy(ast->rhs, level);
+            break;
+
+        case AST_UNARY_EXPR:
+            unary = (int*)vector_get(ast->lhs->unary, 0);
+            Node_t* tmp = ast;
+            while(tmp->op == AST_UNARY_EXPR)
+                tmp = tmp->rhs;
+            if(tmp->op == AST_ID){
+                if(tmp->unary == NULL) tmp->unary = vector_new();
+                vector_push(tmp->unary, unary);
+            }
+            else{
+                if(tmp->lhs->unary == NULL) tmp->lhs->unary = vector_new();
+                vector_push(tmp->lhs->unary, unary);
+            }
             if(ast->rhs != NULL) sem_analy(ast->rhs, level);
             break;
 

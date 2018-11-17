@@ -31,6 +31,7 @@ char *token_name[] = {
     [','] = ",",
     ['{'] = "{",
     ['}'] = "}",
+    ['&'] = "&",
     ['='] = "="
 };
 
@@ -105,6 +106,9 @@ void tokenize(char* p){
         }
         else if(*p == '}'){
             tokens[idx++].kind = '}';
+        }
+        else if(*p == '&'){
+            tokens[idx++].kind = '&';
         }
         else{
             int num = 0;
