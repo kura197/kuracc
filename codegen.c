@@ -19,42 +19,53 @@ void codegen(Node_t* node){
         case AST_INT:
             printf("  movl $%d, %%eax\n", node->val);
             printf("  pushq %%rax\n");
-            rsp_allign += 4;
+            rsp_allign += 8;
             break;
 
-        case '+':
-        case '-':
+        case AST_ADD:
+        case AST_SUB:
             codegen(node->lhs);
             codegen(node->rhs);
             printf("  pop %%rbx\n");
             printf("  pop %%rax\n");
-            rsp_allign -= 8;
-            if(node->op == '+'){
+            rsp_allign -= 16;
+            if(node->type->ty == TYPE_PTR){
+                if(node->ltype->ty == TYPE_PTR){
+                    printf("  movq %%rax, %%rdx\n");
+                    printf("  imul $%d, %%ebx\n", 8);
+                    printf("  movq %%rax, %%rbx\n");
+                    printf("  movq %%rdx, %%rax\n");
+                }
+                else{
+                    printf("  imul $%d, %%eax\n", 8);
+                }
+            }
+            if(node->op == AST_ADD){
                 printf("  addl %%ebx, %%eax\n");
             }
-            else if(node->op == '-'){
+            else if(node->op == AST_SUB){
                 printf("  subl %%ebx, %%eax\n");
             }
             printf("  pushq %%rax\n");
-            rsp_allign += 4;
+            rsp_allign += 8;
             break;
 
-        case '*':
-        case '/':
+        case AST_MUL:
+        case AST_DIV:
             codegen(node->lhs);
             codegen(node->rhs);
             printf("  pop %%rbx\n");
             printf("  pop %%rax\n");
-            rsp_allign -= 8;
-            if(node->op == '*'){
+            rsp_allign -= 16;
+            if(node->op == AST_MUL){
                 printf("  imul %%ebx, %%eax\n");
             }
-            else if(node->op == '/'){
+            else if(node->op == AST_DIV){
                 printf("  cltd\n");
                 printf("  div %%ebx\n");
             }
             printf("  pushq %%rax\n");
-            rsp_allign += 4;
+            rsp_allign += 8;
             break;
 
         case AST_EQ:
@@ -63,7 +74,7 @@ void codegen(Node_t* node){
             codegen(node->rhs);
             printf("  popq %%rbx\n");
             printf("  popq %%rax\n");
-            rsp_allign -= 8;
+            rsp_allign -= 16;
             printf("  cmpl %%eax, %%ebx\n");
             if(node->op == AST_EQ)   
                 printf("  sete %%al\n");
@@ -71,15 +82,15 @@ void codegen(Node_t* node){
                 printf("  setne %%al\n");
             printf("  movzbl %%al, %%eax\n");
             printf("  pushq %%rax\n");
-            rsp_allign += 4;
+            rsp_allign += 8;
             break;
 
-        case '=':
+        case AST_ASSIGN:
             codegen_lval(node->lhs);
             codegen(node->rhs);
             printf("  pop %%rbx\n");
             printf("  pop %%rax\n");
-            rsp_allign -= 8;
+            rsp_allign -= 16;
             printf("  movq %%rbx, (%%rax)\n");
             //do not need this.
             //printf("  pushq %%rax\n");
@@ -108,14 +119,14 @@ void codegen(Node_t* node){
                         }
                     }
                     printf("  pushq %%rax\n");
-                    rsp_allign += 4;
+                    rsp_allign += 8;
                 }
                 break;
             }
             sym = get_sym(node->name);
             printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
             printf("  pushq %%rax\n");
-            rsp_allign += 4;
+            rsp_allign += 8;
             break;
 
         case AST_POST_FIX:
@@ -131,7 +142,7 @@ void codegen(Node_t* node){
                 else if(arg == 4) printf("  pop %%r8\n");
                 else if(arg == 5) printf("  pop %%r9\n");
             }
-            rsp_allign -= 4*num_arg;
+            rsp_allign -= 8*num_arg;
             int diff_allign = rsp_allign % 16;
             int rem = (diff_allign != 0) ? 16 - (diff_allign) : 0;
             if(rem > 0) printf("  subq $%d, %%rsp\n", rem);
@@ -146,10 +157,10 @@ void codegen(Node_t* node){
             printf("  movq %%rsp, %%rbp\n");
 
             symt = node->sym_table;
-            rsp_allign = 4;
-            if(symt->num_var > 0){
-                printf("  subq $%d, %%rsp\n", 8*(1+symt->num_var));
-                rsp_allign += 8*(1+symt->num_var);
+            rsp_allign = 8;
+            if(symt->offset > 0){
+                printf("  subq $%d, %%rsp\n", symt->offset);
+                rsp_allign += symt->offset;
             }
             //printf("num_arg:%d\n", node->num_arg);
             for(int arg = 0; arg < map_size(symt->arg); arg++){
@@ -241,7 +252,6 @@ void codegen(Node_t* node){
         case AST_UNARY_OP:
         case AST_FUNC_DEC:
             break;
-
 
         default:
             printf("node : %s\n", ast_name[node->op]);

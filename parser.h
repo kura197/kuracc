@@ -55,6 +55,10 @@ typedef struct Node{
     struct SymTable* sym_table;
 
     Vector_t *unary;
+
+    //for +/-
+    Type_t *ltype;
+    Type_t *rtype;
 }Node_t;
 
 enum ast_kind{
@@ -62,6 +66,11 @@ enum ast_kind{
     AST_EQ, 
     AST_NEQ,
     AST_ID,
+    AST_ADD,
+    AST_SUB,
+    AST_MUL,
+    AST_DIV,
+    AST_ASSIGN,
     AST_POST_FIX,
     AST_ARG_LIST,
     AST_FUNC,
@@ -81,7 +90,7 @@ enum ast_kind{
 
 
 Node_t* new_node(int op, Node_t* lhs, Node_t* rhs);
-Node_t* new_node_num(int val);
+Node_t* new_node_num(int val, int type);
 Node_t* new_node_DEC(char* name);
 Node_t* new_node_UOP(int* unary);
 void add_type(Node_t* node, Type_t* type);

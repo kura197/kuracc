@@ -1,9 +1,21 @@
 
 int print();
 
-int add(int a, int b){
+int add(int a,int b){
     int c;
-    c = a + b;
+    c = a+b;
+    c;
+}
+
+int sub(int a,int b){
+    int c;
+    c = a-b;
+    c;
+}
+
+int mul(int a,int b){
+    int c;
+    c = a*b;
     c;
 }
 
@@ -12,7 +24,7 @@ int main(){
     int b;
     int c;
     a = 10;
-    b = a;
-    c = add(a,b);
+    b = 5;
+    c = mul(add(a,b), sub(a,b));
     print(c);
 }

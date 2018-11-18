@@ -3,12 +3,18 @@
 #include <assert.h>
 #include <stdio.h>
 
+//Vector_t* unary;
 
 char *ast_name[] = {
     "AST_INT",
     "AST_EQ",
     "AST_NEQ",
     "AST_ID",
+    "AST_ADD",
+    "AST_SUB",
+    "AST_MUL",
+    "AST_DIV",
+    "AST_ASSIGN",
     "AST_POST_FIX",
     "AST_ARG_LIST",
     "AST_FUNC",
@@ -24,11 +30,6 @@ char *ast_name[] = {
     "AST_UNARY_EXPR",
     "AST_UNARY_OP",
     "AST_PARA_LIST",
-    ['+'] = "+",
-    ['-'] = "-",
-    ['*'] = "*",
-    ['/'] = "/",
-    ['='] = "="
 };
 
 
@@ -40,10 +41,12 @@ Node_t* new_node(int op, Node_t* lhs, Node_t* rhs){
     return node;
 }
 
-Node_t* new_node_num(int val){
+Node_t* new_node_num(int val, int type){
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
     node->op = AST_INT;
     node->val = val;
+    node->type = (Type_t*)malloc(sizeof(Type_t));
+    node->type->ty = type;
     return node;
 }
 
@@ -115,7 +118,7 @@ Node_t* primary_expr(){
     Token_t* next = read_token(0);
     if(next->kind == TK_INT){
         consume_token(TK_INT);
-        return new_node_num(next->value);
+        return new_node_num(next->value, TYPE_INT);
     }
     else if(next->kind == TK_ID){
         consume_token(TK_ID);
@@ -216,12 +219,12 @@ Node_t* mul_expr(){
     while(next->kind == '*' || next->kind == '/'){
         if(next->kind == '*'){
             consume_token('*');
-            node = new_node('*', node, cast_expr());
+            node = new_node(AST_MUL, node, cast_expr());
 
         }
         else if(next->kind == '/'){
             consume_token('/');
-            node = new_node('/', node, cast_expr());
+            node = new_node(AST_DIV, node, cast_expr());
         }
         next = read_token(0);
     }
@@ -235,12 +238,12 @@ Node_t* add_expr(){
     while(next->kind == '+' || next->kind == '-'){
         if(next->kind == '+'){
             consume_token('+');
-            node = new_node('+', node, mul_expr());
+            node = new_node(AST_ADD, node, mul_expr());
 
         }
         else if(next->kind == '-'){
             consume_token('-');
-            node = new_node('-', node, mul_expr());
+            node = new_node(AST_SUB, node, mul_expr());
         }
         next = read_token(0);
     }
@@ -269,10 +272,10 @@ Node_t* assign_expr(){
     if(next->kind == '='){
         consume_token('=');
         if(read_token(0)->kind == TK_ID && read_token(1)->kind == '('){
-            node = new_node('=', node, postfix_expr());
+            node = new_node(AST_ASSIGN, node, postfix_expr());
         }
         else{
-            node = new_node('=', node, equ_expr());
+            node = new_node(AST_ASSIGN, node, equ_expr());
         }
     }
     return node;
@@ -321,6 +324,7 @@ Node_t* declarator(){
     Type_t* tmp = root;
     while(next->kind == '*'){
         consume_token('*');
+        tmp->ty = TYPE_PTR;
         tmp->ptrof = (Type_t*)malloc(sizeof(Type_t));
         tmp = tmp->ptrof;
         next = read_token(0);

@@ -31,6 +31,7 @@ typedef struct SymTable{
     Map_t *string;
     int local_index;
     int num_var;
+    int offset;
     Map_t *local[MAX_BLOCK_DEPTH];
 }SymTable_t;
 
