@@ -7,6 +7,7 @@
 SymTable_t* sym_table;
 Symbol_t* sym;
 Map_t* global;
+Type_t* type;
 
 SymTable_t* sym_table_new(){
     SymTable_t* symt = (SymTable_t*)malloc(sizeof(SymTable_t));
@@ -30,7 +31,6 @@ Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, in
 }
 
 void sem_analy(Node_t* ast, int level){
-    //int *unary;
     switch(ast->op){
         case AST_FUNC:
             if(ast->lhs != NULL) sem_analy(ast->lhs, level);
@@ -51,6 +51,17 @@ void sem_analy(Node_t* ast, int level){
             }
             sym_table->local[0] = map_new();
             if(ast->rhs != NULL) sem_analy(ast->rhs, level);
+            break;
+
+        case AST_ASSIGN:
+            sem_analy(ast->lhs, level);
+            sem_analy(ast->rhs, level);
+            ast->ltype = ast->lhs->type;
+            ast->rtype = ast->rhs->type;
+            if(ast->ltype->ty != ast->rtype->ty){
+                fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
+                assert(0);
+            }
             break;
 
         case AST_FUNC_DEC:
@@ -81,26 +92,6 @@ void sem_analy(Node_t* ast, int level){
                         assert(0);
                     }
             Type_t* tmp = sym->type;
-            if(sym->type->ty == TYPE_ARRAY){
-                Type_t* addr = (Type_t*)malloc(sizeof(Type_t));
-                addr->ty = TYPE_PTR;
-                addr->ptrof = tmp;
-                ast->type = addr;
-                tmp = addr;
-            }
-            if(ast->unary != NULL){
-                for(int i = 0; i < vector_size(ast->unary); i++){
-                    int op = *(int*)vector_get(ast->unary, i);
-                    if(op == '*')
-                        tmp = tmp->ptrof;
-                    else if(op == '&'){
-                        Type_t* addr = (Type_t*)malloc(sizeof(Type_t));
-                        addr->ty = TYPE_PTR;
-                        addr->ptrof = tmp;
-                        tmp = addr;
-                    }
-                }
-            }
             ast->type = tmp;
             break;
 
@@ -164,6 +155,26 @@ void sem_analy(Node_t* ast, int level){
             sem_analy(ast->lhs, level);
             ast->type = ast->lhs->type;
             if(ast->rhs != NULL) sem_analy(ast->rhs, level);
+            break;
+
+        case AST_UNARY_PTR:
+            sem_analy(ast->lhs, level);
+            type = (Type_t*)ast->lhs->type;
+            if(type->ty == TYPE_PTR || type->ty == TYPE_ARRAY){
+                ast->type = type->ptrof;
+            }
+            else{
+                fprintf(stderr, "Error : %s is not a pointer/array\n", ast->lhs->name);
+                assert(0);
+            }
+            break;
+
+        case AST_UNARY_ADR:
+            sem_analy(ast->lhs, level);
+            type = (Type_t*)malloc(sizeof(type));
+            type->ty = TYPE_PTR;
+            type->ptrof = ast->lhs->type;
+            ast->type = type;
             break;
 
         default:

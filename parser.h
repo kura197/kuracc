@@ -56,8 +56,6 @@ typedef struct Node{
 
     struct SymTable* sym_table;
 
-    Vector_t *unary;
-
     //for +/-
     Type_t *ltype;
     Type_t *rtype;
@@ -85,8 +83,8 @@ enum ast_kind{
     AST_DO,
     AST_FOR,
     AST_FUNC_DEC,
-    AST_UNARY_EXPR,
-    AST_UNARY_OP,
+    AST_UNARY_ADR,  //&
+    AST_UNARY_PTR,  //*
     AST_PARA_LIST
 };
 
@@ -112,8 +110,8 @@ Node_t* expr();
 
 Node_t* declaration();
 Type_t* type_specifier();
-Node_t* declarator();
-Node_t* direct_declarator(Type_t* type);
+Node_t* declarator(Type_t* type);
+Node_t* direct_declarator(Type_t** root);
 Vector_t* get_paras();
 Node_t* para_declaration();
 
@@ -129,6 +127,7 @@ Node_t* function_definition();
 
 
 extern char *ast_name[];
+extern char *type_name[];
 extern Map_t* global_var;
 
 #endif

@@ -12,7 +12,6 @@ void codegen(Node_t* node){
     if(node == NULL){
         assert(0);
     }
-
     int num_arg;
     int tmp_num_jmp;
     switch(node->op){
@@ -107,43 +106,13 @@ void codegen(Node_t* node){
         case AST_ID:
             if(node->type->ty == TYPE_ARRAY){
                 sym = get_sym(node->name);
-                if(node->unary != NULL && *(int*)vector_get(node->unary, 0) == '*'){
-                    printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
-                    printf("  pushq  %%rax\n");
-                    break;
-                }
                 printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
                 printf("  pushq  %%rax\n");
                 rsp_allign += 4;
                 break;
             }
-            if(node->unary != NULL){
-                int unary = *(int*)vector_get(node->unary, 0);
-                if(unary == '&'){
-                    codegen_lval(node);
-                }
-                else if(unary == '*'){
-                    sym = get_sym(node->name);
-                    printf("  movq -%d(%%rbp), %%rdx\n", sym->offset);
-                    printf("  movq (%%rdx), %%rax\n");
-                    for(int i = 1; i < vector_size(node->unary); i++){
-                        unary = *(int*)vector_get(node->unary, i);
-                        if(unary == '*'){
-                            printf("  movq %%rax, %%rdx\n");
-                            printf("  movq (%%rdx), %%rax\n");
-                        }
-                        else{
-                            fprintf(stderr, "not yet implemented\n");
-                            assert(0);
-                        }
-                    }
-                    printf("  pushq %%rax\n");
-                    rsp_allign += 8;
-                }
-                break;
-            }
             sym = get_sym(node->name);
-            printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
+            printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
             printf("  pushq %%rax\n");
             rsp_allign += 8;
             break;
@@ -267,6 +236,17 @@ void codegen(Node_t* node){
         case AST_FUNC_DEC:
             break;
 
+        case AST_UNARY_PTR:
+            codegen(node->lhs);
+            printf("  pop %%rbx\n");
+            printf("  movq (%%rbx), %%rax\n");
+            printf("  pushq %%rax\n");
+            break;
+
+        case AST_UNARY_ADR:
+            codegen_lval(node->lhs);
+            break;
+
         default:
             printf("node : %s\n", ast_name[node->op]);
             assert(0);
@@ -278,14 +258,12 @@ void codegen(Node_t* node){
 void codegen_lval(Node_t* node){
     if(node->op == AST_ID){
         sym = get_sym(node->name);
-        if(node->type->ty != TYPE_ARRAY && node->unary != NULL && *(int*)vector_get(node->unary, 0) == '*'){
-            printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
-            printf("  pushq  %%rax\n");
-            return;
-        }
         printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
         printf("  pushq  %%rax\n");
         rsp_allign += 4;
+    }
+    else if(node->op == AST_UNARY_PTR){
+        codegen(node->lhs);
     }
     else{
         fprintf(stderr, "not ID lvalue\n");

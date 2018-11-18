@@ -3,8 +3,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-Vector_t* unary;
-
 char *ast_name[] = {
     "AST_INT",
     "AST_EQ",
@@ -27,9 +25,19 @@ char *ast_name[] = {
     "AST_DO",
     "AST_FOR",
     "AST_FUNC_DEC",
-    "AST_UNARY_EXPR",
-    "AST_UNARY_OP",
+    "AST_UNARY_ADR",
+    "AST_UNARY_PTR",
     "AST_PARA_LIST",
+};
+
+char *type_name[] = {
+    "TYPE_UNKNOWN",
+    "TYPE_VOID",
+    "TYPE_CHAR",
+    "TYPE_INT",
+    "TYPE_LONG",
+    "TYPE_PTR",
+    "TYPE_ARRAY"
 };
 
 
@@ -61,14 +69,6 @@ Node_t* new_node_DEC(char* name){
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
     node->op = AST_DEC;
     node->name = name;
-    return node;
-}
-
-Node_t* new_node_UOP(int* unary){
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
-    node->unary = vector_new();
-    node->op = AST_UNARY_OP;
-    vector_push(node->unary, (int*)unary);
     return node;
 }
 
@@ -120,16 +120,10 @@ Node_t* primary_expr(){
     if(next->kind == TK_INT){
         consume_token(TK_INT);
         node =  new_node_num(next->value, TYPE_INT);
-        if(unary != NULL){
-            fprintf(stderr, "Error : TK_INT has unary_op\n");
-            assert(0);
-        }
     }
     else if(next->kind == TK_ID){
         consume_token(TK_ID);
         node = new_node_ID(next->name);
-        node->unary = unary;
-        unary = NULL;
     }
     else if(next->kind == '('){
         consume_token('(');
@@ -190,19 +184,11 @@ Node_t* unary_expr(){
     Token_t* next = read_token(0);
     if(next->kind == '&'){
         consume_token('&');
-        if(unary == NULL) unary = vector_new();
-        vector_push(unary, &next->kind);
-        //node = new_node_UOP(&next->kind);
-        //node = new_node(AST_UNARY_EXPR, node, cast_expr());
-        node = cast_expr();
+        node = new_node(AST_UNARY_ADR, cast_expr(), NULL);
     }
     else if(next->kind == '*'){
         consume_token('*');
-        if(unary == NULL) unary = vector_new();
-        vector_push(unary, &next->kind);
-        //node = new_node_UOP(&next->kind);
-        //node = new_node(AST_UNARY_EXPR, node, cast_expr());
-        node = cast_expr();
+        node = new_node(AST_UNARY_PTR, cast_expr(), NULL);
     }
     else
         node = postfix_expr();
@@ -317,8 +303,7 @@ Node_t* expr(){
 
 Node_t* declaration(){
     Type_t* type = type_specifier();
-    Node_t* node = declarator();
-    add_type(node, type);
+    Node_t* node = declarator(type);
     consume_token(';');
     return node;
 }
@@ -337,23 +322,23 @@ Type_t* type_specifier(){
     return type;
 }
 
-Node_t* declarator(){
+Node_t* declarator(Type_t* type){
     Token_t* next = read_token(0);
-    Type_t* root = (Type_t*)malloc(sizeof(Type_t));
-    Type_t* tmp = root;
+    Type_t* root = type;
     while(next->kind == '*'){
         consume_token('*');
+        Type_t* tmp = (Type_t*)malloc(sizeof(Type_t));
         tmp->ty = TYPE_PTR;
-        tmp->ptrof = (Type_t*)malloc(sizeof(Type_t));
-        tmp = tmp->ptrof;
+        tmp->ptrof = root;
+        root = tmp;
         next = read_token(0);
     }
-    Node_t* node = direct_declarator(root);
+    Node_t* node = direct_declarator(&root);
     node->type = root;
     return node;
 }
 
-Node_t* direct_declarator(Type_t* type){
+Node_t* direct_declarator(Type_t** root){
     Node_t* node;
     Token_t* next = read_token(0);
     if(next->kind == TK_ID){
@@ -373,15 +358,20 @@ Node_t* direct_declarator(Type_t* type){
         else if(next->kind == '['){
             consume_token('[');
             int size = read_token(0)->value;
-            type->ty = TYPE_ARRAY;
-            type->array_size = size;
+            Type_t* tmp = (Type_t*)malloc(sizeof(Type_t));
+            tmp->ty = TYPE_ARRAY;
+            tmp->array_size = size;
+            tmp->ptrof = *root;
+            *root = tmp;
             consume_token(TK_INT);
             consume_token(']');
         }
     }
     else if(next->kind == '('){
         consume_token('(');
-        node = declarator();
+        fprintf(stderr, "not yet implemented\n");
+        assert(0);
+        //node = declarator();
         consume_token(')');
     }
     else{
@@ -408,8 +398,7 @@ Vector_t* get_paras(){
 
 Node_t* para_declaration(){
     Type_t* type = type_specifier();
-    Node_t* node = declarator();
-    add_type(node, type);
+    Node_t* node = declarator(type);
     return node;
 }
 
@@ -573,8 +562,7 @@ Node_t* translation_unit(){
 
 Node_t* function_definition(){
     Type_t* type = type_specifier();
-    Node_t* node = declarator();
-    add_type(node, type);
+    Node_t* node = declarator(type);
 
     Token_t* next = read_token(0);
     if(next->kind == '{'){
