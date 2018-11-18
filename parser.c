@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-//Vector_t* unary;
+Vector_t* unary;
 
 char *ast_name[] = {
     "AST_INT",
@@ -115,30 +115,36 @@ void dump_node(Node_t* node, int num){
 ///////////////////////////////////
 
 Node_t* primary_expr(){
+    Node_t* node;
     Token_t* next = read_token(0);
     if(next->kind == TK_INT){
         consume_token(TK_INT);
-        return new_node_num(next->value, TYPE_INT);
+        node =  new_node_num(next->value, TYPE_INT);
+        if(unary != NULL){
+            fprintf(stderr, "Error : TK_INT has unary_op\n");
+            assert(0);
+        }
     }
     else if(next->kind == TK_ID){
         consume_token(TK_ID);
-        return new_node_ID(next->name);
+        node = new_node_ID(next->name);
+        node->unary = unary;
+        unary = NULL;
     }
     else if(next->kind == '('){
         consume_token('(');
-        Node_t* node = add_expr();
+        node = add_expr();
         if(read_token(0)->kind != ')'){
             error(read_token(0));
             assert(0);
         }
         consume_token(')');
-        return node;
     }
     else{
         error(next);
         assert(0);
     }
-    return NULL;
+    return node;
 }
 
 Node_t* postfix_expr(){
@@ -184,13 +190,19 @@ Node_t* unary_expr(){
     Token_t* next = read_token(0);
     if(next->kind == '&'){
         consume_token('&');
-        node = new_node_UOP(&next->kind);
-        node = new_node(AST_UNARY_EXPR, node, cast_expr());
+        if(unary == NULL) unary = vector_new();
+        vector_push(unary, &next->kind);
+        //node = new_node_UOP(&next->kind);
+        //node = new_node(AST_UNARY_EXPR, node, cast_expr());
+        node = cast_expr();
     }
     else if(next->kind == '*'){
         consume_token('*');
-        node = new_node_UOP(&next->kind);
-        node = new_node(AST_UNARY_EXPR, node, cast_expr());
+        if(unary == NULL) unary = vector_new();
+        vector_push(unary, &next->kind);
+        //node = new_node_UOP(&next->kind);
+        //node = new_node(AST_UNARY_EXPR, node, cast_expr());
+        node = cast_expr();
     }
     else
         node = postfix_expr();

@@ -38,7 +38,7 @@ runtest_print test/t5.c 3628800
 runtest_print test/t6.c 3
 runtest_print test/t7.c 10
 runtest_print test/t8.c 5
-runtest_print test/t9.c 4
+runtest_print test/t9.c 8
 
 #runtest_return "main(){3+2;}" 5
 #runtest_return "main(){3+4+1;}" 8

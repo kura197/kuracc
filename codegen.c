@@ -31,13 +31,20 @@ void codegen(Node_t* node){
             rsp_allign -= 16;
             if(node->type->ty == TYPE_PTR){
                 if(node->ltype->ty == TYPE_PTR){
-                    printf("  movq %%rax, %%rdx\n");
-                    printf("  imul $%d, %%ebx\n", 8);
-                    printf("  movq %%rax, %%rbx\n");
-                    printf("  movq %%rdx, %%rax\n");
+                    int mul_val;
+                    switch(node->ltype->ptrof->ty){
+                        case TYPE_PTR: mul_val = 8; break;
+                        default: mul_val = 4; break;
+                    }
+                    printf("  imul $%d, %%ebx\n", mul_val);
                 }
                 else{
-                    printf("  imul $%d, %%eax\n", 8);
+                    int mul_val;
+                    switch(node->ltype->ptrof->ty){
+                        case TYPE_PTR: mul_val = 8; break;
+                        default: mul_val = 4; break;
+                    }
+                    printf("  imul $%d, %%eax\n", mul_val);
                 }
             }
             if(node->op == AST_ADD){
@@ -245,11 +252,6 @@ void codegen(Node_t* node){
             printf("  jne .L%dright\n", tmp_num_jmp);
             break;
 
-        case AST_UNARY_EXPR:
-            codegen(node->rhs);
-            break;
-
-        case AST_UNARY_OP:
         case AST_FUNC_DEC:
             break;
 

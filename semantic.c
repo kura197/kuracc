@@ -30,7 +30,7 @@ Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, in
 }
 
 void sem_analy(Node_t* ast, int level){
-    int *unary;
+    //int *unary;
     switch(ast->op){
         case AST_FUNC:
             if(ast->lhs != NULL) sem_analy(ast->lhs, level);
@@ -76,30 +76,27 @@ void sem_analy(Node_t* ast, int level){
                         fprintf(stderr, "Error : %s was not declared\n", ast->name);
                         assert(0);
                     }
-            ast->type = sym->type;
+            Type_t* tmp = sym->type;
+            if(ast->unary != NULL){
+                for(int i = 0; i < vector_size(ast->unary); i++){
+                    int op = *(int*)vector_get(ast->unary, i);
+                    if(op == '*')
+                        tmp = tmp->ptrof;
+                    else if(op == '&'){
+                        Type_t* addr = (Type_t*)malloc(sizeof(Type_t));
+                        addr->ty = TYPE_PTR;
+                        addr->ptrof = tmp;
+                        tmp = addr;
+                    }
+                }
+            }
+            ast->type = tmp;
             break;
 
         case AST_COMP_STMT:
             level++;
             if(ast->lhs != NULL) sem_analy(ast->lhs, level);
             if(ast->rhs != NULL) sem_analy(ast->rhs, level);
-            break;
-
-        case AST_UNARY_EXPR:
-            sem_analy(ast->rhs, level);
-            ast->type = ast->rhs->type;
-            unary = (int*)vector_get(ast->lhs->unary, 0);
-            Node_t* tmp = ast;
-            while(tmp->op == AST_UNARY_EXPR)
-                tmp = tmp->rhs;
-            if(tmp->op == AST_ID){
-                if(tmp->unary == NULL) tmp->unary = vector_new();
-                vector_push(tmp->unary, unary);
-            }
-            else{
-                if(tmp->lhs->unary == NULL) tmp->lhs->unary = vector_new();
-                vector_push(tmp->lhs->unary, unary);
-            }
             break;
 
         case AST_ADD:
