@@ -59,6 +59,7 @@ typedef struct Node{
     //for +/-
     Type_t *ltype;
     Type_t *rtype;
+
 }Node_t;
 
 enum ast_kind{
@@ -71,7 +72,7 @@ enum ast_kind{
     AST_MUL,
     AST_DIV,
     AST_ASSIGN,
-    AST_POST_FIX,
+    AST_FUNC_CALL,
     AST_ARG_LIST,
     AST_FUNC,
     AST_COMP_STMT,
@@ -93,6 +94,7 @@ Node_t* new_node(int op, Node_t* lhs, Node_t* rhs);
 Node_t* new_node_num(int val, int type);
 Node_t* new_node_DEC(char* name);
 Node_t* new_node_UOP(int* unary);
+Node_t* conv2ptr(Node_t* node);
 void add_type(Node_t* node, Type_t* type);
 void error(Token_t* tk);
 void dump_node(Node_t* node, int num);

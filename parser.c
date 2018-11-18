@@ -13,7 +13,7 @@ char *ast_name[] = {
     "AST_MUL",
     "AST_DIV",
     "AST_ASSIGN",
-    "AST_POST_FIX",
+    "AST_FUNC_CALL",
     "AST_ARG_LIST",
     "AST_FUNC",
     "AST_COMP_STMT",
@@ -70,6 +70,13 @@ Node_t* new_node_DEC(char* name){
     node->op = AST_DEC;
     node->name = name;
     return node;
+}
+
+Node_t* conv2ptr(Node_t* node){
+    Node_t* array_at = expr();
+    Node_t* add = new_node(AST_ADD, node, array_at);
+    Node_t* unary_ptr = new_node(AST_UNARY_PTR, add, NULL);
+    return unary_ptr;
 }
 
 void error(Token_t* tk){
@@ -149,12 +156,17 @@ Node_t* postfix_expr(){
             consume_token('(');
             next = read_token(0);
             if(next->kind != ')'){
-                node = new_node(AST_POST_FIX, node, arg_expr_list());
+                node = new_node(AST_FUNC_CALL, node, arg_expr_list());
             }
             else{
-                node = new_node(AST_POST_FIX, node, NULL);
+                node = new_node(AST_FUNC_CALL, node, NULL);
             }
             consume_token(')');
+        }
+        else if(next->kind == '['){
+            consume_token('[');
+            node = conv2ptr(node);
+            consume_token(']');
         }
         else break;
         next = read_token(0);

@@ -158,7 +158,7 @@ void sem_analy(Node_t* ast, int level){
             sem_analy(ast->rhs, level);
             break;
 
-        case AST_POST_FIX:
+        case AST_FUNC_CALL:
             sem_analy(ast->lhs, level);
             ast->type = ast->lhs->type;
             if(ast->rhs != NULL) sem_analy(ast->rhs, level);

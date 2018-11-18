@@ -39,7 +39,7 @@ void codegen(Node_t* node){
                 }
                 else{
                     int mul_val;
-                    switch(node->ltype->ptrof->ty){
+                    switch(node->rtype->ptrof->ty){
                         case TYPE_PTR: mul_val = 8; break;
                         default: mul_val = 4; break;
                     }
@@ -117,7 +117,7 @@ void codegen(Node_t* node){
             rsp_allign += 8;
             break;
 
-        case AST_POST_FIX:
+        case AST_FUNC_CALL:
             num_arg = 0;
             if(node->rhs != NULL && node->rhs->op == AST_ARG_LIST) 
                 num_arg = codegen_arg(node->rhs, 0);
