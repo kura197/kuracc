@@ -13,12 +13,14 @@ enum type{
     TYPE_CHAR,
     TYPE_INT,
     TYPE_LONG,
-    TYPE_PTR
+    TYPE_PTR,
+    TYPE_ARRAY
 };
 
 typedef struct Type{
     int ty;
     struct Type *ptrof;
+    size_t array_size;
 }Type_t;
 
 typedef struct Node{
@@ -111,7 +113,7 @@ Node_t* expr();
 Node_t* declaration();
 Type_t* type_specifier();
 Node_t* declarator();
-Node_t* direct_declarator();
+Node_t* direct_declarator(Type_t* type);
 Vector_t* get_paras();
 Node_t* para_declaration();
 

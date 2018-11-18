@@ -35,6 +35,17 @@ void vector_pop(Vector_t *vec){
     vec->len--;
 }
 
+void vector_delete(Vector_t *vec, size_t idx){
+    vec->len--;
+    if(vec->len == 0){
+        vec = NULL;
+        return;
+    }
+    for(int i = idx; i < vec->len; i++){
+        vec->item[i] = vec->item[i+1];
+    }
+}
+
 Map_t* map_new(){
     Map_t* map = (Map_t*)malloc(sizeof(Map_t));
     map->key = vector_new();
@@ -85,6 +96,14 @@ void test_vector(){
             assert(0);
         }
     }
+
+    vector_delete(vec, 100);
+    int *z = vector_get(vec, 100);
+    if(*z != 101){
+        printf("item : %d\n", *z);
+        assert(0);
+    }
+
     free(vec);
 
     printf("Vector test passed.\n");

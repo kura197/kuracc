@@ -20,6 +20,7 @@ void vector_push(Vector_t *vec, void *item);
 void* vector_get(Vector_t *vec, size_t idx);
 size_t vector_size(Vector_t *vec);
 void vector_pop(Vector_t *vec);
+void vector_delete(Vector_t *vec, size_t idx);
 
 Map_t* map_new();
 void map_push(Map_t* map, char* key, void* val);

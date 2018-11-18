@@ -61,10 +61,14 @@ void sem_analy(Node_t* ast, int level){
 
         case AST_DEC:
             sym_table->num_var++;
+            int add_offset;
             if(ast->type->ty == TYPE_PTR)
-                sym_table->offset += 8;
+                add_offset = 8;
             else
-                sym_table->offset += 8;
+                add_offset = 8;
+            if(ast->type->ty == TYPE_ARRAY)
+                add_offset *= ast->type->array_size;
+            sym_table->offset += add_offset;
             sym = sym_new(ast->name, ast->type, ast, NS_LOCAL, sym_table->offset);
             map_push(sym_table->local[0], ast->name, sym);
             break;
@@ -77,6 +81,13 @@ void sem_analy(Node_t* ast, int level){
                         assert(0);
                     }
             Type_t* tmp = sym->type;
+            if(sym->type->ty == TYPE_ARRAY){
+                Type_t* addr = (Type_t*)malloc(sizeof(Type_t));
+                addr->ty = TYPE_PTR;
+                addr->ptrof = tmp;
+                ast->type = addr;
+                tmp = addr;
+            }
             if(ast->unary != NULL){
                 for(int i = 0; i < vector_size(ast->unary); i++){
                     int op = *(int*)vector_get(ast->unary, i);

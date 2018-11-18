@@ -341,12 +341,12 @@ Node_t* declarator(){
         tmp = tmp->ptrof;
         next = read_token(0);
     }
-    Node_t* node = direct_declarator();
+    Node_t* node = direct_declarator(root);
     node->type = root;
     return node;
 }
 
-Node_t* direct_declarator(){
+Node_t* direct_declarator(Type_t* type){
     Node_t* node;
     Token_t* next = read_token(0);
     if(next->kind == TK_ID){
@@ -362,6 +362,14 @@ Node_t* direct_declarator(){
                 node->num_arg = (int)vector_size(node->args);
             }
             consume_token(')');
+        }
+        else if(next->kind == '['){
+            consume_token('[');
+            int size = read_token(0)->value;
+            type->ty = TYPE_ARRAY;
+            type->array_size = size;
+            consume_token(TK_INT);
+            consume_token(']');
         }
         return node;
     }
