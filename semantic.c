@@ -31,6 +31,8 @@ Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, in
 }
 
 void sem_analy(Node_t* ast, int level){
+    int left_ptr;
+    int right_ptr;
     switch(ast->op){
         case AST_FUNC:
             if(ast->lhs != NULL) sem_analy(ast->lhs, level);
@@ -58,7 +60,9 @@ void sem_analy(Node_t* ast, int level){
             sem_analy(ast->rhs, level);
             ast->ltype = ast->lhs->type;
             ast->rtype = ast->rhs->type;
-            if(ast->ltype->ty != ast->rtype->ty){
+            left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+            right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
+            if(left_ptr != right_ptr){
                 fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
                 assert(0);
             }
@@ -107,15 +111,18 @@ void sem_analy(Node_t* ast, int level){
             sem_analy(ast->rhs, level);
             ast->ltype = ast->lhs->type;
             ast->rtype = ast->rhs->type;
-            ast->type = (Type_t*)malloc(sizeof(Type_t));
-            if(ast->ltype->ty == TYPE_PTR && ast->rtype->ty == TYPE_PTR){
+            left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+            right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
+            if(left_ptr && right_ptr){
                 fprintf(stderr, "Error : add/sub TYPE_PTR to TYPE_PTR.\n");
                 assert(0);
             }
-            else if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR)
-                ast->type->ty = TYPE_PTR;
+            else if(left_ptr)
+                ast->type = ast->ltype;
+            else if(right_ptr)
+                ast->type = ast->rtype;
             else
-                ast->type->ty = TYPE_INT;
+                ast->type = ast->ltype;
             break;
 
         case AST_MUL:

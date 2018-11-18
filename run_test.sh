@@ -30,6 +30,7 @@ runtest_print() {
     rm tmp 
 }
 
+#runtest_print test/wip.c 21
 runtest_print test/t1.c 10
 runtest_print test/t2.c 3
 runtest_print test/t3.c 1024
@@ -41,6 +42,7 @@ runtest_print test/t8.c 5
 runtest_print test/t9.c 8
 runtest_print test/t10.c 5
 runtest_print test/t11.c 1
+runtest_print test/t12.c 21
 
 #runtest_return "main(){3+2;}" 5
 #runtest_return "main(){3+4+1;}" 8

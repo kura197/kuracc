@@ -28,8 +28,8 @@ void codegen(Node_t* node){
             printf("  pop %%rbx\n");
             printf("  pop %%rax\n");
             rsp_allign -= 16;
-            if(node->type->ty == TYPE_PTR){
-                if(node->ltype->ty == TYPE_PTR){
+            if(node->type->ty == TYPE_PTR || node->type->ty == TYPE_ARRAY){
+                if(node->ltype->ty == TYPE_PTR || node->ltype->ty == TYPE_ARRAY){
                     int mul_val;
                     switch(node->ltype->ptrof->ty){
                         case TYPE_PTR: mul_val = 8; break;
@@ -47,10 +47,10 @@ void codegen(Node_t* node){
                 }
             }
             if(node->op == AST_ADD){
-                printf("  addl %%ebx, %%eax\n");
+                printf("  addq %%rbx, %%rax\n");
             }
             else if(node->op == AST_SUB){
-                printf("  subl %%ebx, %%eax\n");
+                printf("  subq %%rbx, %%rax\n");
             }
             printf("  pushq %%rax\n");
             rsp_allign += 8;
