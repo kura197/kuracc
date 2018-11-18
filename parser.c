@@ -133,7 +133,7 @@ Node_t* primary_expr(){
     }
     else if(next->kind == '('){
         consume_token('(');
-        node = add_expr();
+        node = expr();
         if(read_token(0)->kind != ')'){
             error(read_token(0));
             assert(0);
@@ -216,10 +216,16 @@ Node_t* cast_expr(){
         node = unary_expr();
     }
     else{
-        consume_token('(');
-        printf("not yet implemented\n");
-        assert(0);
-        consume_token(')');
+        Token_t* nnext = read_token(1);
+        if(nnext->kind == TK_KW_INT){
+            consume_token('(');
+            printf("not yet implemented\n");
+            assert(0);
+            consume_token(')');
+        }
+        else{
+            node = unary_expr();
+        }
     }
     return node;
 }
@@ -281,7 +287,7 @@ Node_t* equ_expr(){
 Node_t* assign_expr(){
     Node_t* node = equ_expr();
     Token_t* next = read_token(0);
-    if(next->kind == '='){
+    while(next->kind == '='){
         consume_token('=');
         if(read_token(0)->kind == TK_ID && read_token(1)->kind == '('){
             node = new_node(AST_ASSIGN, node, postfix_expr());
@@ -289,6 +295,7 @@ Node_t* assign_expr(){
         else{
             node = new_node(AST_ASSIGN, node, equ_expr());
         }
+        next = read_token(0);
     }
     return node;
 }
@@ -371,17 +378,17 @@ Node_t* direct_declarator(Type_t* type){
             consume_token(TK_INT);
             consume_token(']');
         }
-        return node;
     }
-    //else if(next->kind == '('){
-    //    consume_token('(');
-    //    Node_t* node = declarator();
-    //}
+    else if(next->kind == '('){
+        consume_token('(');
+        node = declarator();
+        consume_token(')');
+    }
     else{
         error(next);
         assert(0);
     }
-    return NULL;
+    return node;
 }
 
 Vector_t* get_paras(){

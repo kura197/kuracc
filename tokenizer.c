@@ -6,6 +6,7 @@
 Token_t tokens[NUM_TK];
 int token_idx;
 int num_tokens;
+int skip;
 
 //for debug purpose
 char *token_name[] = {
@@ -40,139 +41,151 @@ char *token_name[] = {
 void tokenize(char* p){
     int idx = 0;
     while(*p){
-        if('0' <= *p && *p <= '9'){
-            char values[16];
-            int num_values = 0;
-            values[num_values++] = *p;
-            while(1){
-                char next = *(p+1);
-                if('0' <= next && next <= '9')
-                    values[num_values++] = next;
-                else 
-                    break;
-                p++;
+        if(skip){
+            if(*p == '\n'){
+                skip = 0;
             }
-            values[num_values] = '\0';
-            tokens[idx].value = strtol(values, NULL, 10);
-            tokens[idx++].kind = TK_INT;
-        }
-        else if(*p == ' '){
-            ;
-        }
-        else if(*p == '\n'){
-            ;
-        }
-        else if(*p == '+'){
-            tokens[idx++].kind = '+';
-        }
-        else if(*p == '-'){
-            tokens[idx++].kind = '-';
-        }
-        else if(*p == '*'){
-            tokens[idx++].kind = '*';
-        }
-        else if(*p == '/'){
-            tokens[idx++].kind = '/';
-        }
-        else if(*p == '('){
-            tokens[idx++].kind = '(';
-        }
-        else if(*p == ')'){
-            tokens[idx++].kind = ')';
-        }
-        else if(*p == '='){
-            char next = *(p+1);
-            if(next == '='){
-                tokens[idx++].kind = TK_EQ;
-                p++;
-            }
-            else{
-                tokens[idx++].kind = '=';
-            }
-        }
-        else if(*p == '!'){
-            char next = *(p+1);
-            if(next == '='){
-                tokens[idx++].kind = TK_NEQ;
-                p++;
-            }
-        }
-        else if(*p == ';'){
-            tokens[idx++].kind = ';';
-        }
-        else if(*p == ','){
-            tokens[idx++].kind = ',';
-        }
-        else if(*p == '{'){
-            tokens[idx++].kind = '{';
-        }
-        else if(*p == '}'){
-            tokens[idx++].kind = '}';
-        }
-        else if(*p == '&'){
-            tokens[idx++].kind = '&';
-        }
-        else if(*p == '['){
-            tokens[idx++].kind = '[';
-        }
-        else if(*p == ']'){
-            tokens[idx++].kind = ']';
         }
         else{
-            int num = 0;
-            while(1){
-                p++;
-                int out = 0;
-                switch(*p){
-                    case ' ':
-                    case '+':
-                    case '-':
-                    case '*':
-                    case '/':
-                    case '(':
-                    case ')':
-                    case '=':
-                    case '!':
-                    case ',':
-                    case '{':
-                    case '}':
-                    case '[':
-                    case ']':
-                    case ';': out = 1; break;
+            if('0' <= *p && *p <= '9'){
+                char values[16];
+                int num_values = 0;
+                values[num_values++] = *p;
+                while(1){
+                    char next = *(p+1);
+                    if('0' <= next && next <= '9')
+                        values[num_values++] = next;
+                    else 
+                        break;
+                    p++;
                 }
-                if(out) break;
-                else num++;
+                values[num_values] = '\0';
+                tokens[idx].value = strtol(values, NULL, 10);
+                tokens[idx++].kind = TK_INT;
             }
-            char tmp[64];
-            p--;
-            strncpy(tmp, p-num, num+1);
-            tmp[num+1] = '\0';
-            if(!strcmp(tmp, "if")){
-                tokens[idx++].kind = TK_IF;
+            else if(*p == '/'){
+                if(*(p+1) == '/'){
+                    skip = 1;
+                }
             }
-            else if(!strcmp(tmp, "else")){
-                tokens[idx++].kind = TK_ELSE;
+            else if(*p == ' '){
+                ;
             }
-            else if(!strcmp(tmp, "while")){
-                tokens[idx++].kind = TK_WHILE;
+            else if(*p == '\n'){
+                skip = 0;
             }
-            else if(!strcmp(tmp, "for")){
-                tokens[idx++].kind = TK_FOR;
+            else if(*p == '+'){
+                tokens[idx++].kind = '+';
             }
-            else if(!strcmp(tmp, "do")){
-                tokens[idx++].kind = TK_DO;
+            else if(*p == '-'){
+                tokens[idx++].kind = '-';
             }
-            else if(!strcmp(tmp, "switch")){
-                tokens[idx++].kind = TK_SWITCH;
+            else if(*p == '*'){
+                tokens[idx++].kind = '*';
             }
-            else if(!strcmp(tmp, "int")){
-                tokens[idx++].kind = TK_KW_INT;
+            else if(*p == '/'){
+                tokens[idx++].kind = '/';
+            }
+            else if(*p == '('){
+                tokens[idx++].kind = '(';
+            }
+            else if(*p == ')'){
+                tokens[idx++].kind = ')';
+            }
+            else if(*p == '='){
+                char next = *(p+1);
+                if(next == '='){
+                    tokens[idx++].kind = TK_EQ;
+                    p++;
+                }
+                else{
+                    tokens[idx++].kind = '=';
+                }
+            }
+            else if(*p == '!'){
+                char next = *(p+1);
+                if(next == '='){
+                    tokens[idx++].kind = TK_NEQ;
+                    p++;
+                }
+            }
+            else if(*p == ';'){
+                tokens[idx++].kind = ';';
+            }
+            else if(*p == ','){
+                tokens[idx++].kind = ',';
+            }
+            else if(*p == '{'){
+                tokens[idx++].kind = '{';
+            }
+            else if(*p == '}'){
+                tokens[idx++].kind = '}';
+            }
+            else if(*p == '&'){
+                tokens[idx++].kind = '&';
+            }
+            else if(*p == '['){
+                tokens[idx++].kind = '[';
+            }
+            else if(*p == ']'){
+                tokens[idx++].kind = ']';
             }
             else{
-                tokens[idx].kind = TK_ID;
-                tokens[idx].name = (char*)malloc((num+1)*sizeof(char));
-                strcpy(tokens[idx].name, tmp);
-                idx++;
+                int num = 0;
+                while(1){
+                    p++;
+                    int out = 0;
+                    switch(*p){
+                        case ' ':
+                        case '+':
+                        case '-':
+                        case '*':
+                        case '/':
+                        case '(':
+                        case ')':
+                        case '=':
+                        case '!':
+                        case ',':
+                        case '{':
+                        case '}':
+                        case '[':
+                        case ']':
+                        case ';': out = 1; break;
+                    }
+                    if(out) break;
+                    else num++;
+                }
+                char tmp[64];
+                p--;
+                strncpy(tmp, p-num, num+1);
+                tmp[num+1] = '\0';
+                if(!strcmp(tmp, "if")){
+                    tokens[idx++].kind = TK_IF;
+                }
+                else if(!strcmp(tmp, "else")){
+                    tokens[idx++].kind = TK_ELSE;
+                }
+                else if(!strcmp(tmp, "while")){
+                    tokens[idx++].kind = TK_WHILE;
+                }
+                else if(!strcmp(tmp, "for")){
+                    tokens[idx++].kind = TK_FOR;
+                }
+                else if(!strcmp(tmp, "do")){
+                    tokens[idx++].kind = TK_DO;
+                }
+                else if(!strcmp(tmp, "switch")){
+                    tokens[idx++].kind = TK_SWITCH;
+                }
+                else if(!strcmp(tmp, "int")){
+                    tokens[idx++].kind = TK_KW_INT;
+                }
+                else{
+                    tokens[idx].kind = TK_ID;
+                    tokens[idx].name = (char*)malloc((num+1)*sizeof(char));
+                    strcpy(tokens[idx].name, tmp);
+                    idx++;
+                }
             }
         }
         p++;
