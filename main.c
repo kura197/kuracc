@@ -74,6 +74,16 @@ int main(int argc, char* argv[]){
         sem_analy(vector_get(vec, i), -1);
     }
 
+    for(int i = 0; i < map_size(global); i++){
+        Symbol_t* sym = vector_get(global->val, i);
+        if(sym->role == FUNC) continue;
+        int size = get_type_size(sym->type);
+        if(sym->type->ty == TYPE_ARRAY)
+            size *= sym->type->array_size;
+        //printf(".comm  %s,%d,%d\n", sym->name, get_type_size(sym->type), get_type_size(sym->type));
+        printf(".comm  %s,%d\n", sym->name, size);
+    }
+    printf(".text\n");
     printf(".global main\n");
 
     for(int i = 0; i < vector_size(vec); i++){

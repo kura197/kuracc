@@ -581,6 +581,7 @@ Node_t* iter_stmt(){
 
 Node_t* translation_unit(){
     Node_t* node = function_definition();   
+    node->global = 1;
     return node;
 }
 
@@ -600,6 +601,10 @@ Node_t* function_definition(){
     }
     else if(next->kind == ';'){
         consume_token(';');
+    }
+    else{
+        error(next);
+        assert(0);
     }
 
     return node;

@@ -43,6 +43,8 @@ runtest_print test/t10.c 5
 runtest_print test/t11.c 1
 runtest_print test/t12.c 21
 runtest_print test/t13.c 51
+runtest_print test/t14.c 3
+runtest_print test/t15.c 35
 
 #runtest_return "main(){3+2;}" 5
 #runtest_return "main(){3+4+1;}" 8

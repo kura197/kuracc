@@ -36,12 +36,7 @@ typedef struct Node{
 
     //op == AST_FUNC
     int num_arg;
-    //int num_var;
-    //Map_t* var;
 
-    //char** arg_name;
-    //int arg_type[6];
-    //char* arg_name[6];
     Vector_t* args;
 
     //for
@@ -60,6 +55,7 @@ typedef struct Node{
     Type_t *ltype;
     Type_t *rtype;
 
+    int global;
 }Node_t;
 
 enum ast_kind{

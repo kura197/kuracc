@@ -13,20 +13,21 @@ SymTable_t* sym_table_new(){
     SymTable_t* symt = (SymTable_t*)malloc(sizeof(SymTable_t));
     symt->global = map_new();
     symt->arg = map_new();
-    symt->label = NULL; //not implemented
+    symt->label = map_new(); //not implemented
     symt->string = map_new();
     symt->local_index = -1;
     symt->num_var = 0;
     return symt;
 }
 
-Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, int offset){
+Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, int offset, int role){
     Symbol_t* sym = (Symbol_t*)malloc(sizeof(Symbol_t));
     sym->name = name;
     sym->type = type;
     sym->ast = ast;
     sym->name_space = name_space;
     sym->offset = offset;
+    sym->role = role;
     return sym;
 }
 
@@ -45,7 +46,7 @@ void sem_analy(Node_t* ast, int level){
                 Node_t* decl = vector_get(ast->args, i);
                 sym_table->num_var++;
                 sym_table->offset += get_type_size(decl->type);
-                sym = sym_new(decl->name, decl->type, ast, NS_ARG, sym_table->offset);
+                sym = sym_new(decl->name, decl->type, ast, NS_ARG, sym_table->offset, VAR);
                 map_push(sym_table->arg, decl->name, sym);
             }
             sym_table->local[0] = map_new();
@@ -68,19 +69,23 @@ void sem_analy(Node_t* ast, int level){
             break;
 
         case AST_FUNC_DEC:
-            sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0);
+            sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0, FUNC);
             map_push(global, ast->name, sym);
-            //map_push(sym_table->global, ast->name, sym);
             break;
 
         case AST_DEC:
+            if(ast->global){
+                sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0, VAR);
+                map_push(global, ast->name, sym);
+                break;
+            }
             sym_table->num_var++;
             int add_offset;
             add_offset = get_type_size(ast->type);
             if(ast->type->ty == TYPE_ARRAY)
                 add_offset *= ast->type->array_size;
             sym_table->offset += add_offset;
-            sym = sym_new(ast->name, ast->type, ast, NS_LOCAL, sym_table->offset);
+            sym = sym_new(ast->name, ast->type, ast, NS_LOCAL, sym_table->offset, VAR);
             map_push(sym_table->local[0], ast->name, sym);
             break;
 

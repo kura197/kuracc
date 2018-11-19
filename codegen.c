@@ -106,19 +106,33 @@ void codegen(Node_t* node){
             break;
 
         case AST_ID:
-            sym = get_sym(node->name);
-            if(node->type->ty == TYPE_ARRAY){
-                printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
-                printf("  pushq  %%rax\n");
-                rsp_allign += 4;
-                break;
+            if(search_sym(node->name) == NS_GLOBAL){
+                if(node->type->ty == TYPE_ARRAY){
+                    printf("  leaq %s(%%rip), %%rax\n", node->name);
+                }
+                else{
+                    if(is_ptr(node->type))
+                        printf("  movq %s(%%rip), %%rax\n", node->name);
+                    else
+                        printf("  movl %s(%%rip), %%eax\n", node->name);
+                }
+                printf("  pushq %%rax\n");
+                rsp_allign += 8;
             }
-            if(is_ptr(node->type))
-                printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
-            else
-                printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
-            printf("  pushq %%rax\n");
-            rsp_allign += 8;
+            else{
+                sym = get_sym(node->name);
+                if(node->type->ty == TYPE_ARRAY){
+                    printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
+                }
+                else{
+                    if(is_ptr(node->type))
+                        printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
+                    else
+                        printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
+                }
+                printf("  pushq %%rax\n");
+                rsp_allign += 8;
+            }
             break;
 
         case AST_FUNC_CALL:
@@ -238,6 +252,9 @@ void codegen(Node_t* node){
             codegen_lval(node->lhs);
             break;
 
+        case AST_DEC:   //global
+            break;
+
         default:
             printf("node : %s\n", ast_name[node->op]);
             assert(0);
@@ -248,10 +265,18 @@ void codegen(Node_t* node){
 
 void codegen_lval(Node_t* node){
     if(node->op == AST_ID){
-        sym = get_sym(node->name);
-        printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
-        printf("  pushq  %%rax\n");
-        rsp_allign += 4;
+        if(search_sym(node->name) == NS_GLOBAL){
+            //sym = map_search(symt->global, node->name);
+            printf("  leaq %s(%%rip), %%rax\n", node->name);
+            printf("  pushq  %%rax\n");
+            rsp_allign += 4;
+        }
+        else{
+            sym = get_sym(node->name);
+            printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
+            printf("  pushq  %%rax\n");
+            rsp_allign += 4;
+        }
     }
     else if(node->op == AST_UNARY_PTR){
         codegen(node->lhs);
@@ -299,6 +324,19 @@ Symbol_t* get_sym(char* name){
     if(sym == NULL) sym = map_search(symt->global, name);
     if(sym == NULL) assert(0);
     return sym;
+}
+
+int search_sym(char* name){
+    if(map_search(symt->local[0], name) != NULL)
+        return NS_LOCAL;
+    else if(map_search(symt->arg, name) != NULL)
+        return NS_ARG;
+    else if(map_search(symt->global, name) != NULL)
+        return NS_GLOBAL;
+    else if(map_search(symt->label, name) != NULL)
+        return NS_LABEL;
+    else
+        return -1;
 }
 
 int is_ptr(Type_t* type){
