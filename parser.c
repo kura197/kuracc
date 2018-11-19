@@ -117,6 +117,18 @@ void dump_node(Node_t* node, int num){
     }
 }
 
+int get_type_size(Type_t* type){
+    int size;
+    switch(type->ty){
+        case TYPE_CHAR: size = 1; break;
+        case TYPE_INT: size = 4; break;
+        case TYPE_PTR: size = 8; break;
+        case TYPE_ARRAY: size = get_type_size(type->ptrof); break;
+        default: size = 0; break;
+    }
+    return size;
+}
+
 ///////////////////////////////////
 ////////////expression/////////////
 ///////////////////////////////////

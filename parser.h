@@ -98,6 +98,7 @@ Node_t* conv2ptr(Node_t* node);
 void add_type(Node_t* node, Type_t* type);
 void error(Token_t* tk);
 void dump_node(Node_t* node, int num);
+int get_type_size(Type_t* type);
 
 Node_t* primary_expr();
 Node_t* postfix_expr();

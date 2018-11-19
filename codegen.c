@@ -7,6 +7,8 @@ int rsp_allign;
 int num_jmp;
 SymTable_t* symt;
 Symbol_t* sym;
+char* arg_regq_name[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+char* arg_regl_name[] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 
 void codegen(Node_t* node){
     if(node == NULL){
@@ -97,22 +99,24 @@ void codegen(Node_t* node){
             printf("  pop %%rbx\n");
             printf("  pop %%rax\n");
             rsp_allign -= 16;
-            printf("  movq %%rbx, (%%rax)\n");
-            //do not need this.
-            //printf("  pushq %%rax\n");
-            //rsp_allign += 4;
+            if(is_ptr(node->type))
+                printf("  movq %%rbx, (%%rax)\n");
+            else
+                printf("  movl %%ebx, (%%rax)\n");
             break;
 
         case AST_ID:
+            sym = get_sym(node->name);
             if(node->type->ty == TYPE_ARRAY){
-                sym = get_sym(node->name);
                 printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
                 printf("  pushq  %%rax\n");
                 rsp_allign += 4;
                 break;
             }
-            sym = get_sym(node->name);
-            printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
+            if(is_ptr(node->type))
+                printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
+            else
+                printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
             printf("  pushq %%rax\n");
             rsp_allign += 8;
             break;
@@ -123,12 +127,7 @@ void codegen(Node_t* node){
                 num_arg = codegen_arg(node->rhs, 0);
             for(int arg = num_arg-1; arg >= 0; arg--){
                 //max:6
-                if(arg == 0) printf("  pop %%rdi\n");
-                else if(arg == 1) printf("  pop %%rsi\n");
-                else if(arg == 2) printf("  pop %%rdx\n");
-                else if(arg == 3) printf("  pop %%rcx\n");
-                else if(arg == 4) printf("  pop %%r8\n");
-                else if(arg == 5) printf("  pop %%r9\n");
+                printf("  pop %%%s\n", arg_regq_name[arg]);
             }
             rsp_allign -= 8*num_arg;
             int diff_allign = rsp_allign % 16;
@@ -155,18 +154,10 @@ void codegen(Node_t* node){
                 //max:6
                 Symbol_t* sym = (Symbol_t*)vector_get(symt->arg->val, arg);
                 int offset = sym->offset;
-                if(arg == 0)
-                    printf("  movq %%rdi, -%d(%%rbp)\n", offset);
-                else if(arg == 1)
-                    printf("  movq %%rsi, -%d(%%rbp)\n", offset);
-                else if(arg == 2)
-                    printf("  movq %%rdx, -%d(%%rbp)\n", offset);
-                else if(arg == 3)
-                    printf("  movq %%rcx, -%d(%%rbp)\n", offset);
-                else if(arg == 4)
-                    printf("  movq %%r8, -%d(%%rbp)\n",  offset);
-                else if(arg == 5)
-                    printf("  movq %%r9, -%d(%%rbp)\n",  offset);
+                if(is_ptr(sym->type))
+                    printf("  movq %%%s, -%d(%%rbp)\n", arg_regq_name[arg], offset);
+                else
+                    printf("  movl %%%s, -%d(%%rbp)\n", arg_regl_name[arg], offset);
             }
 
             codegen(node->rhs);
@@ -309,3 +300,11 @@ Symbol_t* get_sym(char* name){
     if(sym == NULL) assert(0);
     return sym;
 }
+
+int is_ptr(Type_t* type){
+    if(type->ty == TYPE_PTR || (type->ty == TYPE_ARRAY && type->ptrof->ty == TYPE_PTR))
+        return 1;
+    else
+        return 0;
+}
+

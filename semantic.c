@@ -44,10 +44,7 @@ void sem_analy(Node_t* ast, int level){
             for(int i = 0; i < ast->num_arg; i++){
                 Node_t* decl = vector_get(ast->args, i);
                 sym_table->num_var++;
-                if(decl->type->ty == TYPE_PTR)
-                    sym_table->offset += 8;
-                else
-                    sym_table->offset += 8;
+                sym_table->offset += get_type_size(decl->type);
                 sym = sym_new(decl->name, decl->type, ast, NS_ARG, sym_table->offset);
                 map_push(sym_table->arg, decl->name, sym);
             }
@@ -66,6 +63,8 @@ void sem_analy(Node_t* ast, int level){
                 fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
                 assert(0);
             }
+            //OK??
+            ast->type = ast->ltype;
             break;
 
         case AST_FUNC_DEC:
@@ -77,10 +76,7 @@ void sem_analy(Node_t* ast, int level){
         case AST_DEC:
             sym_table->num_var++;
             int add_offset;
-            if(ast->type->ty == TYPE_PTR)
-                add_offset = 8;
-            else
-                add_offset = 8;
+            add_offset = get_type_size(ast->type);
             if(ast->type->ty == TYPE_ARRAY)
                 add_offset *= ast->type->array_size;
             sym_table->offset += add_offset;
