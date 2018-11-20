@@ -233,6 +233,12 @@ Node_t* cast_expr(){
             assert(0);
             consume_token(')');
         }
+        if(nnext->kind == TK_KW_CHAR){
+            consume_token('(');
+            printf("not yet implemented\n");
+            assert(0);
+            consume_token(')');
+        }
         else{
             node = unary_expr();
         }
@@ -338,6 +344,10 @@ Type_t* type_specifier(){
     if(next->kind == TK_KW_INT){
         consume_token(TK_KW_INT);
         type->ty = TYPE_INT;
+    }
+    else if(next->kind == TK_KW_CHAR){
+        consume_token(TK_KW_CHAR);
+        type->ty = TYPE_CHAR;
     }
     else{
         printf("not yet implemented\n");
@@ -484,7 +494,7 @@ Node_t* compound_stmt(){
 Node_t* block_item(){
     Node_t* node;
     Token_t* next = read_token(0);
-    if(next->kind == TK_KW_INT){
+    if(next->kind == TK_KW_INT || next->kind == TK_KW_CHAR){
         node = declaration();
     }
     else{

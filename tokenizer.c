@@ -11,7 +11,9 @@ int skip;
 //for debug purpose
 char *token_name[] = {
     "TK_INT",
+    "TK_CHAR",
     "TK_KW_INT",
+    "TK_KW_CHAR",
     "TK_EQ",
     "TK_NEQ",
     "TK_ID",
@@ -179,6 +181,9 @@ void tokenize(char* p){
                 }
                 else if(!strcmp(tmp, "int")){
                     tokens[idx++].kind = TK_KW_INT;
+                }
+                else if(!strcmp(tmp, "char")){
+                    tokens[idx++].kind = TK_KW_CHAR;
                 }
                 else{
                     tokens[idx].kind = TK_ID;

@@ -11,5 +11,6 @@ void codegen_comp_stmt(Node_t* node);
 Symbol_t* get_sym(char* name);
 int is_ptr(Type_t* type);
 int search_sym(char* name);
+int allign4(int x);
 
 #endif

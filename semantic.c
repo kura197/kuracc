@@ -66,6 +66,10 @@ void sem_analy(Node_t* ast, int level){
             }
             //OK??
             ast->type = ast->ltype;
+            //if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
+            //    ast->type = ast->ltype;
+            //else
+            //    ast->type = ast->rtype;
             break;
 
         case AST_FUNC_DEC:
@@ -122,8 +126,12 @@ void sem_analy(Node_t* ast, int level){
                 ast->type = ast->ltype;
             else if(right_ptr)
                 ast->type = ast->rtype;
-            else
-                ast->type = ast->ltype;
+            else{
+                if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
+                    ast->type = ast->ltype;
+                else
+                    ast->type = ast->rtype;
+            }
             break;
 
         case AST_MUL:
@@ -137,8 +145,13 @@ void sem_analy(Node_t* ast, int level){
                 fprintf(stderr, "Error : mul/div TYPE_PTR.\n");
                 assert(0);
             }
-            else
-                ast->type->ty = TYPE_INT;
+            else{
+                //ast->type->ty = TYPE_INT;
+                if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
+                    ast->type = ast->ltype;
+                else
+                    ast->type = ast->rtype;
+            }
             break;
 
         case AST_FOR:

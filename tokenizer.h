@@ -11,7 +11,9 @@ typedef struct Token{
 
 enum token_kind{
     TK_INT,  
+    TK_CHAR,  
     TK_KW_INT,  
+    TK_KW_CHAR,  
     TK_EQ,
     TK_NEQ,
     TK_ID,

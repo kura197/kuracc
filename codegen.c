@@ -33,18 +33,20 @@ void codegen(Node_t* node){
             if(node->type->ty == TYPE_PTR || node->type->ty == TYPE_ARRAY){
                 if(node->ltype->ty == TYPE_PTR || node->ltype->ty == TYPE_ARRAY){
                     int mul_val;
-                    switch(node->ltype->ptrof->ty){
-                        case TYPE_PTR: mul_val = 8; break;
-                        default: mul_val = 4; break;
-                    }
+                    //switch(node->ltype->ptrof->ty){
+                    //    case TYPE_PTR: mul_val = 8; break;
+                    //    default: mul_val = 4; break;
+                    //}
+                    mul_val = get_type_size(node->ltype->ptrof);
                     printf("  imul $%d, %%ebx\n", mul_val);
                 }
                 else{
                     int mul_val;
-                    switch(node->rtype->ptrof->ty){
-                        case TYPE_PTR: mul_val = 8; break;
-                        default: mul_val = 4; break;
-                    }
+                    //switch(node->rtype->ptrof->ty){
+                    //    case TYPE_PTR: mul_val = 8; break;
+                    //    default: mul_val = 4; break;
+                    //}
+                    mul_val = get_type_size(node->rtype->ptrof);
                     printf("  imul $%d, %%eax\n", mul_val);
                 }
             }
@@ -101,8 +103,14 @@ void codegen(Node_t* node){
             rsp_allign -= 16;
             if(is_ptr(node->type))
                 printf("  movq %%rbx, (%%rax)\n");
-            else
-                printf("  movl %%ebx, (%%rax)\n");
+            else{
+                if(get_type_size(node->type) == 4)
+                    printf("  movl %%ebx, (%%rax)\n");
+                else if(get_type_size(node->type) == 1)
+                    printf("  movb %%bl, (%%rax)\n");
+                else
+                    assert(0);
+            }
             break;
 
         case AST_ID:
@@ -113,8 +121,14 @@ void codegen(Node_t* node){
                 else{
                     if(is_ptr(node->type))
                         printf("  movq %s(%%rip), %%rax\n", node->name);
-                    else
-                        printf("  movl %s(%%rip), %%eax\n", node->name);
+                    else{
+                        if(get_type_size(node->type) == 4)
+                             printf("  movl %s(%%rip), %%eax\n", node->name);
+                        else if(get_type_size(node->type) == 1)
+                             printf("  movzbl %s(%%rip), %%eax\n", node->name);
+                        else
+                            assert(0);
+                    }
                 }
                 printf("  pushq %%rax\n");
                 rsp_allign += 8;
@@ -127,8 +141,14 @@ void codegen(Node_t* node){
                 else{
                     if(is_ptr(node->type))
                         printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
-                    else
-                        printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
+                    else{
+                        if(get_type_size(node->type) == 4)
+                            printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
+                        else if(get_type_size(node->type) == 1)
+                            printf("  movzbl -%d(%%rbp), %%eax\n", sym->offset);
+                        else
+                            assert(0);
+                    }
                 }
                 printf("  pushq %%rax\n");
                 rsp_allign += 8;
@@ -160,7 +180,7 @@ void codegen(Node_t* node){
             symt = node->sym_table;
             rsp_allign = 8;
             if(symt->offset > 0){
-                printf("  subq $%d, %%rsp\n", symt->offset);
+                printf("  subq $%d, %%rsp\n", allign4(symt->offset));
                 rsp_allign += symt->offset;
             }
             //printf("num_arg:%d\n", node->num_arg);
@@ -346,3 +366,10 @@ int is_ptr(Type_t* type){
         return 0;
 }
 
+int allign4(int x){
+    int n = 0;
+    while(x > n){
+        n += 4;
+    }
+    return n;
+}
