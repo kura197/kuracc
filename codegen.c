@@ -33,19 +33,11 @@ void codegen(Node_t* node){
             if(node->type->ty == TYPE_PTR || node->type->ty == TYPE_ARRAY){
                 if(node->ltype->ty == TYPE_PTR || node->ltype->ty == TYPE_ARRAY){
                     int mul_val;
-                    //switch(node->ltype->ptrof->ty){
-                    //    case TYPE_PTR: mul_val = 8; break;
-                    //    default: mul_val = 4; break;
-                    //}
                     mul_val = get_type_size(node->ltype->ptrof);
                     printf("  imul $%d, %%ebx\n", mul_val);
                 }
                 else{
                     int mul_val;
-                    //switch(node->rtype->ptrof->ty){
-                    //    case TYPE_PTR: mul_val = 8; break;
-                    //    default: mul_val = 4; break;
-                    //}
                     mul_val = get_type_size(node->rtype->ptrof);
                     printf("  imul $%d, %%eax\n", mul_val);
                 }
@@ -270,6 +262,13 @@ void codegen(Node_t* node){
 
         case AST_UNARY_ADR:
             codegen_lval(node->lhs);
+            break;
+
+        case AST_UNARY_MINUS:
+            codegen(node->lhs);
+            printf("  pop %%rax\n");
+            printf("  negl %%eax\n");
+            printf("  pushq %%rax\n");
             break;
 
         case AST_DEC:   //global

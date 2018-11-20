@@ -198,6 +198,11 @@ void sem_analy(Node_t* ast, int level){
             ast->type = type;
             break;
 
+        case AST_UNARY_MINUS:
+            sem_analy(ast->lhs, level);
+            ast->type = ast->lhs->type;
+            break;
+
         default:
             if(ast->lhs != NULL) sem_analy(ast->lhs, level);
             if(ast->rhs != NULL) sem_analy(ast->rhs, level);

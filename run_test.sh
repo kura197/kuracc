@@ -46,7 +46,8 @@ runtest_print test/t13.c 51
 runtest_print test/t14.c 3
 runtest_print test/t15.c 35
 runtest_print test/t16.c 9
-runtest_print test/t17.c 12
+runtest_print test/t17.c 10
+runtest_print test/t18.c 7
 
 echo 'Success!!'
 

@@ -27,6 +27,8 @@ char *ast_name[] = {
     "AST_FUNC_DEC",
     "AST_UNARY_ADR",
     "AST_UNARY_PTR",
+    "AST_UNARY_MINUS",
+    "AST_UNARY_REV",
     "AST_PARA_LIST",
 };
 
@@ -213,6 +215,14 @@ Node_t* unary_expr(){
     else if(next->kind == '*'){
         consume_token('*');
         node = new_node(AST_UNARY_PTR, cast_expr(), NULL);
+    }
+    else if(next->kind == '-'){
+        consume_token('-');
+        node = new_node(AST_UNARY_MINUS, cast_expr(), NULL);
+    }
+    else if(next->kind == '!'){
+        consume_token('!');
+        node = new_node(AST_UNARY_REV, cast_expr(), NULL);
     }
     else
         node = postfix_expr();

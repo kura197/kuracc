@@ -82,6 +82,8 @@ enum ast_kind{
     AST_FUNC_DEC,
     AST_UNARY_ADR,  //&
     AST_UNARY_PTR,  //*
+    AST_UNARY_MINUS,  //-
+    AST_UNARY_REV,  //!
     AST_PARA_LIST
 };
 

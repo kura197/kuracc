@@ -4,7 +4,7 @@ int printc(int x);
 
 int main(){
     char x[3];
-    x[0] = 1;
+    x[0] = -1;
     x[1] = 2;
     x[2] = 3;
     int y;
