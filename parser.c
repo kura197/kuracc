@@ -8,6 +8,7 @@ char *ast_name[] = {
     "AST_EQ",
     "AST_NEQ",
     "AST_ID",
+    "AST_STRING",
     "AST_ADD",
     "AST_SUB",
     "AST_MUL",
@@ -68,6 +69,13 @@ Node_t* new_node_ID(char* ID){
     return node;
 }
 
+Node_t* new_node_STRING(char* str){
+    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    node->op = AST_STRING;
+    node->name = str;
+    return node;
+}
+
 Node_t* new_node_DEC(char* name){
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
     node->op = AST_DEC;
@@ -112,6 +120,8 @@ void dump_node(Node_t* node, int num){
         printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else if(node->op == AST_FUNC_DEC)
         printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
+    else if(node->op == AST_STRING)
+        printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else
         printf("%d : %s\n", num, ast_name[node->op]);
 
@@ -146,6 +156,10 @@ Node_t* primary_expr(){
     else if(next->kind == TK_ID){
         consume_token(TK_ID);
         node = new_node_ID(next->name);
+    }
+    else if(next->kind == TK_STRING){
+        consume_token(TK_ID);
+        node = new_node_STRING(next->name);
     }
     else if(next->kind == '('){
         consume_token('(');
@@ -631,6 +645,12 @@ Node_t* function_definition(){
 
     }
     else if(next->kind == ';'){
+        consume_token(';');
+    }
+    else if(next->kind == '='){
+        consume_token('=');
+        node->global = 1;
+        node = new_node(AST_INIT_DEC, node, assign_expr());
         consume_token(';');
     }
     else{

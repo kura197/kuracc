@@ -63,6 +63,7 @@ enum ast_kind{
     AST_EQ, 
     AST_NEQ,
     AST_ID,
+    AST_STRING,
     AST_ADD,
     AST_SUB,
     AST_MUL,
@@ -93,6 +94,7 @@ Node_t* new_node(int op, Node_t* lhs, Node_t* rhs);
 Node_t* new_node_num(int val, int type);
 Node_t* new_node_DEC(char* name);
 Node_t* new_node_UOP(int* unary);
+Node_t* new_node_STRING(char* name);
 Node_t* conv2ptr(Node_t* node);
 void add_type(Node_t* node, Type_t* type);
 void error(Token_t* tk);

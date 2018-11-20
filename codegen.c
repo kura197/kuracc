@@ -106,6 +106,7 @@ void codegen(Node_t* node){
             break;
 
         case AST_INIT_DEC:
+            if(node->global) break;
             codegen_lval(node->lhs);
             codegen(node->rhs);
             printf("  pop %%rbx\n");

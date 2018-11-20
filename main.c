@@ -70,22 +70,48 @@ int main(int argc, char* argv[]){
     }
 
     global = map_new();
+    str_lit = map_new();
     for(int i = 0; i < (int)vector_size(vec); i++){
         sem_analy(vector_get(vec, i), -1);
+    }
+
+    for(int i = 0; i < map_size(str_lit); i++){
+        Node_t* ast = vector_get(str_lit->val, i);
+        char *name = vector_get(str_lit->key, i);
+        if(ast->op == AST_UNARY_MINUS){
+            ast = ast->lhs;
+            ast->val *= -1;
+        }
+
+        if(ast->op == AST_STRING){
+            ;
+        }else{
+            Symbol_t* sym = map_search(global, name);
+            int size = get_type_size(sym->type);
+            printf("  .globl %s\n", name);
+            printf("  .data\n");
+            printf("  .size %s, %d\n", name, size);
+            printf("%s:\n", name);
+            if(size == 4){
+                printf("  .long %d\n", ast->val);
+            }
+            else if(size == 1){
+                printf("  .byte %d\n", ast->val);
+            }
+        }
     }
 
     for(int i = 0; i < map_size(global); i++){
         Symbol_t* sym = vector_get(global->val, i);
         if(sym->role == FUNC) continue;
+        if(map_search(str_lit, sym->name) != NULL) continue;
         int size = get_type_size(sym->type);
         if(sym->type->ty == TYPE_ARRAY)
             size *= sym->type->array_size;
-        printf(".comm  %s,%d\n", sym->name, size);
-        //printf("%s:\n", sym->name);
-        //printf("  .zero %d\n", size);
+        printf("  .comm  %s,%d\n", sym->name, size);
     }
-    printf(".text\n");
-    printf(".global main\n");
+    printf("  .text\n");
+    printf("  .global main\n");
 
     for(int i = 0; i < vector_size(vec); i++){
         codegen((Node_t*)vector_get(vec, i));
