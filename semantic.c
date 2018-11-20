@@ -72,6 +72,20 @@ void sem_analy(Node_t* ast, int level){
             //    ast->type = ast->rtype;
             break;
 
+        case AST_INIT_DEC:
+            sem_analy(ast->lhs, level);
+            sem_analy(ast->rhs, level);
+            ast->ltype = ast->lhs->type;
+            ast->rtype = ast->rhs->type;
+            left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+            right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
+            if(left_ptr != right_ptr){
+                fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
+                assert(0);
+            }
+            ast->type = ast->ltype;
+            break;
+
         case AST_FUNC_DEC:
             sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0, FUNC);
             map_push(global, ast->name, sym);

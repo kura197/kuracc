@@ -18,6 +18,7 @@ char *ast_name[] = {
     "AST_FUNC",
     "AST_COMP_STMT",
     "AST_DEC",
+    "AST_INIT_DEC",
     "AST_EXPR",
     "AST_WHILE",
     "AST_IF",
@@ -343,8 +344,18 @@ Node_t* expr(){
 
 Node_t* declaration(){
     Type_t* type = type_specifier();
-    Node_t* node = declarator(type);
+    Node_t* node = init_declarator(type);
     consume_token(';');
+    return node;
+}
+
+Node_t* init_declarator(Type_t* type){
+    Node_t* node = declarator(type);
+    Token_t* next = read_token(0);
+    if(next->kind == '='){
+        consume_token('=');
+        node = new_node(AST_INIT_DEC, node, assign_expr());
+    }
     return node;
 }
 

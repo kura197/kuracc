@@ -73,6 +73,7 @@ enum ast_kind{
     AST_FUNC,
     AST_COMP_STMT,
     AST_DEC,
+    AST_INIT_DEC,
     AST_EXPR,
     AST_WHILE,
     AST_IF,
@@ -110,6 +111,7 @@ Node_t* assign_expr();
 Node_t* expr();
 
 Node_t* declaration();
+Node_t* init_declarator(Type_t* type);
 Type_t* type_specifier();
 Node_t* declarator(Type_t* type);
 Node_t* direct_declarator(Type_t** root);

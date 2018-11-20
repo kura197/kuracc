@@ -80,8 +80,9 @@ int main(int argc, char* argv[]){
         int size = get_type_size(sym->type);
         if(sym->type->ty == TYPE_ARRAY)
             size *= sym->type->array_size;
-        //printf(".comm  %s,%d,%d\n", sym->name, get_type_size(sym->type), get_type_size(sym->type));
         printf(".comm  %s,%d\n", sym->name, size);
+        //printf("%s:\n", sym->name);
+        //printf("  .zero %d\n", size);
     }
     printf(".text\n");
     printf(".global main\n");

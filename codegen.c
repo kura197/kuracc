@@ -105,6 +105,24 @@ void codegen(Node_t* node){
             }
             break;
 
+        case AST_INIT_DEC:
+            codegen_lval(node->lhs);
+            codegen(node->rhs);
+            printf("  pop %%rbx\n");
+            printf("  pop %%rax\n");
+            rsp_allign -= 16;
+            if(is_ptr(node->type))
+                printf("  movq %%rbx, (%%rax)\n");
+            else{
+                if(get_type_size(node->type) == 4)
+                    printf("  movl %%ebx, (%%rax)\n");
+                else if(get_type_size(node->type) == 1)
+                    printf("  movb %%bl, (%%rax)\n");
+                else
+                    assert(0);
+            }
+            break;
+
         case AST_ID:
             if(search_sym(node->name) == NS_GLOBAL){
                 if(node->type->ty == TYPE_ARRAY){
@@ -300,6 +318,12 @@ void codegen_lval(Node_t* node){
     else if(node->op == AST_UNARY_PTR){
         codegen(node->lhs);
     }
+    else if(node->op == AST_DEC){   //for AST_INIT_DEC
+        sym = get_sym(node->name);
+        printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
+        printf("  pushq  %%rax\n");
+        rsp_allign += 4;
+    }    
     else{
         fprintf(stderr, "not ID lvalue\n");
         assert(0);
