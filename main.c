@@ -84,7 +84,14 @@ int main(int argc, char* argv[]){
         }
 
         if(ast->op == AST_STRING){
-            ;
+            printf("  .globl %s\n", name);
+            printf("  .section .rodata\n");
+            printf("%s:\n", ".LC0");
+            printf(".string \"%s\"", ast->name);
+            printf("  .data\n");
+            printf("  .size %s, %d\n", name, 8);
+            printf("%s:\n", name);
+            printf("  .quad %s\n", ".LC0");
         }else{
             Symbol_t* sym = map_search(global, name);
             int size = get_type_size(sym->type);
