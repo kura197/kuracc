@@ -6,6 +6,7 @@
 
 int rsp_allign;
 int num_jmp;
+int num_ret;
 SymTable_t* symt;
 Symbol_t* sym;
 Map_t* strlabel;
@@ -164,7 +165,6 @@ void codegen(Node_t* node){
             rsp_allign += 8;
         }
     }
-
     else if(node->op == AST_FUNC_CALL){
         num_arg = 0;
         if(node->rhs != NULL && node->rhs->op == AST_ARG_LIST) 
@@ -205,8 +205,9 @@ void codegen(Node_t* node){
         }
 
         codegen(node->rhs);
-        printf("  pop %%rax\n");
+        //printf("  pop %%rax\n");
 
+        printf(".End%d:\n", num_ret++);
         printf("  movq %%rbp, %%rsp\n");
         printf("  pop %%rbp\n");
         printf("  ret\n");
@@ -281,6 +282,13 @@ void codegen(Node_t* node){
         printf("  pushq %%rax\n");
     }
     else if(node->op == AST_DEC){   //global
+    }
+    else if(node->op == AST_RET){
+        if(node->lhs != NULL){
+            codegen(node->lhs);
+            printf("  pop %%rax\n");
+            printf("  jmp .End%d\n", num_ret);
+        }
     }
     else{
         printf("node : %s\n", ast_name[node->op]);

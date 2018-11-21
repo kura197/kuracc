@@ -31,6 +31,9 @@ char *ast_name[] = {
     "AST_UNARY_PTR",
     "AST_UNARY_MINUS",
     "AST_UNARY_REV",
+    "AST_RET",
+    "AST_CONT",
+    "AST_BREAK",
     "AST_PARA_LIST",
 };
 
@@ -487,6 +490,9 @@ Node_t* stmt(){
     else if(next->kind == TK_IF || next->kind == TK_SWITCH){
         node = sel_stmt();
     }
+    else if(next->kind == TK_RETURN || next->kind == TK_CONT || next->kind == TK_BREAK){
+        node = jump_stmt();
+    }
     else{
         node = expr_stmt();
     }
@@ -616,6 +622,32 @@ Node_t* iter_stmt(){
     else{
         error(next);
         assert(0);
+    }
+    return node;
+}
+
+Node_t* jump_stmt(){
+    Node_t* node;
+    Token_t* next = read_token(0);
+    if(next->kind == TK_RETURN){
+        consume_token(TK_RETURN);
+        next = read_token(0);
+        if(next->kind == ';')
+            node = new_node(AST_RET, NULL, NULL);
+        else
+            node = new_node(AST_RET, expr(), NULL);
+        consume_token(';');
+    }
+    //onlt parse
+    else if(next->kind == TK_CONT){
+        consume_token(TK_CONT);
+        consume_token(';');
+        node = new_node(AST_CONT, NULL, NULL);
+    }
+    else if(next->kind == TK_BREAK){
+        consume_token(TK_BREAK);
+        consume_token(';');
+        node = new_node(AST_BREAK, NULL, NULL);
     }
     return node;
 }

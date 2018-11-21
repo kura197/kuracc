@@ -11,7 +11,7 @@ int factor(int x){
     else{
         z = x;
     }
-    z;
+    return z;
 }
 
 int main(){

@@ -23,6 +23,7 @@ char *token_name[] = {
     "TK_FOR",
     "TK_DO",
     "TK_SWITCH",
+    "TK_RETURN",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -196,6 +197,15 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "char")){
                 tokens[idx++].kind = TK_KW_CHAR;
+            }
+            else if(!strcmp(tmp, "return")){
+                tokens[idx++].kind = TK_RETURN;
+            }
+            else if(!strcmp(tmp, "continue")){
+                tokens[idx++].kind = TK_CONT;
+            }
+            else if(!strcmp(tmp, "break")){
+                tokens[idx++].kind = TK_BREAK;
             }
             else{
                 tokens[idx].kind = TK_ID;

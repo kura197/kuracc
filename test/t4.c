@@ -4,19 +4,19 @@ int print();
 int add(int a,int b){
     int c;
     c = a+b;
-    c;
+    return c;
 }
 
 int sub(int a,int b){
     int c;
     c = a-b;
-    c;
+    return c;
 }
 
 int mul(int a,int b){
     int c;
     c = a*b;
-    c;
+    return c;
 }
 
 int main(){

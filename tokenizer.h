@@ -24,6 +24,9 @@ enum token_kind{
     TK_FOR,
     TK_DO,
     TK_SWITCH,
+    TK_RETURN,
+    TK_CONT,
+    TK_BREAK,
     TK_EOF,
 };
 

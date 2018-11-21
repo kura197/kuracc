@@ -86,6 +86,9 @@ enum ast_kind{
     AST_UNARY_PTR,  //*
     AST_UNARY_MINUS,  //-
     AST_UNARY_REV,  //!
+    AST_RET,
+    AST_CONT,
+    AST_BREAK,
     AST_PARA_LIST
 };
 
@@ -126,6 +129,7 @@ Node_t* block_item();
 Node_t* expr_stmt();
 Node_t* sel_stmt();
 Node_t* iter_stmt();
+Node_t* jump_stmt();
 
 Node_t* translation_unit();
 Node_t* function_definition();
