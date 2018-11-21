@@ -65,7 +65,7 @@ void tokenize(char* p){
                 while(*p != '\n'){
                     p++;
                 }
-                p++;
+                //p++;
             }
         }
         else if(*p == '"'){
@@ -76,7 +76,7 @@ void tokenize(char* p){
                 tmp[n++] = *p;
                 p++;
             }
-            tmp[n+1] = '\0';
+            tmp[n] = '\0';
             tokens[idx].kind = TK_STRING;
             tokens[idx].name = (char*)malloc((n+1)*sizeof(char));
             strcpy(tokens[idx].name, tmp);

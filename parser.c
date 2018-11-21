@@ -158,7 +158,7 @@ Node_t* primary_expr(){
         node = new_node_ID(next->name);
     }
     else if(next->kind == TK_STRING){
-        consume_token(TK_ID);
+        consume_token(TK_STRING);
         node = new_node_STRING(next->name);
     }
     else if(next->kind == '('){

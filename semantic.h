@@ -42,6 +42,7 @@ Symbol_t* sym_new(char* name, struct Type* type, struct Node* ast, int name_spac
 void sem_analy(struct Node* ast, int level);
 
 extern Map_t* global;
-extern Map_t* str_lit;
+extern Map_t* global_init;
+extern Vector_t* str_lit;
 
 #endif

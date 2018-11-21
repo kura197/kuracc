@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "codegen.h"
 #include "semantic.h"
@@ -7,8 +8,10 @@ int rsp_allign;
 int num_jmp;
 SymTable_t* symt;
 Symbol_t* sym;
+Map_t* strlabel;
 char* arg_regq_name[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 char* arg_regl_name[] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+
 
 void codegen(Node_t* node){
     if(node == NULL){
@@ -107,6 +110,7 @@ void codegen(Node_t* node){
 
         case AST_INIT_DEC:
             if(node->global) break;
+            if(node->rhs->op == AST_STRING) break;
             codegen_lval(node->lhs);
             codegen(node->rhs);
             printf("  pop %%rbx\n");
@@ -123,6 +127,12 @@ void codegen(Node_t* node){
                     assert(0);
             }
             break;
+
+        //case AST_STRING:
+        //    char* label = map_search(strlabel, ast->name);
+        //    printf("  movl $%s, %%eax\n", label);
+        //    printf("  pushq %%rax\n");
+        //    break;
 
         case AST_ID:
             if(search_sym(node->name) == NS_GLOBAL){
@@ -397,3 +407,54 @@ int allign4(int x){
     }
     return n;
 }
+
+void codegen_str(){
+    for(int i = 0; i < vector_size(str_lit); i++){
+        char* str = vector_get(str_lit, i);
+        char* label = (char*)malloc(8*sizeof(char));
+        map_push(strlabel, str, label);
+        sprintf(label, ".LC%d", i);
+        printf("%s:\n", label);
+        printf("  .string \"%s\"\n", str);
+    }
+}
+
+void codegen_global_init(){
+    for(int i = 0; i < map_size(global_init); i++){
+        Node_t* ast = vector_get(global_init->val, i);
+        char *name = vector_get(global_init->key, i);
+        if(ast->op == AST_UNARY_MINUS){
+            ast = ast->lhs;
+            ast->val *= -1;
+        }
+
+        if(ast->op == AST_STRING){
+            char* label = map_search(strlabel, ast->name);
+            printf("%s:\n", name);
+            printf("  .quad %s\n", label);
+        }else{
+            Symbol_t* sym = map_search(global, name);
+            int size = get_type_size(sym->type);
+            printf("%s:\n", name);
+            if(size == 4){
+                printf("  .long %d\n", ast->val);
+            }
+            else if(size == 1){
+                printf("  .byte %d\n", ast->val);
+            }
+        }
+    }
+}
+
+void codegen_global(){
+    for(int i = 0; i < map_size(global); i++){
+        Symbol_t* sym = vector_get(global->val, i);
+        if(sym->role == FUNC) continue;
+        if(map_search(global_init, sym->name) != NULL) continue;
+        int size = get_type_size(sym->type);
+        if(sym->type->ty == TYPE_ARRAY)
+            size *= sym->type->array_size;
+        printf("  .comm  %s,%d\n", sym->name, size);
+    }
+}
+

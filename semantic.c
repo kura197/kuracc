@@ -7,7 +7,8 @@
 SymTable_t* sym_table;
 Symbol_t* sym;
 Map_t* global;
-Map_t* str_lit;
+Map_t* global_init;
+Vector_t* str_lit;
 Type_t* type;
 
 SymTable_t* sym_table_new(){
@@ -86,12 +87,17 @@ void sem_analy(Node_t* ast, int level){
             }
             ast->type = ast->ltype;
             if(ast->global){
-                map_push(str_lit, ast->lhs->name, ast->rhs);
+                map_push(global_init, ast->lhs->name, ast->rhs);
             }
+            //if(ast->rhs->op == AST_STRING)
+            //    map_push(str_lit, ast->lhs->name, ast->rhs);
             break;
 
-        //case AST_STRING:
-
+        case AST_STRING:
+            ast->type = (Type_t*)malloc(sizeof(Type_t));
+            ast->type->ty = TYPE_PTR;
+            vector_push(str_lit, ast->name);
+            break;
 
         case AST_FUNC_DEC:
             sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0, FUNC);

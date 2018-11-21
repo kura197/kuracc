@@ -1,8 +1,12 @@
 
-int print(int x);
 int printc(int x);
+int printf(char* s);
+
+int x = 2;
+int y;
 
 int main(){
-    char *x = "hello\n";
-    printc(*x);
+    char* str = "hello";
+    printc(*str);
+    printf("%s", str);
 }
