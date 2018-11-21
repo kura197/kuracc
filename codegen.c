@@ -19,294 +19,272 @@ void codegen(Node_t* node){
     }
     int num_arg;
     int tmp_num_jmp;
-    switch(node->op){
-        case AST_INT:
-            printf("  movl $%d, %%eax\n", node->val);
-            printf("  pushq %%rax\n");
-            rsp_allign += 8;
-            break;
 
-        case AST_ADD:
-        case AST_SUB:
-            codegen(node->lhs);
-            codegen(node->rhs);
-            printf("  pop %%rbx\n");
-            printf("  pop %%rax\n");
-            rsp_allign -= 16;
-            if(node->type->ty == TYPE_PTR || node->type->ty == TYPE_ARRAY){
-                if(node->ltype->ty == TYPE_PTR || node->ltype->ty == TYPE_ARRAY){
-                    int mul_val;
-                    mul_val = get_type_size(node->ltype->ptrof);
-                    printf("  imul $%d, %%ebx\n", mul_val);
-                }
-                else{
-                    int mul_val;
-                    mul_val = get_type_size(node->rtype->ptrof);
-                    printf("  imul $%d, %%eax\n", mul_val);
-                }
-            }
-            if(node->op == AST_ADD){
-                printf("  addq %%rbx, %%rax\n");
-            }
-            else if(node->op == AST_SUB){
-                printf("  subq %%rbx, %%rax\n");
-            }
-            printf("  pushq %%rax\n");
-            rsp_allign += 8;
-            break;
-
-        case AST_MUL:
-        case AST_DIV:
-            codegen(node->lhs);
-            codegen(node->rhs);
-            printf("  pop %%rbx\n");
-            printf("  pop %%rax\n");
-            rsp_allign -= 16;
-            if(node->op == AST_MUL){
-                printf("  imul %%ebx, %%eax\n");
-            }
-            else if(node->op == AST_DIV){
-                printf("  cltd\n");
-                printf("  div %%ebx\n");
-            }
-            printf("  pushq %%rax\n");
-            rsp_allign += 8;
-            break;
-
-        case AST_EQ:
-        case AST_NEQ:
-            codegen(node->lhs);
-            codegen(node->rhs);
-            printf("  popq %%rbx\n");
-            printf("  popq %%rax\n");
-            rsp_allign -= 16;
-            printf("  cmpl %%eax, %%ebx\n");
-            if(node->op == AST_EQ)   
-                printf("  sete %%al\n");
-            if(node->op == AST_NEQ)   
-                printf("  setne %%al\n");
-            printf("  movzbl %%al, %%eax\n");
-            printf("  pushq %%rax\n");
-            rsp_allign += 8;
-            break;
-
-        case AST_ASSIGN:
-            codegen_lval(node->lhs);
-            codegen(node->rhs);
-            printf("  pop %%rbx\n");
-            printf("  pop %%rax\n");
-            rsp_allign -= 16;
-            if(is_ptr(node->type))
-                printf("  movq %%rbx, (%%rax)\n");
-            else{
-                if(get_type_size(node->type) == 4)
-                    printf("  movl %%ebx, (%%rax)\n");
-                else if(get_type_size(node->type) == 1)
-                    printf("  movb %%bl, (%%rax)\n");
-                else
-                    assert(0);
-            }
-            break;
-
-        case AST_INIT_DEC:
-            if(node->global) break;
-            if(node->rhs->op == AST_STRING) break;
-            codegen_lval(node->lhs);
-            codegen(node->rhs);
-            printf("  pop %%rbx\n");
-            printf("  pop %%rax\n");
-            rsp_allign -= 16;
-            if(is_ptr(node->type))
-                printf("  movq %%rbx, (%%rax)\n");
-            else{
-                if(get_type_size(node->type) == 4)
-                    printf("  movl %%ebx, (%%rax)\n");
-                else if(get_type_size(node->type) == 1)
-                    printf("  movb %%bl, (%%rax)\n");
-                else
-                    assert(0);
-            }
-            break;
-
-        //case AST_STRING:
-        //    char* label = map_search(strlabel, ast->name);
-        //    printf("  movl $%s, %%eax\n", label);
-        //    printf("  pushq %%rax\n");
-        //    break;
-
-        case AST_ID:
-            if(search_sym(node->name) == NS_GLOBAL){
-                if(node->type->ty == TYPE_ARRAY){
-                    printf("  leaq %s(%%rip), %%rax\n", node->name);
-                }
-                else{
-                    if(is_ptr(node->type))
-                        printf("  movq %s(%%rip), %%rax\n", node->name);
-                    else{
-                        if(get_type_size(node->type) == 4)
-                             printf("  movl %s(%%rip), %%eax\n", node->name);
-                        else if(get_type_size(node->type) == 1)
-                             printf("  movzbl %s(%%rip), %%eax\n", node->name);
-                        else
-                            assert(0);
-                    }
-                }
-                printf("  pushq %%rax\n");
-                rsp_allign += 8;
+    if(node->op == AST_INT){
+        printf("  movl $%d, %%eax\n", node->val);
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
+    }
+    else if(node->op == AST_ADD || node->op == AST_SUB){
+        codegen(node->lhs);
+        codegen(node->rhs);
+        printf("  pop %%rbx\n");
+        printf("  pop %%rax\n");
+        rsp_allign -= 16;
+        if(node->type->ty == TYPE_PTR || node->type->ty == TYPE_ARRAY){
+            if(node->ltype->ty == TYPE_PTR || node->ltype->ty == TYPE_ARRAY){
+                int mul_val;
+                mul_val = get_type_size(node->ltype->ptrof);
+                printf("  imul $%d, %%ebx\n", mul_val);
             }
             else{
-                sym = get_sym(node->name);
-                if(node->type->ty == TYPE_ARRAY){
-                    printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
-                }
+                int mul_val;
+                mul_val = get_type_size(node->rtype->ptrof);
+                printf("  imul $%d, %%eax\n", mul_val);
+            }
+        }
+        if(node->op == AST_ADD){
+            printf("  addq %%rbx, %%rax\n");
+        }
+        else if(node->op == AST_SUB){
+            printf("  subq %%rbx, %%rax\n");
+        }
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
+    }
+    else if(node->op == AST_MUL || node->op == AST_DIV){
+        codegen(node->lhs);
+        codegen(node->rhs);
+        printf("  pop %%rbx\n");
+        printf("  pop %%rax\n");
+        rsp_allign -= 16;
+        if(node->op == AST_MUL){
+            printf("  imul %%ebx, %%eax\n");
+        }
+        else if(node->op == AST_DIV){
+            printf("  cltd\n");
+            printf("  div %%ebx\n");
+        }
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
+    }
+    else if(node->op == AST_EQ || node->op == AST_NEQ){
+        codegen(node->lhs);
+        codegen(node->rhs);
+        printf("  popq %%rbx\n");
+        printf("  popq %%rax\n");
+        rsp_allign -= 16;
+        printf("  cmpl %%eax, %%ebx\n");
+        if(node->op == AST_EQ)   
+            printf("  sete %%al\n");
+        if(node->op == AST_NEQ)   
+            printf("  setne %%al\n");
+        printf("  movzbl %%al, %%eax\n");
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
+    }
+    else if(node->op == AST_ASSIGN){
+        codegen_lval(node->lhs);
+        codegen(node->rhs);
+        printf("  pop %%rbx\n");
+        printf("  pop %%rax\n");
+        rsp_allign -= 16;
+        if(is_ptr(node->type))
+            printf("  movq %%rbx, (%%rax)\n");
+        else{
+            if(get_type_size(node->type) == 4)
+                printf("  movl %%ebx, (%%rax)\n");
+            else if(get_type_size(node->type) == 1)
+                printf("  movb %%bl, (%%rax)\n");
+            else
+                assert(0);
+        }
+    }
+    else if(node->op == AST_INIT_DEC){
+        if(node->global) return;
+        codegen_lval(node->lhs);
+        codegen(node->rhs);
+        printf("  pop %%rbx\n");
+        printf("  pop %%rax\n");
+        rsp_allign -= 16;
+        if(is_ptr(node->type))
+            printf("  movq %%rbx, (%%rax)\n");
+        else{
+            if(get_type_size(node->type) == 4)
+                printf("  movl %%ebx, (%%rax)\n");
+            else if(get_type_size(node->type) == 1)
+                printf("  movb %%bl, (%%rax)\n");
+            else
+                assert(0);
+        }
+    }
+    else if(node->op == AST_STRING){
+        char* label = map_search(strlabel, node->name);
+        printf("  movq $%s, %%rax\n", label);
+        printf("  pushq %%rax\n");
+    }
+    else if(node->op == AST_ID){
+        if(search_sym(node->name) == NS_GLOBAL){
+            if(node->type->ty == TYPE_ARRAY){
+                printf("  leaq %s(%%rip), %%rax\n", node->name);
+            }
+            else{
+                if(is_ptr(node->type))
+                    printf("  movq %s(%%rip), %%rax\n", node->name);
                 else{
-                    if(is_ptr(node->type))
-                        printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
-                    else{
-                        if(get_type_size(node->type) == 4)
-                            printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
-                        else if(get_type_size(node->type) == 1)
-                            printf("  movzbl -%d(%%rbp), %%eax\n", sym->offset);
-                        else
-                            assert(0);
-                    }
+                    if(get_type_size(node->type) == 4)
+                        printf("  movl %s(%%rip), %%eax\n", node->name);
+                    else if(get_type_size(node->type) == 1)
+                        printf("  movzbl %s(%%rip), %%eax\n", node->name);
+                    else
+                        assert(0);
                 }
-                printf("  pushq %%rax\n");
-                rsp_allign += 8;
             }
-            break;
-
-        case AST_FUNC_CALL:
-            num_arg = 0;
-            if(node->rhs != NULL && node->rhs->op == AST_ARG_LIST) 
-                num_arg = codegen_arg(node->rhs, 0);
-            for(int arg = num_arg-1; arg >= 0; arg--){
-                //max:6
-                printf("  pop %%%s\n", arg_regq_name[arg]);
-            }
-            rsp_allign -= 8*num_arg;
-            int diff_allign = rsp_allign % 16;
-            int rem = (diff_allign != 0) ? 16 - (diff_allign) : 0;
-            if(rem > 0) printf("  subq $%d, %%rsp\n", rem);
-            printf("  call %s\n", node->lhs->name);
-            if(rem > 0) printf("  addq $%d, %%rsp\n", rem);
             printf("  pushq %%rax\n");
-            break;
-
-        case AST_FUNC:
-            printf("\n%s:\n", node->name);
-            printf("  pushq %%rbp\n");
-            printf("  movq %%rsp, %%rbp\n");
-
-            symt = node->sym_table;
-            rsp_allign = 8;
-            if(symt->offset > 0){
-                printf("  subq $%d, %%rsp\n", allign4(symt->offset));
-                rsp_allign += symt->offset;
+            rsp_allign += 8;
+        }
+        else{
+            sym = get_sym(node->name);
+            if(node->type->ty == TYPE_ARRAY){
+                printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
             }
-            //printf("num_arg:%d\n", node->num_arg);
-            for(int arg = 0; arg < map_size(symt->arg); arg++){
-                //max:6
-                Symbol_t* sym = (Symbol_t*)vector_get(symt->arg->val, arg);
-                int offset = sym->offset;
-                if(is_ptr(sym->type))
-                    printf("  movq %%%s, -%d(%%rbp)\n", arg_regq_name[arg], offset);
-                else
-                    printf("  movl %%%s, -%d(%%rbp)\n", arg_regl_name[arg], offset);
+            else{
+                if(is_ptr(node->type))
+                    printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
+                else{
+                    if(get_type_size(node->type) == 4)
+                        printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
+                    else if(get_type_size(node->type) == 1)
+                        printf("  movzbl -%d(%%rbp), %%eax\n", sym->offset);
+                    else
+                        assert(0);
+                }
             }
+            printf("  pushq %%rax\n");
+            rsp_allign += 8;
+        }
+    }
 
-            codegen(node->rhs);
-            printf("  pop %%rax\n");
+    else if(node->op == AST_FUNC_CALL){
+        num_arg = 0;
+        if(node->rhs != NULL && node->rhs->op == AST_ARG_LIST) 
+            num_arg = codegen_arg(node->rhs, 0);
+        for(int arg = num_arg-1; arg >= 0; arg--){
+            //max:6
+            printf("  pop %%%s\n", arg_regq_name[arg]);
+        }
+        rsp_allign -= 8*num_arg;
+        int diff_allign = rsp_allign % 16;
+        int rem = (diff_allign != 0) ? 16 - (diff_allign) : 0;
+        if(rem > 0) printf("  subq $%d, %%rsp\n", rem);
+        printf("  movq $0, %%rax\n");
+        printf("  call %s\n", node->lhs->name);
+        if(rem > 0) printf("  addq $%d, %%rsp\n", rem);
+        printf("  pushq %%rax\n");
+    }
+    else if(node->op == AST_FUNC){
+        printf("\n%s:\n", node->name);
+        printf("  pushq %%rbp\n");
+        printf("  movq %%rsp, %%rbp\n");
 
-            printf("  movq %%rbp, %%rsp\n");
-            printf("  pop %%rbp\n");
-            printf("  ret\n");
-            break;
+        symt = node->sym_table;
+        rsp_allign = 8;
+        if(symt->offset > 0){
+            printf("  subq $%d, %%rsp\n", allign4(symt->offset));
+            rsp_allign += symt->offset;
+        }
+        //printf("num_arg:%d\n", node->num_arg);
+        for(int arg = 0; arg < map_size(symt->arg); arg++){
+            //max:6
+            Symbol_t* sym = (Symbol_t*)vector_get(symt->arg->val, arg);
+            int offset = sym->offset;
+            if(is_ptr(sym->type))
+                printf("  movq %%%s, -%d(%%rbp)\n", arg_regq_name[arg], offset);
+            else
+                printf("  movl %%%s, -%d(%%rbp)\n", arg_regl_name[arg], offset);
+        }
 
-        case AST_COMP_STMT:
-            codegen_comp_stmt(node);
-            break;
+        codegen(node->rhs);
+        printf("  pop %%rax\n");
 
-        case AST_WHILE:
-            tmp_num_jmp = num_jmp;
-            num_jmp++;
-            printf(".L%dbegin:\n", tmp_num_jmp);
+        printf("  movq %%rbp, %%rsp\n");
+        printf("  pop %%rbp\n");
+        printf("  ret\n");
+    }
+    else if(node->op == AST_COMP_STMT){
+        codegen_comp_stmt(node);
+    }
+    else if(node->op == AST_WHILE){
+        tmp_num_jmp = num_jmp;
+        num_jmp++;
+        printf(".L%dbegin:\n", tmp_num_jmp);
+        codegen(node->lhs);
+        printf("  pop %%rax\n");
+        printf("  cmp $0, %%rax\n");
+        printf("  je .L%dend\n", tmp_num_jmp);
+        codegen(node->rhs);
+        printf("  jmp .L%dbegin\n", tmp_num_jmp);
+        printf(".L%dend:\n", tmp_num_jmp);
+    }
+    else if(node->op == AST_IF){
+        tmp_num_jmp = num_jmp;
+        num_jmp++;
+        if(node->else_stmt == NULL){
             codegen(node->lhs);
             printf("  pop %%rax\n");
             printf("  cmp $0, %%rax\n");
             printf("  je .L%dend\n", tmp_num_jmp);
             codegen(node->rhs);
-            printf("  jmp .L%dbegin\n", tmp_num_jmp);
             printf(".L%dend:\n", tmp_num_jmp);
-            break;
-
-        case AST_IF:
-            tmp_num_jmp = num_jmp;
-            num_jmp++;
-            if(node->else_stmt == NULL){
-                codegen(node->lhs);
-                printf("  pop %%rax\n");
-                printf("  cmp $0, %%rax\n");
-                printf("  je .L%dend\n", tmp_num_jmp);
-                codegen(node->rhs);
-                printf(".L%dend:\n", tmp_num_jmp);
-            }
-            else{
-                codegen(node->lhs);
-                printf("  pop %%rax\n");
-                printf("  cmp $0, %%rax\n");
-                printf("  je .L%dlatt\n", tmp_num_jmp);
-                codegen(node->rhs);
-                printf("  jmp .L%dend\n", tmp_num_jmp);
-                printf(".L%dlatt:\n", tmp_num_jmp);
-                codegen(node->else_stmt);
-                printf(".L%dend:\n", tmp_num_jmp);
-            }
-            break;
-
-        case AST_FOR:
-            tmp_num_jmp = num_jmp;
-            num_jmp++;
-            if(node->lfor != NULL) codegen(node->lfor);
-            printf("  jmp .L%dmid\n", tmp_num_jmp);
-            printf(".L%dright:\n", tmp_num_jmp);
-            if(node->rfor != NULL) codegen(node->rfor);
+        }
+        else{
             codegen(node->lhs);
-            printf(".L%dmid:\n", tmp_num_jmp);
-            if(node->mfor != NULL) codegen(node->mfor);
             printf("  pop %%rax\n");
             printf("  cmp $0, %%rax\n");
-            printf("  jne .L%dright\n", tmp_num_jmp);
-            break;
-
-        case AST_FUNC_DEC:
-            break;
-
-        case AST_UNARY_PTR:
-            codegen(node->lhs);
-            printf("  pop %%rbx\n");
-            printf("  movq (%%rbx), %%rax\n");
-            printf("  pushq %%rax\n");
-            break;
-
-        case AST_UNARY_ADR:
-            codegen_lval(node->lhs);
-            break;
-
-        case AST_UNARY_MINUS:
-            codegen(node->lhs);
-            printf("  pop %%rax\n");
-            printf("  negl %%eax\n");
-            printf("  pushq %%rax\n");
-            break;
-
-        case AST_DEC:   //global
-            break;
-
-        default:
-            printf("node : %s\n", ast_name[node->op]);
-            assert(0);
-            break;
+            printf("  je .L%dlatt\n", tmp_num_jmp);
+            codegen(node->rhs);
+            printf("  jmp .L%dend\n", tmp_num_jmp);
+            printf(".L%dlatt:\n", tmp_num_jmp);
+            codegen(node->else_stmt);
+            printf(".L%dend:\n", tmp_num_jmp);
+        }
+    }
+    else if(node->op == AST_FOR){
+        tmp_num_jmp = num_jmp;
+        num_jmp++;
+        if(node->lfor != NULL) codegen(node->lfor);
+        printf("  jmp .L%dmid\n", tmp_num_jmp);
+        printf(".L%dright:\n", tmp_num_jmp);
+        if(node->rfor != NULL) codegen(node->rfor);
+        codegen(node->lhs);
+        printf(".L%dmid:\n", tmp_num_jmp);
+        if(node->mfor != NULL) codegen(node->mfor);
+        printf("  pop %%rax\n");
+        printf("  cmp $0, %%rax\n");
+        printf("  jne .L%dright\n", tmp_num_jmp);
+    }
+    else if(node->op == AST_FUNC_DEC){
+    }
+    else if(node->op == AST_UNARY_PTR){
+        codegen(node->lhs);
+        printf("  pop %%rbx\n");
+        printf("  movq (%%rbx), %%rax\n");
+        printf("  pushq %%rax\n");
+    }
+    else if(node->op == AST_UNARY_ADR){
+        codegen_lval(node->lhs);
+    }
+    else if(node->op == AST_UNARY_MINUS){
+        codegen(node->lhs);
+        printf("  pop %%rax\n");
+        printf("  negl %%eax\n");
+        printf("  pushq %%rax\n");
+    }
+    else if(node->op == AST_DEC){   //global
+    }
+    else{
+        printf("node : %s\n", ast_name[node->op]);
+        assert(0);
     }
 }
 

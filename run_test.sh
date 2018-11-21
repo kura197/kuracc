@@ -49,6 +49,7 @@ runtest_print test/t16.c 9
 runtest_print test/t17.c 10
 runtest_print test/t18.c 7
 runtest_print test/t19.c 10
+runtest_print test/t20.c "hello, world : 51"
 
 echo 'Success!!'
 
