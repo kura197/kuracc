@@ -156,6 +156,46 @@ void codegen(Node_t* ast){
             printf("  xorl %%ebx, %%eax\n");
         printf("  pushq %%rax\n");
     }
+    else if(ast->op == AST_LOG_AND){
+        int tmp_num_jmp1 = num_jmp;
+        int tmp_num_jmp2 = num_jmp+1;
+        num_jmp+=2;
+        codegen(ast->lhs);
+        printf("  pop %%rax\n");
+        printf("  cmpl $0, %%eax\n");
+        printf("  je .L%d\n", tmp_num_jmp1);
+        codegen(ast->rhs);
+        printf("  pop %%rax\n");
+        printf("  cmpl $0, %%eax\n");
+        printf("  je .L%d\n", tmp_num_jmp1);
+        printf("  movl $1, %%eax\n");
+        printf("  jmp .L%d\n", tmp_num_jmp2);
+        printf(".L%d:\n", tmp_num_jmp1);
+        printf("  movl $0, %%eax\n");
+        printf(".L%d:\n", tmp_num_jmp2);
+        printf("  pushq %%rax\n");
+    }
+    else if(ast->op == AST_LOG_OR){
+        int tmp_num_jmp1 = num_jmp;
+        int tmp_num_jmp2 = num_jmp+1;
+        int tmp_num_jmp3 = num_jmp+2;
+        num_jmp+=3;
+        codegen(ast->lhs);
+        printf("  pop %%rax\n");
+        printf("  cmpl $0, %%eax\n");
+        printf("  jne .L%d\n", tmp_num_jmp1);
+        codegen(ast->rhs);
+        printf("  pop %%rax\n");
+        printf("  cmpl $0, %%eax\n");
+        printf("  je .L%d\n", tmp_num_jmp2);
+        printf(".L%d:\n", tmp_num_jmp1);
+        printf("  movl $1, %%eax\n");
+        printf("  jmp .L%d\n", tmp_num_jmp3);
+        printf(".L%d:\n", tmp_num_jmp2);
+        printf("  movl $0, %%eax\n");
+        printf(".L%d:\n", tmp_num_jmp3);
+        printf("  pushq %%rax\n");
+    }
     else if(ast->op == AST_ASSIGN){
         codegen_lval(ast->lhs);
         codegen(ast->rhs);
