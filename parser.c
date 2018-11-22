@@ -344,34 +344,59 @@ Node_t* and_expr(){
     return node;
 }
 
-//Node_t* exor_expr(){
-//    Node_t* node = and_expr();
-//    Token_t* next = read_token(0);
-//    while(next->kind == '^'){
-//        consume_token('^');
-//        node = new_node(AST_EXOR, node, and_expr());
-//        next = read_token(0);
-//    }
-//    return node;
-//}
-//
-//Node_t* or_expr(){
-//    Node_t* node = exor_expr();
-//    Token_t* next = read_token(0);
-//    while(next->kind == '|'){
-//        consume_token('|');
-//        node = new_node(AST_OR, node, exor_expr());
-//        next = read_token(0);
-//    }
-//    return node;
-//}
-//
-//Node_t* logical_and_expr();
-//Node_t* logical_or_expr();
+Node_t* exor_expr(){
+    Node_t* node = and_expr();
+    Token_t* next = read_token(0);
+    while(next->kind == '^'){
+        consume_token('^');
+        node = new_node(AST_EXOR, node, and_expr());
+        next = read_token(0);
+    }
+    return node;
+}
+
+Node_t* or_expr(){
+    Node_t* node = exor_expr();
+    Token_t* next = read_token(0);
+    while(next->kind == '|'){
+        consume_token('|');
+        node = new_node(AST_OR, node, exor_expr());
+        next = read_token(0);
+    }
+    return node;
+}
+
+Node_t* logical_and_expr(){
+    Node_t* node = or_expr();
+    Token_t* next1 = read_token(0);
+    Token_t* next2 = read_token(1);
+    while(next1->kind == '|' && next2->kind == '|'){
+        consume_token('|');
+        consume_token('|');
+        node = new_node(AST_LOG_AND, node, or_expr());
+        next1 = read_token(0);
+        next2 = read_token(1);
+    }
+    return node;
+}
+
+Node_t* logical_or_expr(){
+    Node_t* node = logical_and_expr();
+    Token_t* next1 = read_token(0);
+    Token_t* next2 = read_token(1);
+    while(next1->kind == '&' && next2->kind == '&'){
+        consume_token('&');
+        consume_token('&');
+        node = new_node(AST_LOG_AND, node, logical_and_expr());
+        next1 = read_token(0);
+        next2 = read_token(1);
+    }
+    return node;
+}
 //Node_t* conditinal_expr();
 
 Node_t* assign_expr(){
-    Node_t* node = and_expr();
+    Node_t* node = or_expr();
     Token_t* next = read_token(0);
     while(next->kind == '='){
         consume_token('=');
@@ -379,7 +404,7 @@ Node_t* assign_expr(){
             node = new_node(AST_ASSIGN, node, postfix_expr());
         }
         else{
-            node = new_node(AST_ASSIGN, node, and_expr());
+            node = new_node(AST_ASSIGN, node, or_expr());
         }
         next = read_token(0);
     }

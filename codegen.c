@@ -142,13 +142,18 @@ void codegen(Node_t* ast){
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
-    else if(ast->op == AST_AND){
+    else if(ast->op == AST_AND || ast->op == AST_OR || ast->op == AST_EXOR){
         codegen(ast->lhs);
         codegen(ast->rhs);
         printf("  pop %%rbx\n");
         printf("  pop %%rax\n");
         rsp_allign -= 16;
-        printf("  andl %%ebx, %%eax\n");
+        if(ast->op == AST_AND)   
+            printf("  andl %%ebx, %%eax\n");
+        else if(ast->op == AST_OR)   
+            printf("  orl %%ebx, %%eax\n");
+        else if(ast->op == AST_EXOR)   
+            printf("  xorl %%ebx, %%eax\n");
         printf("  pushq %%rax\n");
     }
     else if(ast->op == AST_ASSIGN){
