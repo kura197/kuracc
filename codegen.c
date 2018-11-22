@@ -290,6 +290,15 @@ void codegen(Node_t* node){
             printf("  jmp .End%d\n", num_ret);
         }
     }
+    else if(node->op == AST_AND){
+        codegen(node->lhs);
+        codegen(node->rhs);
+        printf("  pop %%rbx\n");
+        printf("  pop %%rax\n");
+        rsp_allign -= 16;
+        printf("  andl %%ebx, %%eax\n");
+        printf("  pushq %%rax\n");
+    }
     else{
         printf("node : %s\n", ast_name[node->op]);
         assert(0);

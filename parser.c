@@ -34,6 +34,11 @@ char *ast_name[] = {
     "AST_RET",
     "AST_CONT",
     "AST_BREAK",
+    "AST_AND",
+    "AST_EXOR",
+    "AST_OR",
+    "AST_LOG_OR",
+    "AST_LOG_AND",
     "AST_PARA_LIST",
 };
 
@@ -328,8 +333,45 @@ Node_t* equ_expr(){
     return node;
 }
 
-Node_t* assign_expr(){
+Node_t* and_expr(){
     Node_t* node = equ_expr();
+    Token_t* next = read_token(0);
+    while(next->kind == '&'){
+        consume_token('&');
+        node = new_node(AST_AND, node, equ_expr());
+        next = read_token(0);
+    }
+    return node;
+}
+
+//Node_t* exor_expr(){
+//    Node_t* node = and_expr();
+//    Token_t* next = read_token(0);
+//    while(next->kind == '^'){
+//        consume_token('^');
+//        node = new_node(AST_EXOR, node, and_expr());
+//        next = read_token(0);
+//    }
+//    return node;
+//}
+//
+//Node_t* or_expr(){
+//    Node_t* node = exor_expr();
+//    Token_t* next = read_token(0);
+//    while(next->kind == '|'){
+//        consume_token('|');
+//        node = new_node(AST_OR, node, exor_expr());
+//        next = read_token(0);
+//    }
+//    return node;
+//}
+//
+//Node_t* logical_and_expr();
+//Node_t* logical_or_expr();
+//Node_t* conditinal_expr();
+
+Node_t* assign_expr(){
+    Node_t* node = and_expr();
     Token_t* next = read_token(0);
     while(next->kind == '='){
         consume_token('=');
@@ -337,7 +379,7 @@ Node_t* assign_expr(){
             node = new_node(AST_ASSIGN, node, postfix_expr());
         }
         else{
-            node = new_node(AST_ASSIGN, node, equ_expr());
+            node = new_node(AST_ASSIGN, node, and_expr());
         }
         next = read_token(0);
     }

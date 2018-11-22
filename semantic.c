@@ -167,13 +167,29 @@ void sem_analy(Node_t* ast, int level){
             sem_analy(ast->rhs, level);
             ast->ltype = ast->lhs->type;
             ast->rtype = ast->rhs->type;
-            ast->type = (Type_t*)malloc(sizeof(Type_t));
+            //ast->type = (Type_t*)malloc(sizeof(Type_t));
             if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
                 fprintf(stderr, "Error : mul/div TYPE_PTR.\n");
                 assert(0);
             }
             else{
-                //ast->type->ty = TYPE_INT;
+                if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
+                    ast->type = ast->ltype;
+                else
+                    ast->type = ast->rtype;
+            }
+            break;
+
+        case AST_AND:
+            sem_analy(ast->lhs, level);
+            sem_analy(ast->rhs, level);
+            ast->ltype = ast->lhs->type;
+            ast->rtype = ast->rhs->type;
+            if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
+                fprintf(stderr, "Error : and TYPE_PTR.\n");
+                assert(0);
+            }
+            else{
                 if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
                     ast->type = ast->ltype;
                 else

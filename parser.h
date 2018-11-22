@@ -89,6 +89,11 @@ enum ast_kind{
     AST_RET,
     AST_CONT,
     AST_BREAK,
+    AST_AND,
+    AST_EXOR,
+    AST_OR,
+    AST_LOG_OR,
+    AST_LOG_AND,
     AST_PARA_LIST
 };
 
@@ -112,6 +117,12 @@ Node_t* cast_expr();
 Node_t* mul_expr();
 Node_t* add_expr();
 Node_t* equ_expr();
+Node_t* and_expr();
+Node_t* exor_expr();
+Node_t* or_expr();
+Node_t* logical_and_expr();
+Node_t* logical_or_expr();
+Node_t* conditinal_expr();
 Node_t* assign_expr();
 Node_t* expr();
 
