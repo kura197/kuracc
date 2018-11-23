@@ -142,6 +142,23 @@ void codegen(Node_t* ast){
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
+    else if(ast->op == AST_LARGE || ast->op == AST_SMALL || ast->op == AST_LEQ || ast->op == AST_SEQ){
+        codegen(ast->lhs);
+        codegen(ast->rhs);
+        printf("  popq %%rbx\n");
+        printf("  popq %%rax\n");
+        rsp_allign -= 16;
+        if(ast->op == AST_LEQ || ast->op == AST_SMALL)  
+            printf("  subl $1, %%eax\n");
+        printf("  cmpl %%eax, %%ebx\n");
+        if(ast->op == AST_LARGE || ast->op == AST_LEQ)   
+            printf("  setg %%al\n");
+        else if(ast->op == AST_SMALL || ast->op == AST_SEQ)   
+            printf("  setle %%al\n");
+        printf("  movzbl %%al, %%eax\n");
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
+    }
     else if(ast->op == AST_EQ || ast->op == AST_NEQ){
         codegen(ast->lhs);
         codegen(ast->rhs);
@@ -151,7 +168,7 @@ void codegen(Node_t* ast){
         printf("  cmpl %%eax, %%ebx\n");
         if(ast->op == AST_EQ)   
             printf("  sete %%al\n");
-        if(ast->op == AST_NEQ)   
+        else if(ast->op == AST_NEQ)   
             printf("  setne %%al\n");
         printf("  movzbl %%al, %%eax\n");
         printf("  pushq %%rax\n");

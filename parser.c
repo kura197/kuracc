@@ -17,6 +17,10 @@ char *ast_name[] = {
     "AST_DIV",
     "AST_LSHIFT",
     "AST_RSHIFT",
+    "AST_LEQ", 
+    "AST_SEQ", 
+    "AST_LARGE", 
+    "AST_SMALL", 
     "AST_EQ",
     "AST_NEQ",
     "AST_AND",
@@ -335,8 +339,30 @@ Node_t* shift_expr(){
     }
     return node;
 }
+
 Node_t* relatinal_expr(){
     Node_t *node = shift_expr();
+    Token_t* next = read_token(0);
+    while(next->kind == TK_LEQ || next->kind == TK_SEQ || next->kind == '<' || next->kind == '>'){
+        if(next->kind == TK_LEQ){
+            consume_token(TK_LEQ);
+            node = new_node(AST_LEQ, node, shift_expr());
+
+        }
+        else if(next->kind == TK_SEQ){
+            consume_token(TK_SEQ);
+            node = new_node(AST_SEQ, node, shift_expr());
+        }
+        else if(next->kind == '<'){
+            consume_token('<');
+            node = new_node(AST_LARGE, node, shift_expr());
+        }
+        else if(next->kind == '>'){
+            consume_token('>');
+            node = new_node(AST_SMALL, node, shift_expr());
+        }
+        next = read_token(0);
+    }
     return node;
 }
 

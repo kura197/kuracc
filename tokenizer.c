@@ -114,12 +114,20 @@ void tokenize(char* p){
                 tokens[idx++].kind = TK_LSHIFT;
                 p++;
             }
+            else if(*(p+1) == '='){
+                tokens[idx++].kind = TK_LEQ;
+                p++;
+            }
             else
                 tokens[idx++].kind = '<';
         }
         else if(*p == '>'){
             if(*(p+1) == '>'){
                 tokens[idx++].kind = TK_RSHIFT;
+                p++;
+            }
+            else if(*(p+1) == '='){
+                tokens[idx++].kind = TK_SEQ;
                 p++;
             }
             else

@@ -21,6 +21,9 @@ $(OBJS): $(HEADER)
 test: $(OUTPUT)
 	./run_test.sh
 
+wip: $(OUTPUT)
+	./run_test.sh wip
+
 clean:
 	rm $(OUTPUT) *.o
 

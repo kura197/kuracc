@@ -29,8 +29,10 @@ enum token_kind{
     TK_BREAK,
     TK_LSHIFT,
     TK_RSHIFT,
-    TK_LOG_AND,
-    TK_LOG_OR,
+    TK_LOG_AND, //&&
+    TK_LOG_OR,  //||
+    TK_LEQ,     //<=
+    TK_SEQ,     //>=
     TK_EOF,
 };
 
