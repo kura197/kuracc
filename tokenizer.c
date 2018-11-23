@@ -83,6 +83,8 @@ void tokenize(char* p){
                 }
                 p++;
             }
+            else
+                tokens[idx++].kind = '/';
         }
         else if(*p == '"'){
             p++;
@@ -104,6 +106,9 @@ void tokenize(char* p){
         else if(*p == '\n'){
             ;
         }
+        else if(*p == '\t'){
+            ;
+        }
         else if(*p == '+'){
             tokens[idx++].kind = '+';
         }
@@ -112,9 +117,6 @@ void tokenize(char* p){
         }
         else if(*p == '*'){
             tokens[idx++].kind = '*';
-        }
-        else if(*p == '/'){
-            tokens[idx++].kind = '/';
         }
         else if(*p == '<'){
             if(*(p+1) == '<'){
@@ -210,6 +212,9 @@ void tokenize(char* p){
                     case '+':
                     case '-':
                     case '*':
+                    case '<':
+                    case '>':
+                    case '^':
                     case '/':
                     case '(':
                     case ')':
@@ -220,6 +225,8 @@ void tokenize(char* p){
                     case '}':
                     case '[':
                     case ']':
+                    case '\n':
+                    case '\t':
                     case ';': out = 1; break;
                 }
                 if(out) break;
