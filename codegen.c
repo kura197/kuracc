@@ -127,6 +127,21 @@ void codegen(Node_t* ast){
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
+    else if(ast->op == AST_RSHIFT || ast->op == AST_LSHIFT){
+        codegen(ast->lhs);
+        codegen(ast->rhs);
+        printf("  pop %%rcx\n");
+        printf("  pop %%rax\n");
+        rsp_allign -= 16;
+        if(ast->op == AST_RSHIFT){
+            printf("  sarl %%cl, %%eax\n");
+        }
+        else if(ast->op == AST_LSHIFT){
+            printf("  sall %%cl, %%eax\n");
+        }
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
+    }
     else if(ast->op == AST_EQ || ast->op == AST_NEQ){
         codegen(ast->lhs);
         codegen(ast->rhs);

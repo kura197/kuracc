@@ -24,6 +24,12 @@ char *token_name[] = {
     "TK_DO",
     "TK_SWITCH",
     "TK_RETURN",
+    "TK_CONT",
+    "TK_BREAK",
+    "TK_LSHIFT",
+    "TK_RSHIFT",
+    "TK_LOG_AND",
+    "TK_LOG_OR",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -103,11 +109,32 @@ void tokenize(char* p){
         else if(*p == '/'){
             tokens[idx++].kind = '/';
         }
+        else if(*p == '<'){
+            if(*(p+1) == '<'){
+                tokens[idx++].kind = TK_LSHIFT;
+                p++;
+            }
+            else
+                tokens[idx++].kind = '<';
+        }
+        else if(*p == '>'){
+            if(*(p+1) == '>'){
+                tokens[idx++].kind = TK_RSHIFT;
+                p++;
+            }
+            else
+                tokens[idx++].kind = '>';
+        }
         else if(*p == '^'){
             tokens[idx++].kind = '^';
         }
         else if(*p == '|'){
-            tokens[idx++].kind = '|';
+            if(*(p+1) == '|'){
+                tokens[idx++].kind = TK_LOG_OR;
+                p++;
+            }
+            else
+                tokens[idx++].kind = '|';
         }
         else if(*p == '('){
             tokens[idx++].kind = '(';
@@ -145,7 +172,12 @@ void tokenize(char* p){
             tokens[idx++].kind = '}';
         }
         else if(*p == '&'){
-            tokens[idx++].kind = '&';
+            if(*(p+1) == '&'){
+                tokens[idx++].kind = TK_LOG_AND;
+                p++;
+            }
+            else
+                tokens[idx++].kind = '&';
         }
         else if(*p == '['){
             tokens[idx++].kind = '[';

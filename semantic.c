@@ -116,6 +116,23 @@ void sem_analy(Node_t* ast, int level){
         }
     }
 
+    else if(ast->op == AST_LSHIFT || ast->op == AST_RSHIFT){
+        sem_analy(ast->lhs, level);
+        sem_analy(ast->rhs, level);
+        ast->ltype = ast->lhs->type;
+        ast->rtype = ast->rhs->type;
+        if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
+            fprintf(stderr, "Error : shift TYPE_PTR.\n");
+            assert(0);
+        }
+        else{
+            if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
+                ast->type = ast->ltype;
+            else
+                ast->type = ast->rtype;
+        }
+    }
+
     else if(ast->op == AST_EQ || ast->op == AST_NEQ){
         sem_analy(ast->lhs, level);
         sem_analy(ast->rhs, level);

@@ -70,6 +70,8 @@ enum ast_kind{
     AST_SUB,
     AST_MUL,
     AST_DIV,
+    AST_LSHIFT,
+    AST_RSHIFT,
     AST_EQ, 
     AST_NEQ,
     AST_AND,
@@ -116,6 +118,8 @@ Node_t* unary_expr();
 Node_t* cast_expr();
 Node_t* mul_expr();
 Node_t* add_expr();
+Node_t* shift_expr();
+Node_t* relatinal_expr();
 Node_t* equ_expr();
 Node_t* and_expr();
 Node_t* exor_expr();

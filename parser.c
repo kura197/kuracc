@@ -15,6 +15,8 @@ char *ast_name[] = {
     "AST_SUB",
     "AST_MUL",
     "AST_DIV",
+    "AST_LSHIFT",
+    "AST_RSHIFT",
     "AST_EQ",
     "AST_NEQ",
     "AST_AND",
@@ -300,7 +302,6 @@ Node_t* mul_expr(){
 
 Node_t* add_expr(){
     Node_t *node = mul_expr();
-
     Token_t* next = read_token(0);
     while(next->kind == '+' || next->kind == '-'){
         if(next->kind == '+'){
@@ -314,34 +315,55 @@ Node_t* add_expr(){
         }
         next = read_token(0);
     }
+    return node;
+}
 
+Node_t* shift_expr(){
+    Node_t *node = add_expr();
+    Token_t* next = read_token(0);
+    while(next->kind == TK_LSHIFT || next->kind == TK_RSHIFT){
+        if(next->kind == TK_LSHIFT){
+            consume_token(TK_LSHIFT);
+            node = new_node(AST_LSHIFT, node, add_expr());
+
+        }
+        else if(next->kind == TK_RSHIFT){
+            consume_token(TK_RSHIFT);
+            node = new_node(AST_RSHIFT, node, add_expr());
+        }
+        next = read_token(0);
+    }
+    return node;
+}
+Node_t* relatinal_expr(){
+    Node_t *node = shift_expr();
     return node;
 }
 
 Node_t* equ_expr(){
-    Node_t* node = add_expr();
+    Node_t* node = relatinal_expr();
     Token_t* next = read_token(0);
-    if(next->kind == TK_EQ){
-        consume_token(TK_EQ);
-        node = new_node(AST_EQ, node, add_expr());
+    while(next->kind == TK_EQ || next->kind == TK_NEQ){
+        if(next->kind == TK_EQ){
+            consume_token(TK_EQ);
+            node = new_node(AST_EQ, node, relatinal_expr());
+        }
+        else if(next->kind == TK_NEQ){
+            consume_token(TK_NEQ);
+            node = new_node(AST_NEQ, node, relatinal_expr());
+        }
+        next = read_token(0);
     }
-    else if(next->kind == TK_NEQ){
-        consume_token(TK_NEQ);
-        node = new_node(AST_NEQ, node, add_expr());
-    }
-
     return node;
 }
 
 Node_t* and_expr(){
     Node_t* node = equ_expr();
-    Token_t* next1 = read_token(0);
-    Token_t* next2 = read_token(1);
-    while(next1->kind == '&' && next2->kind != '&'){
+    Token_t* next = read_token(0);
+    while(next->kind == '&'){
         consume_token('&');
         node = new_node(AST_AND, node, equ_expr());
-        next1 = read_token(0);
-        next2 = read_token(1);
+        next = read_token(0);
     }
     return node;
 }
@@ -359,41 +381,33 @@ Node_t* exor_expr(){
 
 Node_t* or_expr(){
     Node_t* node = exor_expr();
-    Token_t* next1 = read_token(0);
-    Token_t* next2 = read_token(1);
-    while(next1->kind == '|' && next2->kind != '|'){
+    Token_t* next = read_token(0);
+    while(next->kind == '|'){
         consume_token('|');
         node = new_node(AST_OR, node, exor_expr());
-        next1 = read_token(0);
-        next2 = read_token(1);
+        next = read_token(0);
     }
     return node;
 }
 
 Node_t* logical_and_expr(){
     Node_t* node = or_expr();
-    Token_t* next1 = read_token(0);
-    Token_t* next2 = read_token(1);
-    while(next1->kind == '&' && next2->kind == '&'){
-        consume_token('&');
-        consume_token('&');
+    Token_t* next = read_token(0);
+    while(next->kind == TK_LOG_AND){
+        consume_token(TK_LOG_AND);
         node = new_node(AST_LOG_AND, node, or_expr());
-        next1 = read_token(0);
-        next2 = read_token(1);
+        next = read_token(0);
     }
     return node;
 }
 
 Node_t* logical_or_expr(){
     Node_t* node = logical_and_expr();
-    Token_t* next1 = read_token(0);
-    Token_t* next2 = read_token(1);
-    while(next1->kind == '|' && next2->kind == '|'){
-        consume_token('|');
-        consume_token('|');
+    Token_t* next = read_token(0);
+    while(next->kind == TK_LOG_OR){
+        consume_token(TK_LOG_OR);
         node = new_node(AST_LOG_OR, node, logical_and_expr());
-        next1 = read_token(0);
-        next2 = read_token(1);
+        next = read_token(0);
     }
     return node;
 }

@@ -27,6 +27,10 @@ enum token_kind{
     TK_RETURN,
     TK_CONT,
     TK_BREAK,
+    TK_LSHIFT,
+    TK_RSHIFT,
+    TK_LOG_AND,
+    TK_LOG_OR,
     TK_EOF,
 };
 

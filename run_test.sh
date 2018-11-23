@@ -30,7 +30,6 @@ runtest_print() {
     rm tmp 
 }
 
-#runtest_print test/wip.c 2
 runtest_print test/t1.c 10
 runtest_print test/t2.c 3
 runtest_print test/t3.c 1024
@@ -54,6 +53,7 @@ runtest_print test/t20.c "hello, world : 51"
 runtest_print test/t21.c 1
 runtest_print test/t22.c 2
 runtest_print test/t23.c 2
+runtest_print test/t24.c 2048
 
 echo 'Success!!'
 
