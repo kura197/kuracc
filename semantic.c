@@ -10,6 +10,7 @@ Map_t* global;
 Map_t* global_init;
 Vector_t* str_lit;
 Type_t* type;
+char* func_name;
 
 SymTable_t* sym_table_new(){
     SymTable_t* symt = (SymTable_t*)malloc(sizeof(SymTable_t));
@@ -202,6 +203,10 @@ void sem_analy(Node_t* ast, int level){
         sem_analy(ast->rhs, level);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
+        if(ast->ltype->ty == TYPE_VOID || ast->rtype->ty == TYPE_VOID){
+            fprintf(stderr, "Error : cannot assign type void\n");
+            assert(0);
+        }
         int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
         int right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
         if(left_ptr != right_ptr){
@@ -213,6 +218,7 @@ void sem_analy(Node_t* ast, int level){
 
     else if(ast->op == AST_FUNC){
         if(ast->lhs != NULL) sem_analy(ast->lhs, level);
+        func_name = ast->name;
         sym_table = sym_table_new();
         ast->sym_table = sym_table;
         for(int i = 0; i < (int)map_size(global); i++){
@@ -234,6 +240,10 @@ void sem_analy(Node_t* ast, int level){
         sem_analy(ast->rhs, level);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
+        if(ast->ltype->ty == TYPE_VOID || ast->rtype->ty == TYPE_VOID){
+            fprintf(stderr, "Error : cannot assign type void\n");
+            assert(0);
+        }
         int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
         int right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
         if(left_ptr != right_ptr){
@@ -295,6 +305,28 @@ void sem_analy(Node_t* ast, int level){
     else if(ast->op == AST_WHILE){
         sem_analy(ast->lhs, level);
         sem_analy(ast->rhs, level);
+    }
+
+    else if(ast->op == AST_RET){
+        sym = map_search(sym_table->global, func_name);
+        int type = sym->type->ty;
+        if(type == TYPE_VOID){
+            if(ast->lhs != NULL){
+                fprintf(stderr, "Error : function %s is type void\n", func_name);
+                assert(0);
+            }
+        }
+        else{
+            if(ast->lhs == NULL){
+                fprintf(stderr, "Error : need return expr at function %s\n", func_name);
+                assert(0);
+            }
+            sem_analy(ast->lhs, level);
+            int ret_type = ast->lhs->type->ty;
+            if(type != ret_type){
+                fprintf(stderr, "Warning : return type %s is not the same as function %s(%s)\n", type_name[ret_type], func_name, type_name[type]);
+            }
+        }
     }
 
     else{

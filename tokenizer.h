@@ -14,6 +14,7 @@ enum token_kind{
     TK_CHAR,  
     TK_KW_INT,  
     TK_KW_CHAR,  
+    TK_KW_VOID,  
     TK_STRING,  
     TK_EQ,
     TK_NEQ,

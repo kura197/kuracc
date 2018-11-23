@@ -498,6 +498,10 @@ Type_t* type_specifier(){
         consume_token(TK_KW_CHAR);
         type->ty = TYPE_CHAR;
     }
+    else if(next->kind == TK_KW_VOID){
+        consume_token(TK_KW_VOID);
+        type->ty = TYPE_VOID;
+    }
     else{
         printf("not yet implemented\n");
         assert(0);

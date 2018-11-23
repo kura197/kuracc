@@ -13,6 +13,7 @@ char *token_name[] = {
     "TK_CHAR",
     "TK_KW_INT",
     "TK_KW_CHAR",
+    "TK_KW_VOID",
     "TK_STRING",
     "TK_EQ",
     "TK_NEQ",
@@ -74,7 +75,13 @@ void tokenize(char* p){
                 while(*p != '\n'){
                     p++;
                 }
-                //p++;
+            }
+            if(*(p+1) == '*'){
+                p++;
+                while(!(*p == '*' && *(p+1) == '/')){
+                    p++;
+                }
+                p++;
             }
         }
         else if(*p == '"'){
@@ -245,6 +252,9 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "char")){
                 tokens[idx++].kind = TK_KW_CHAR;
+            }
+            else if(!strcmp(tmp, "void")){
+                tokens[idx++].kind = TK_KW_VOID;
             }
             else if(!strcmp(tmp, "return")){
                 tokens[idx++].kind = TK_RETURN;
