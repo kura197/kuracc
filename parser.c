@@ -5,6 +5,7 @@
 
 char *ast_name[] = {
     "AST_INT",
+    "AST_CHAR",
     "AST_ID",
     "AST_STRING",
     "AST_UNARY_ADR",
@@ -97,6 +98,13 @@ Node_t* new_node_DEC(char* name){
     return node;
 }
 
+Node_t* new_node_name(int op, char* name){
+    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    node->op = op;
+    node->name = name;
+    return node;
+}
+
 Node_t* conv2ptr(Node_t* node){
     Node_t* array_at = expr();
     Node_t* add = new_node(AST_ADD, node, array_at);
@@ -136,6 +144,8 @@ void dump_node(Node_t* node, int num){
         printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else if(node->op == AST_STRING)
         printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
+    else if(node->op == AST_CHAR)
+        printf("%d : %s(%s)\n", num, ast_name[node->op], node->name);
     else
         printf("%d : %s\n", num, ast_name[node->op]);
 
@@ -166,6 +176,13 @@ Node_t* primary_expr(){
     if(next->kind == TK_INT){
         consume_token(TK_INT);
         node =  new_node_num(next->value, TYPE_INT);
+    }
+    else if(next->kind == TK_CHAR){
+        consume_token(TK_CHAR);
+        node = new_node_name(AST_CHAR, next->name);
+        node->type = (Type_t*)malloc(sizeof(Type_t));
+        node->type->ty = TYPE_CHAR;
+        node->val = next->value;
     }
     else if(next->kind == TK_ID){
         consume_token(TK_ID);

@@ -23,6 +23,11 @@ void codegen(Node_t* ast){
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
+    else if(ast->op == AST_CHAR){
+        printf("  movb $%d, %%al\n", ast->val);
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
+    }
     else if(ast->op == AST_ID){
         if(search_sym(ast->name) == NS_GLOBAL){
             if(ast->type->ty == TYPE_ARRAY){

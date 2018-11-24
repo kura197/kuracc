@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 Token_t tokens[NUM_TK];
 int token_idx;
@@ -108,6 +109,42 @@ void tokenize(char* p){
         }
         else if(*p == '\t'){
             ;
+        }
+        else if(*p == '\''){
+            p++;
+            tokens[idx].kind = TK_CHAR;
+            tokens[idx].name = (char*)malloc(2*sizeof(char));
+            tokens[idx].name[0] = *p;
+            if(*p == '\\'){
+                p++;
+                tokens[idx].name[1] = *p;
+                switch(*p){
+                    case '\'' : tokens[idx].value = '\''; break;
+                    case '\"' : tokens[idx].value = '\"'; break;
+                    case '?' : tokens[idx].value = '\?'; break;
+                    case '\\' : tokens[idx].value = '\\'; break;
+                    case 'a' : tokens[idx].value = '\a'; break;
+                    case 'b' : tokens[idx].value = '\b'; break;
+                    case 'f' : tokens[idx].value = '\f'; break;
+                    case 'n' : tokens[idx].value = '\n'; break;
+                    case 'r' : tokens[idx].value = '\r'; break;
+                    case 't' : tokens[idx].value = '\t'; break;
+                    case 'v' : tokens[idx].value = '\v'; break;
+                    default : 
+                                fprintf(stderr, "invalid character-constant\n");
+                                assert(0);
+                                break;
+                }
+            }
+            else
+                tokens[idx].value = *p;
+            //printf("token:%d (%c)\n", tokens[idx].value, tokens[idx].value);
+            p++;
+            if(*p != '\''){
+                fprintf(stderr, "invalid character-constant\n");
+                assert(0);
+            }
+            idx++;
         }
         else if(*p == '+'){
             tokens[idx++].kind = '+';
@@ -321,6 +358,9 @@ void dump_tokens(){
             fprintf(stderr, "%d : %s (%s)\n", i, token_name[tk.kind], tk.name);
         }
         else if(tk.kind == TK_STRING){
+            fprintf(stderr, "%d : %s (%s)\n", i, token_name[tk.kind], tk.name);
+        }
+        else if(tk.kind == TK_CHAR){
             fprintf(stderr, "%d : %s (%s)\n", i, token_name[tk.kind], tk.name);
         }
         else{

@@ -60,6 +60,7 @@ typedef struct Node{
 
 enum ast_kind{
     AST_INT,  
+    AST_CHAR,  
     AST_ID,
     AST_STRING,
     AST_UNARY_ADR,  //&
@@ -109,6 +110,7 @@ Node_t* new_node_num(int val, int type);
 Node_t* new_node_DEC(char* name);
 Node_t* new_node_UOP(int* unary);
 Node_t* new_node_STRING(char* name);
+Node_t* new_node_name(int op, char* name);
 Node_t* conv2ptr(Node_t* node);
 void add_type(Node_t* node, Type_t* type);
 void error(Token_t* tk);
