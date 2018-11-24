@@ -76,7 +76,7 @@ void tokenize(char* p){
                     p++;
                 }
             }
-            if(*(p+1) == '*'){
+            else if(*(p+1) == '*'){
                 p++;
                 while(!(*p == '*' && *(p+1) == '/')){
                     p++;
