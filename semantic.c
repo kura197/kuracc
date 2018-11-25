@@ -34,7 +34,7 @@ Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, in
     return sym;
 }
 
-void sem_analy(Node_t* ast, int level){
+void sem_analy(Node_t* ast){
     if(ast->op == AST_ID){
         if((sym = map_search(sym_table->local[0], ast->name)) == NULL)
             if((sym = map_search(sym_table->arg, ast->name)) == NULL)
@@ -53,7 +53,7 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_UNARY_PTR){
-        sem_analy(ast->lhs, level);
+        sem_analy(ast->lhs);
         type = (Type_t*)ast->lhs->type;
         if(type->ty == TYPE_PTR || type->ty == TYPE_ARRAY){
             ast->type = type->ptrof;
@@ -65,7 +65,7 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_UNARY_ADR){
-        sem_analy(ast->lhs, level);
+        sem_analy(ast->lhs);
         type = (Type_t*)malloc(sizeof(type));
         type->ty = TYPE_PTR;
         type->ptrof = ast->lhs->type;
@@ -73,18 +73,18 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_UNARY_MINUS){
-        sem_analy(ast->lhs, level);
+        sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
     }
 
     else if(ast->op == AST_UNARY_REV){
-        sem_analy(ast->lhs, level);
+        sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
     }
 
     else if(ast->op == AST_ADD || ast->op == AST_SUB){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
@@ -106,8 +106,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_MUL || ast->op == AST_DIV){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
@@ -123,8 +123,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_LSHIFT || ast->op == AST_RSHIFT){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
@@ -140,8 +140,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_LEQ || ast->op == AST_SEQ || ast->op == AST_SMALL || ast->op == AST_LARGE){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
@@ -157,8 +157,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_EQ || ast->op == AST_NEQ){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
@@ -172,8 +172,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_AND || ast->op == AST_OR || ast->op == AST_EXOR){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
@@ -189,8 +189,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_LOG_AND || ast->op == AST_LOG_OR){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
@@ -204,8 +204,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_ASSIGN){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_VOID || ast->rtype->ty == TYPE_VOID){
@@ -222,7 +222,7 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_FUNC){
-        if(ast->lhs != NULL) sem_analy(ast->lhs, level);
+        if(ast->lhs != NULL) sem_analy(ast->lhs);
         func_name = ast->name;
         sym_table = sym_table_new();
         ast->sym_table = sym_table;
@@ -237,12 +237,12 @@ void sem_analy(Node_t* ast, int level){
             map_push(sym_table->arg, decl->name, sym);
         }
         sym_table->local[0] = map_new();
-        if(ast->rhs != NULL) sem_analy(ast->rhs, level);
+        if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 
     else if(ast->op == AST_INIT_DEC){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_VOID || ast->rtype->ty == TYPE_VOID){
@@ -267,9 +267,9 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_FUNC_CALL){
-        sem_analy(ast->lhs, level);
+        sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
-        if(ast->rhs != NULL) sem_analy(ast->rhs, level);
+        if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 
     else if(ast->op == AST_DEC){
@@ -289,27 +289,26 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else if(ast->op == AST_COMP_STMT){
-        level++;
-        if(ast->lhs != NULL) sem_analy(ast->lhs, level);
-        if(ast->rhs != NULL) sem_analy(ast->rhs, level);
+        if(ast->lhs != NULL) sem_analy(ast->lhs);
+        if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 
     else if(ast->op == AST_FOR){
-        if(ast->lfor != NULL) sem_analy(ast->lfor, level);
-        if(ast->mfor != NULL) sem_analy(ast->mfor, level);
-        if(ast->rfor != NULL) sem_analy(ast->rfor, level);
-        sem_analy(ast->lhs, level);
+        if(ast->lfor != NULL) sem_analy(ast->lfor);
+        if(ast->mfor != NULL) sem_analy(ast->mfor);
+        if(ast->rfor != NULL) sem_analy(ast->rfor);
+        sem_analy(ast->lhs);
     }
 
     else if(ast->op == AST_IF){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
-        if(ast->else_stmt != NULL) sem_analy(ast->else_stmt, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
+        if(ast->else_stmt != NULL) sem_analy(ast->else_stmt);
     }
 
     else if(ast->op == AST_WHILE){
-        sem_analy(ast->lhs, level);
-        sem_analy(ast->rhs, level);
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
     }
 
     else if(ast->op == AST_RET){
@@ -326,7 +325,7 @@ void sem_analy(Node_t* ast, int level){
                 fprintf(stderr, "Error : need return expr at function %s\n", func_name);
                 assert(0);
             }
-            sem_analy(ast->lhs, level);
+            sem_analy(ast->lhs);
             int ret_type = ast->lhs->type->ty;
             if(type != ret_type){
                 fprintf(stderr, "Warning : return type %s is not the same as function %s(%s)\n", type_name[ret_type], func_name, type_name[type]);
@@ -335,8 +334,8 @@ void sem_analy(Node_t* ast, int level){
     }
 
     else{
-        if(ast->lhs != NULL) sem_analy(ast->lhs, level);
-        if(ast->rhs != NULL) sem_analy(ast->rhs, level);
+        if(ast->lhs != NULL) sem_analy(ast->lhs);
+        if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 }
 

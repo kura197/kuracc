@@ -39,7 +39,7 @@ typedef struct SymTable{
 
 SymTable_t* sym_table_new();
 Symbol_t* sym_new(char* name, struct Type* type, struct Node* ast, int name_space, int num_var, int role);
-void sem_analy(struct Node* ast, int level);
+void sem_analy(struct Node* ast);
 
 extern Map_t* global;
 extern Map_t* global_init;

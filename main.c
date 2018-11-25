@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
     global_init = map_new();
     str_lit = vector_new();
     for(int i = 0; i < (int)vector_size(vec); i++){
-        sem_analy(vector_get(vec, i), -1);
+        sem_analy(vector_get(vec, i));
     }
 
     strlabel = map_new();
