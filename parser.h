@@ -6,6 +6,7 @@
 #include "semantic.h"
 
 struct SymTable;
+struct Symbol;
 
 enum type{
     TYPE_UNKNOWN,
@@ -50,6 +51,7 @@ typedef struct Node{
     Type_t *type;
 
     struct SymTable* sym_table;
+    struct Symbol* sym;
 
     //for +/-
     Type_t *ltype;
@@ -91,6 +93,7 @@ enum ast_kind{
     AST_FUNC,
     AST_PARA_LIST,
     AST_COMP_STMT,
+    AST_BLOCK,
     AST_DEC,
     AST_INIT_DEC,
     AST_FUNC_DEC,

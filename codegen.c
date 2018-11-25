@@ -29,7 +29,8 @@ void codegen(Node_t* ast){
         rsp_allign += 8;
     }
     else if(ast->op == AST_ID){
-        if(search_sym(ast->name) == NS_GLOBAL){
+        sym = ast->sym;
+        if(sym->name_space == NS_GLOBAL){
             if(ast->type->ty == TYPE_ARRAY){
                 printf("  leaq %s(%%rip), %%rax\n", ast->name);
             }
@@ -49,7 +50,6 @@ void codegen(Node_t* ast){
             rsp_allign += 8;
         }
         else{
-            sym = get_sym(ast->name);
             if(ast->type->ty == TYPE_ARRAY){
                 printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
             }
@@ -323,7 +323,11 @@ void codegen(Node_t* ast){
         printf("  ret\n");
     }
     else if(ast->op == AST_COMP_STMT){
-        codegen_comp_stmt(ast);
+        if(ast->lhs != NULL) codegen(ast->lhs);
+    }
+    else if(ast->op == AST_BLOCK){
+        codegen(ast->lhs);
+        codegen(ast->rhs);
     }
     else if(ast->op == AST_FUNC_DEC){
     }
@@ -394,14 +398,14 @@ void codegen(Node_t* ast){
 
 void codegen_lval(Node_t* ast){
     if(ast->op == AST_ID){
-        if(search_sym(ast->name) == NS_GLOBAL){
-            //sym = map_search(symt->global, ast->name);
+        sym = ast->sym;
+        if(sym->name_space == NS_GLOBAL){
             printf("  leaq %s(%%rip), %%rax\n", ast->name);
             printf("  pushq  %%rax\n");
             rsp_allign += 4;
         }
         else{
-            sym = get_sym(ast->name);
+            sym = ast->sym;
             printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
             printf("  pushq  %%rax\n");
             rsp_allign += 4;
@@ -411,7 +415,7 @@ void codegen_lval(Node_t* ast){
         codegen(ast->lhs);
     }
     else if(ast->op == AST_DEC){   //for AST_INIT_DEC
-        sym = get_sym(ast->name);
+        sym = ast->sym;
         printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
         printf("  pushq  %%rax\n");
         rsp_allign += 4;
@@ -437,41 +441,6 @@ int codegen_arg(Node_t* ast, int num){
     }
 
     return num;
-}
-
-void codegen_comp_stmt(Node_t* ast){
-    if(ast->op != AST_COMP_STMT && ast->op != AST_DEC){
-        codegen(ast);
-    }
-    else{
-        if(ast->lhs != NULL){
-            codegen_comp_stmt(ast->lhs);
-        }
-        if(ast->rhs != NULL){
-            codegen_comp_stmt(ast->rhs);
-        }
-    }
-}
-
-Symbol_t* get_sym(char* name){
-    Symbol_t* sym = map_search(symt->local[0], name);
-    if(sym == NULL) sym = map_search(symt->arg, name);
-    if(sym == NULL) sym = map_search(symt->global, name);
-    if(sym == NULL) assert(0);
-    return sym;
-}
-
-int search_sym(char* name){
-    if(map_search(symt->local[0], name) != NULL)
-        return NS_LOCAL;
-    else if(map_search(symt->arg, name) != NULL)
-        return NS_ARG;
-    else if(map_search(symt->global, name) != NULL)
-        return NS_GLOBAL;
-    else if(map_search(symt->label, name) != NULL)
-        return NS_LABEL;
-    else
-        return -1;
 }
 
 int is_ptr(Type_t* type){
@@ -509,6 +478,7 @@ void codegen_global_init(){
             ast->val *= -1;
         }
 
+        printf("  .data\n");
         if(ast->op == AST_STRING){
             char* label = map_search(strlabel, ast->name);
             printf("%s:\n", name);

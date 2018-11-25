@@ -34,9 +34,18 @@ Symbol_t* sym_new(char* name, struct Type* type, Node_t* ast, int name_space, in
     return sym;
 }
 
+Symbol_t* local_sym_search(SymTable_t* symt, char* name){
+    Symbol_t* sym;
+    for(int i = symt->local_index; i >= 0; i--){
+        sym = map_search(symt->local[i], name);
+        if(sym != NULL) break;
+    }
+    return sym;
+}
+
 void sem_analy(Node_t* ast){
     if(ast->op == AST_ID){
-        if((sym = map_search(sym_table->local[0], ast->name)) == NULL)
+        if((sym = local_sym_search(sym_table, ast->name)) == NULL)
             if((sym = map_search(sym_table->arg, ast->name)) == NULL)
                 if((sym = map_search(sym_table->global, ast->name)) == NULL) {
                     fprintf(stderr, "Error : %s was not declared\n", ast->name);
@@ -44,6 +53,7 @@ void sem_analy(Node_t* ast){
                 }
         Type_t* tmp = sym->type;
         ast->type = tmp;
+        ast->sym = sym;
     }
 
     else if(ast->op == AST_STRING){
@@ -55,6 +65,7 @@ void sem_analy(Node_t* ast){
     else if(ast->op == AST_UNARY_PTR){
         sem_analy(ast->lhs);
         type = (Type_t*)ast->lhs->type;
+        ast->sym = ast->lhs->sym;
         if(type->ty == TYPE_PTR || type->ty == TYPE_ARRAY){
             ast->type = type->ptrof;
         }
@@ -236,7 +247,7 @@ void sem_analy(Node_t* ast){
             sym = sym_new(decl->name, decl->type, ast, NS_ARG, sym_table->offset, VAR);
             map_push(sym_table->arg, decl->name, sym);
         }
-        sym_table->local[0] = map_new();
+        //sym_table->local[0] = map_new();
         if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 
@@ -256,6 +267,7 @@ void sem_analy(Node_t* ast){
             assert(0);
         }
         ast->type = ast->ltype;
+        ast->sym = ast->lhs->sym;
         if(ast->global){
             map_push(global_init, ast->lhs->name, ast->rhs);
         }
@@ -276,7 +288,12 @@ void sem_analy(Node_t* ast){
         if(ast->global){
             sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0, VAR);
             map_push(global, ast->name, sym);
+            ast->sym = sym;
             return;
+        }
+        if(map_search(sym_table->local[sym_table->local_index], ast->name) != NULL){
+            fprintf(stderr, "Error : %s was already declared.\n", ast->name);
+            assert(0);
         }
         sym_table->num_var++;
         int add_offset;
@@ -285,12 +302,20 @@ void sem_analy(Node_t* ast){
             add_offset *= ast->type->array_size;
         sym_table->offset += add_offset;
         sym = sym_new(ast->name, ast->type, ast, NS_LOCAL, sym_table->offset, VAR);
-        map_push(sym_table->local[0], ast->name, sym);
+        map_push(sym_table->local[sym_table->local_index], ast->name, sym);
+        ast->sym = sym;
     }
 
     else if(ast->op == AST_COMP_STMT){
+        sym_table->local_index++;
+        sym_table->local[sym_table->local_index] = map_new();
         if(ast->lhs != NULL) sem_analy(ast->lhs);
-        if(ast->rhs != NULL) sem_analy(ast->rhs);
+        sym_table->local_index--;
+    }
+
+    else if(ast->op == AST_COMP_STMT){
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
     }
 
     else if(ast->op == AST_FOR){

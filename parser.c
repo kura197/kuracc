@@ -36,6 +36,7 @@ char *ast_name[] = {
     "AST_FUNC",
     "AST_PARA_LIST",
     "AST_COMP_STMT",
+    "AST_BLOCK",
     "AST_DEC",
     "AST_INIT_DEC",
     "AST_FUNC_DEC",
@@ -652,7 +653,7 @@ Node_t* compound_stmt(){
                 error(next);
                 assert(0);
             }
-            node = new_node(AST_COMP_STMT, node, block_item());
+            node = new_node(AST_BLOCK, node, block_item());
         }
         consume_token('}');
         return node;
