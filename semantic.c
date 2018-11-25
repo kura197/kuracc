@@ -77,6 +77,11 @@ void sem_analy(Node_t* ast, int level){
         ast->type = ast->lhs->type;
     }
 
+    else if(ast->op == AST_UNARY_REV){
+        sem_analy(ast->lhs, level);
+        ast->type = ast->lhs->type;
+    }
+
     else if(ast->op == AST_ADD || ast->op == AST_SUB){
         sem_analy(ast->lhs, level);
         sem_analy(ast->rhs, level);

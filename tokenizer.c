@@ -212,6 +212,8 @@ void tokenize(char* p){
                 tokens[idx++].kind = TK_NEQ;
                 p++;
             }
+            else
+                tokens[idx++].kind = '!';
         }
         else if(*p == ';'){
             tokens[idx++].kind = ';';

@@ -89,6 +89,14 @@ void codegen(Node_t* ast){
         printf("  negl %%eax\n");
         printf("  pushq %%rax\n");
     }
+    else if(ast->op == AST_UNARY_REV){
+        codegen(ast->lhs);
+        printf("  pop %%rax\n");
+        printf("  cmpl $0, %%eax\n");
+        printf("  sete %%al\n");
+        printf("  movzbl %%al, %%eax\n");
+        printf("  pushq %%rax\n");
+    }
     else if(ast->op == AST_ADD || ast->op == AST_SUB){
         codegen(ast->lhs);
         codegen(ast->rhs);
