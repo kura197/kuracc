@@ -25,6 +25,8 @@ char *token_name[] = {
     "TK_FOR",
     "TK_DO",
     "TK_SWITCH",
+    "TK_CASE",
+    "TK_DEFAULT",
     "TK_RETURN",
     "TK_CONT",
     "TK_BREAK",
@@ -49,6 +51,7 @@ char *token_name[] = {
     ['['] = "[",
     [']'] = "]",
     ['!'] = "!",
+    [':'] = ":",
     ['='] = "="
 };
 
@@ -241,6 +244,9 @@ void tokenize(char* p){
         else if(*p == ']'){
             tokens[idx++].kind = ']';
         }
+        else if(*p == ':'){
+            tokens[idx++].kind = ':';
+        }
         else{
             int num = 0;
             while(1){
@@ -264,6 +270,7 @@ void tokenize(char* p){
                     case '}':
                     case '[':
                     case ']':
+                    case ':':
                     case '\n':
                     case '\t':
                     case ';': out = 1; break;
@@ -292,6 +299,12 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "switch")){
                 tokens[idx++].kind = TK_SWITCH;
+            }
+            else if(!strcmp(tmp, "case")){
+                tokens[idx++].kind = TK_CASE;
+            }
+            else if(!strcmp(tmp, "default")){
+                tokens[idx++].kind = TK_DEFAULT;
             }
             else if(!strcmp(tmp, "int")){
                 tokens[idx++].kind = TK_KW_INT;

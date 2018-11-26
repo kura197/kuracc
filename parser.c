@@ -3,6 +3,10 @@
 #include <assert.h>
 #include <stdio.h>
 
+Node_t** case_stmt;
+int num_case;
+Node_t* default_stmt;
+
 char *ast_name[] = {
     "AST_INT",
     "AST_CHAR",
@@ -43,6 +47,9 @@ char *ast_name[] = {
     "AST_WHILE",
     "AST_IF",
     "AST_ELSE",
+    "AST_SWITCH",
+    "AST_CASE",
+    "AST_DEFAULT",
     "AST_DO",
     "AST_FOR",
     "AST_RET",
@@ -455,7 +462,11 @@ Node_t* logical_or_expr(){
     }
     return node;
 }
-//Node_t* conditinal_expr();
+
+Node_t* conditinal_expr(){
+    Node_t* node = logical_or_expr();
+    return node;
+}
 
 Node_t* assign_expr(){
     Node_t* node = logical_or_expr();
@@ -617,6 +628,9 @@ Node_t* stmt(){
     if(next->kind == '{'){
         node = compound_stmt();
     }
+    else if(next->kind == TK_CASE || next->kind == TK_DEFAULT){
+        node = labeled_stmt();
+    }
     else if(next->kind == TK_WHILE || next->kind == TK_DO || next->kind == TK_FOR){
         node = iter_stmt();
     }
@@ -628,6 +642,26 @@ Node_t* stmt(){
     }
     else{
         node = expr_stmt();
+    }
+    return node;
+}
+
+Node_t* labeled_stmt(){
+    Node_t* node;
+    Token_t* next = read_token(0);
+    if(next->kind == TK_CASE){
+        consume_token(TK_CASE);
+        Node_t* lhs = conditinal_expr();
+        consume_token(':');
+        node = new_node(AST_CASE, lhs, stmt());
+        case_stmt[num_case++] = node;
+        case_stmt = realloc(case_stmt, (1+num_case)*sizeof(Node_t*));
+    }
+    else if(next->kind == TK_DEFAULT){
+        consume_token(TK_DEFAULT);
+        consume_token(':');
+        node = new_node(AST_DEFAULT, NULL, stmt());
+        default_stmt = node;
     }
     return node;
 }
@@ -705,8 +739,17 @@ Node_t* sel_stmt(){
         }
     }
     else if(next->kind == TK_SWITCH){
-        printf("not yet implemented\n");
-        assert(0);
+        consume_token(TK_SWITCH);
+        consume_token('(');
+        Node_t* lhs = expr();
+        consume_token(')');
+        case_stmt = (Node_t**)malloc(sizeof(Node_t*));
+        num_case = 0;
+        Node_t* rhs = stmt();
+        node = new_node(AST_SWITCH, lhs, rhs);
+        node->case_stmt = case_stmt;
+        node->default_stmt = default_stmt;
+        node->num_case = num_case;
     }
     else{
         error(next);

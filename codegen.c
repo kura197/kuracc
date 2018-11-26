@@ -368,6 +368,31 @@ void codegen(Node_t* ast){
             printf(".L%dend:\n", tmp_num_jmp);
         }
     }
+    else if(ast->op == AST_SWITCH){
+        int tmp_num_jmp = num_jmp;
+        codegen(ast->lhs);
+        for(int i = 0; i < ast->num_case; i++){
+            //codegen(ast->case_stmt[i]->lhs);
+            //printf("  pop %%rax\n");
+            //printf("  cmpl %%eax, (%%rsp)\n");
+            if(ast->case_stmt[i]->lhs->op != AST_INT){
+                fprintf(stderr, "Error : case label is only constant\n");
+                assert(0);
+            }
+            printf("  cmpl $%d, (%%rsp)\n", ast->case_stmt[i]->lhs->val);
+            printf("  je .L%d\n", num_jmp++);
+        }
+        printf("  jmp .L%d\n", num_jmp);
+        for(int i = 0; i < ast->num_case; i++){
+            printf(".L%d:\n", tmp_num_jmp++);
+            codegen(ast->case_stmt[i]->rhs);
+            //break;
+            printf("  jmp .L%d\n", num_jmp);
+        }
+        printf(".L%d:\n", num_jmp);
+        printf("  pop %%rax\n");
+        num_jmp++;
+    }
     else if(ast->op == AST_FOR){
         int tmp_num_jmp = num_jmp;
         num_jmp++;
@@ -390,7 +415,7 @@ void codegen(Node_t* ast){
         }
     }
     else{
-        printf("ast : %s\n", ast_name[ast->op]);
+        fprintf(stderr, "Unkown AST : %s\n", ast_name[ast->op]);
         assert(0);
     }
 }

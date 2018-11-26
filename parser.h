@@ -58,6 +58,10 @@ typedef struct Node{
     Type_t *rtype;
 
     int global;
+
+    struct Node** case_stmt;
+    struct Node* default_stmt;
+    int num_case;
 }Node_t;
 
 enum ast_kind{
@@ -100,6 +104,9 @@ enum ast_kind{
     AST_WHILE,
     AST_IF,
     AST_ELSE,
+    AST_SWITCH,
+    AST_CASE,
+    AST_DEFAULT,
     AST_DO,
     AST_FOR,
     AST_RET,
@@ -148,6 +155,7 @@ Vector_t* get_paras();
 Node_t* para_declaration();
 
 Node_t* stmt();
+Node_t* labeled_stmt();
 Node_t* compound_stmt();
 Node_t* block_item();
 Node_t* expr_stmt();
