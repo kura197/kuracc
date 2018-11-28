@@ -12,6 +12,7 @@ Symbol_t* sym;
 Map_t* strlabel;
 char* arg_regq_name[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 char* arg_regl_name[] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+int case_label;
 
 
 void codegen(Node_t* ast){
@@ -369,29 +370,31 @@ void codegen(Node_t* ast){
         }
     }
     else if(ast->op == AST_SWITCH){
-        int tmp_num_jmp = num_jmp;
+        case_label = num_jmp;
         codegen(ast->lhs);
+        printf("  pop %%rax\n");
         for(int i = 0; i < ast->num_case; i++){
-            //codegen(ast->case_stmt[i]->lhs);
-            //printf("  pop %%rax\n");
-            //printf("  cmpl %%eax, (%%rsp)\n");
             if(ast->case_stmt[i]->lhs->op != AST_INT){
                 fprintf(stderr, "Error : case label is only constant\n");
                 assert(0);
             }
-            printf("  cmpl $%d, (%%rsp)\n", ast->case_stmt[i]->lhs->val);
+            printf("  cmpl $%d, %%eax\n", ast->case_stmt[i]->lhs->val);
             printf("  je .L%d\n", num_jmp++);
         }
         printf("  jmp .L%d\n", num_jmp);
-        for(int i = 0; i < ast->num_case; i++){
-            printf(".L%d:\n", tmp_num_jmp++);
-            codegen(ast->case_stmt[i]->rhs);
-            //break;
-            printf("  jmp .L%d\n", num_jmp);
+        if(ast->default_stmt != NULL){
+            num_jmp++;
         }
-        printf(".L%d:\n", num_jmp);
-        printf("  pop %%rax\n");
-        num_jmp++;
+        codegen(ast->rhs);
+        printf(".L%d:\n", num_jmp++);
+    }
+    else if(ast->op == AST_CASE){
+        printf(".L%d:\n", case_label++);
+        codegen(ast->rhs);
+    }
+    else if(ast->op == AST_DEFAULT){
+        printf(".L%d:\n", case_label++);
+        codegen(ast->rhs);
     }
     else if(ast->op == AST_FOR){
         int tmp_num_jmp = num_jmp;
@@ -413,6 +416,9 @@ void codegen(Node_t* ast){
             printf("  pop %%rax\n");
             printf("  jmp .End%d\n", num_ret);
         }
+    }
+    else if(ast->op == AST_BREAK){
+        printf("  jmp .L%d\n", num_jmp);
     }
     else{
         fprintf(stderr, "Unkown AST : %s\n", ast_name[ast->op]);

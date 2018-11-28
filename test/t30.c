@@ -2,22 +2,22 @@
 int printf();
 
 int main(){
-    int a = 2;
-    int z = 2;
-    int b;
+    int a = 3;
+    int b = -1;
     switch(a){
         case 1:
             b = 2;
             break;
-        case 3:
         case 2:
-            b = 4;
+        case 3:
+        case 4:
+            b = 3;
             break;
         default:
-            b = 3;
+            b = 10;
             break;
     }
 
     printf("%d\n", b);
-    return 0;
+    return b;
 }
