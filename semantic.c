@@ -284,6 +284,12 @@ void sem_analy(Node_t* ast){
         if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 
+    else if(ast->op == AST_BLOCK){
+        sem_analy(ast->lhs);
+        if(ast->rhs != NULL) sem_analy(ast->rhs);
+        ast->type = ast->lhs->type;
+    }
+
     else if(ast->op == AST_DEC){
         if(ast->global){
             sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0, VAR);

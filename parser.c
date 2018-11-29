@@ -281,10 +281,11 @@ Node_t* unary_expr(){
     else if(next->kind == '+'){
         consume_token('+');
         consume_token('+');
-        // T *z = &x;
-        Node_t* node = cast_expr();
-        Node_t* node_addr = new_node(AST_UNARY_ADR, node, NULL);
-        Node_t* tmp1 = new_node(AST_ASSIGN, new_node_ID(), node_addr);
+        // x = x+1;
+        Node_t* tmp1 = cast_expr();
+        Node_t* tmp2 = new_node(AST_ADD, tmp1, new_node_num(1, TK_INT));
+        tmp2 = new_node(AST_ASSIGN, tmp1, tmp2);
+        node = new_node(AST_BLOCK, tmp2, tmp1);
     }
     else if(next->kind == '!'){
         consume_token('!');
