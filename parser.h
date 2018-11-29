@@ -73,6 +73,10 @@ enum ast_kind{
     AST_UNARY_PTR,  //*
     AST_UNARY_MINUS,  //-
     AST_UNARY_REV,  //!
+    AST_POST_PLUS,
+    AST_POST_MINUS,
+    AST_PRE_PLUS,
+    AST_PRE_MINUS,
     AST_ADD,
     AST_SUB,
     AST_MUL,

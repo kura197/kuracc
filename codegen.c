@@ -259,6 +259,10 @@ void codegen(Node_t* ast){
                 assert(0);
         }
     }
+    else if(ast->op == AST_EXPR){
+        codegen(ast->lhs);
+        codegen(ast->rhs);
+    }
     else if(ast->op == AST_INIT_DEC){
         if(ast->global) return;
         codegen_lval(ast->lhs);

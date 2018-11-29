@@ -36,7 +36,8 @@ enum token_kind{
     TK_LOG_OR,  //||
     TK_LEQ,     //<=
     TK_SEQ,     //>=
-    TK_EOF,
+    TK_SIZEOF,
+    TK_EOF
 };
 
 void tokenize(char *p);

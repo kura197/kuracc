@@ -34,6 +34,9 @@ char *token_name[] = {
     "TK_RSHIFT",
     "TK_LOG_AND",
     "TK_LOG_OR",
+    "TK_LEQ",     
+    "TK_SEQ",     
+    "TK_SIZEOF",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -323,6 +326,9 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "break")){
                 tokens[idx++].kind = TK_BREAK;
+            }
+            else if(!strcmp(tmp, "sizeof")){
+                tokens[idx++].kind = TK_SIZEOF;
             }
             else{
                 tokens[idx].kind = TK_ID;

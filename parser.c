@@ -16,6 +16,10 @@ char *ast_name[] = {
     "AST_UNARY_PTR",
     "AST_UNARY_MINUS",
     "AST_UNARY_REV",
+    "AST_POST_PLUS",
+    "AST_POST_MINUS",
+    "AST_PRE_PLUS",
+    "AST_PRE_MINUS",
     "AST_ADD",
     "AST_SUB",
     "AST_MUL",
@@ -273,6 +277,11 @@ Node_t* unary_expr(){
     else if(next->kind == '-'){
         consume_token('-');
         node = new_node(AST_UNARY_MINUS, cast_expr(), NULL);
+    }
+    else if(next->kind == '+'){
+        consume_token('+');
+        consume_token('+');
+        //node = new_node(AST_PRE_PLUS, unary_expr(), NULL);
     }
     else if(next->kind == '!'){
         consume_token('!');
