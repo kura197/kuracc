@@ -16,10 +16,10 @@ char *ast_name[] = {
     "AST_UNARY_PTR",
     "AST_UNARY_MINUS",
     "AST_UNARY_REV",
-    "AST_POST_PLUS",
-    "AST_POST_MINUS",
-    "AST_PRE_PLUS",
-    "AST_PRE_MINUS",
+    //"AST_POST_PLUS",
+    //"AST_POST_MINUS",
+    //"AST_PRE_PLUS",
+    //"AST_PRE_MINUS",
     "AST_ADD",
     "AST_SUB",
     "AST_MUL",
@@ -281,7 +281,10 @@ Node_t* unary_expr(){
     else if(next->kind == '+'){
         consume_token('+');
         consume_token('+');
-        //node = new_node(AST_PRE_PLUS, unary_expr(), NULL);
+        // T *z = &x;
+        Node_t* node = cast_expr();
+        Node_t* node_addr = new_node(AST_UNARY_ADR, node, NULL);
+        Node_t* tmp1 = new_node(AST_ASSIGN, new_node_ID(), node_addr);
     }
     else if(next->kind == '!'){
         consume_token('!');
