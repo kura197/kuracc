@@ -103,18 +103,19 @@ void sem_analy(Node_t* ast){
     }
 
     else if(ast->op == AST_SIZEOF){
-        //// sizeof unary_expr
-        //if(ast->lhs != NULL){
-        //    sem_analy(ast->lhs);
-        //    ast->type = ast->lhs->type;
-        //    ast->ltype = ast->type;
-        //    ast->val = get_type_size(ast->type);
-        //}
-        //// sizeof(type)
-        //else{
-        //    char* type_name = ast->name;
-        //    ast->val = get_type_size(type_name);
-        //}
+        // sizeof unary_expr
+        if(ast->lhs != NULL){
+            sem_analy(ast->lhs);
+            ast->type = ast->lhs->type;
+            ast->ltype = ast->type;
+            ast->val = get_type_size(ast->type);
+        }
+        // sizeof(type)
+        else{
+            ast->val = get_type_size(ast->type);
+        }
+        ast->type = (Type_t*)malloc(sizeof(Type_t));
+        ast->type->ty = TYPE_INT;
     }
 
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){

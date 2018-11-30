@@ -179,6 +179,7 @@ void dump_node(Node_t* node, int num){
 int get_type_size(Type_t* type){
     int size;
     switch(type->ty){
+        case TYPE_VOID: size = 1; break;
         case TYPE_CHAR: size = 1; break;
         case TYPE_INT: size = 4; break;
         case TYPE_PTR: size = 8; break;
@@ -348,20 +349,23 @@ Node_t* unary_expr(){
         next = read_token(0);
         if(next->kind == '('){
             consume_token('(');
-            node = new_node(AST_SIZEOF, unary_expr(), NULL);
+            node = new_node(AST_SIZEOF, NULL, NULL);
+            node->name = next->name;
+            Type_t* root = type_specifier();
+            next = read_token(0);
+            while(next->kind == '*'){
+                consume_token('*');
+                Type_t* tmp = (Type_t*)malloc(sizeof(Type_t));
+                tmp->ty = TYPE_PTR;
+                tmp->ptrof = root;
+                root = tmp;
+                next = read_token(0);
+            }
+            node->type = root;
             consume_token(')');
         }
         else{
-        //    node = new_node(AST_SIZEOF, NULL, NULL);
-        //    node->name = next->name;
-        //    if(next->kind == TK_KW_INT)
-        //        node->type->ty = TYPE_INT;
-        //    else if(next->kind == TK_KW_CHAR)
-        //        node->type->ty = TYPE_CHAR;
-        //    else if(next->kind == TK_KW_VOID)
-        //        node->type->ty = TYPE_VOID;
-        //    else
-        //        node->type->ty = TYPE_UNKNOWN;
+            node = new_node(AST_SIZEOF, unary_expr(), NULL);
         }
     }
     else

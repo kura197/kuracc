@@ -69,6 +69,7 @@ else
     runtest_print test/t31.c "x=3, y=2"
     runtest_print test/t32.c 7
     runtest_print test/t33.c "6, 11"
+    runtest_print test/t34.c 14
     echo 'Success!!'
 fi
 
