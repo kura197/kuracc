@@ -93,6 +93,11 @@ void sem_analy(Node_t* ast){
         ast->type = ast->lhs->type;
     }
 
+    else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
+        sem_analy(ast->lhs);
+        ast->type = ast->lhs->type;
+    }
+
     else if(ast->op == AST_ADD || ast->op == AST_SUB){
         sem_analy(ast->lhs);
         sem_analy(ast->rhs);
@@ -284,11 +289,11 @@ void sem_analy(Node_t* ast){
         if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 
-    else if(ast->op == AST_BLOCK){
-        sem_analy(ast->lhs);
-        if(ast->rhs != NULL) sem_analy(ast->rhs);
-        ast->type = ast->lhs->type;
-    }
+    //else if(ast->op == AST_BLOCK){
+    //    sem_analy(ast->lhs);
+    //    if(ast->rhs != NULL) sem_analy(ast->rhs);
+    //    ast->type = ast->lhs->type;
+    //}
 
     else if(ast->op == AST_DEC){
         if(ast->global){

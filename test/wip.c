@@ -1,7 +1,9 @@
 
+int printf();
 
 int main(){
     int x = 5;
-    --x;
-    return x;
+    ++x;
+    printf("%d\n", x);
+    return 0;
 }

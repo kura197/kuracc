@@ -98,6 +98,23 @@ void codegen(Node_t* ast){
         printf("  movzbl %%al, %%eax\n");
         printf("  pushq %%rax\n");
     }
+    else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
+        codegen_lval(ast->lhs);
+        printf("  pop %%rax\n");
+        int add_val = 1;
+        if(ast->type->ty == TYPE_PTR || ast->type->ty == TYPE_ARRAY){
+            add_val = get_type_size(ast->ltype->ptrof);
+        }
+        if(ast->op == AST_PRE_INC){
+            printf("  addq $%d, (%%rax)\n", add_val);
+        }
+        else if(ast->op == AST_PRE_DEC){
+            printf("  subq $%d, (%%rax)\n", add_val);
+        }
+        printf("  movq (%%rax), %%rbx\n");
+        printf("  pushq %%rbx\n");
+        rsp_allign += 8;
+    }
     else if(ast->op == AST_ADD || ast->op == AST_SUB){
         codegen(ast->lhs);
         codegen(ast->rhs);
@@ -331,11 +348,15 @@ void codegen(Node_t* ast){
         if(ast->lhs != NULL) codegen(ast->lhs);
     }
     else if(ast->op == AST_BLOCK){
+        int lop = ast->lhs->op;
+        int rop = ast->rhs->op;
         codegen(ast->lhs);
-        if(ast->lhs->op == AST_ID)
+        if(lop == AST_ID || lop == AST_INT || lop == AST_CHAR || lop == AST_PRE_INC 
+                || lop == AST_PRE_DEC || lop == AST_POST_INC || lop == AST_POST_DEC)
             printf("  pop %%rax\n");
         codegen(ast->rhs);
-        if(ast->rhs->op == AST_ID)
+        if(rop == AST_ID || rop == AST_INT || rop == AST_CHAR || rop == AST_PRE_INC 
+                || rop == AST_PRE_DEC || rop == AST_POST_INC || rop == AST_POST_DEC)
             printf("  pop %%rax\n");
     }
     else if(ast->op == AST_FUNC_DEC){
