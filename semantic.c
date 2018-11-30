@@ -62,6 +62,12 @@ void sem_analy(Node_t* ast){
         vector_push(str_lit, ast->name);
     }
 
+    else if(ast->op == AST_POST_INC || ast->op == AST_POST_DEC){
+        sem_analy(ast->lhs);
+        ast->type = ast->lhs->type;
+        ast->ltype = ast->type;
+    }
+
     else if(ast->op == AST_UNARY_PTR){
         sem_analy(ast->lhs);
         type = (Type_t*)ast->lhs->type;
@@ -86,16 +92,19 @@ void sem_analy(Node_t* ast){
     else if(ast->op == AST_UNARY_MINUS){
         sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
+        ast->ltype = ast->type;
     }
 
     else if(ast->op == AST_UNARY_REV){
         sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
+        ast->ltype = ast->type;
     }
 
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
         sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
+        ast->ltype = ast->type;
     }
 
     else if(ast->op == AST_ADD || ast->op == AST_SUB){

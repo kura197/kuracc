@@ -75,6 +75,23 @@ void codegen(Node_t* ast){
         printf("  movq $%s, %%rax\n", label);
         printf("  pushq %%rax\n");
     }
+    else if(ast->op == AST_POST_INC || ast->op == AST_POST_DEC){
+        codegen_lval(ast->lhs);
+        printf("  pop %%rax\n");
+        int add_val = 1;
+        if(ast->type->ty == TYPE_PTR || ast->type->ty == TYPE_ARRAY){
+            add_val = get_type_size(ast->ltype->ptrof);
+        }
+        printf("  movq (%%rax), %%rbx\n");
+        if(ast->op == AST_POST_INC){
+            printf("  addq $%d, (%%rax)\n", add_val);
+        }
+        else if(ast->op == AST_POST_DEC){
+            printf("  subq $%d, (%%rax)\n", add_val);
+        }
+        printf("  pushq %%rbx\n");
+        rsp_allign += 8;
+    }
     else if(ast->op == AST_UNARY_PTR){
         codegen(ast->lhs);
         printf("  pop %%rbx\n");

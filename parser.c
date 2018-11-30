@@ -248,6 +248,24 @@ Node_t* postfix_expr(){
             node = conv2ptr(node);
             consume_token(']');
         }
+        else if(next->kind == '+'){
+            next = read_token(1);
+            if(next->kind == '+'){
+                consume_token('+');
+                consume_token('+');
+                node = new_node(AST_POST_INC, node, NULL);
+            }
+            else break;
+        }
+        else if(next->kind == '-'){
+            next = read_token(1);
+            if(next->kind == '-'){
+                consume_token('-');
+                consume_token('-');
+                node = new_node(AST_POST_DEC, node, NULL);
+            }
+            else break;
+        }
         else break;
         next = read_token(0);
     }
