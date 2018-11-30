@@ -125,6 +125,7 @@ Node_t* new_node_DEC(char* name);
 Node_t* new_node_UOP(int* unary);
 Node_t* new_node_STRING(char* name);
 Node_t* new_node_name(int op, char* name);
+Node_t* new_node_assign(int op, Node_t* lval, Node_t* rval);
 Node_t* conv2ptr(Node_t* node);
 void add_type(Node_t* node, Type_t* type);
 void error(Token_t* tk);

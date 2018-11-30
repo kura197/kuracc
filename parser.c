@@ -117,6 +117,14 @@ Node_t* new_node_name(int op, char* name){
     return node;
 }
 
+Node_t* new_node_assign(int op, Node_t* lval, Node_t* rval){
+    // x += y -> x = x+y; x;
+    Node_t* tmp = new_node(op, lval, rval);
+    tmp = new_node(AST_ASSIGN, lval, tmp);
+    Node_t* node = new_node(AST_BLOCK, tmp, lval);
+    return node;
+}
+
 Node_t* conv2ptr(Node_t* node){
     Node_t* array_at = expr();
     Node_t* add = new_node(AST_ADD, node, array_at);
@@ -276,16 +284,19 @@ Node_t* unary_expr(){
     }
     else if(next->kind == '-'){
         consume_token('-');
-        node = new_node(AST_UNARY_MINUS, cast_expr(), NULL);
+        next = read_token(0);
+        if(next->kind == '-'){
+            consume_token('-');
+            node = new_node_assign(AST_SUB, cast_expr(), new_node_num(1, TK_INT));
+        }
+        else
+            node = new_node(AST_UNARY_MINUS, cast_expr(), NULL);
     }
     else if(next->kind == '+'){
         consume_token('+');
         consume_token('+');
         // x = x+1;
-        Node_t* tmp1 = cast_expr();
-        Node_t* tmp2 = new_node(AST_ADD, tmp1, new_node_num(1, TK_INT));
-        tmp2 = new_node(AST_ASSIGN, tmp1, tmp2);
-        node = new_node(AST_BLOCK, tmp2, tmp1);
+        node = new_node_assign(AST_ADD, cast_expr(), new_node_num(1, TK_INT));
     }
     else if(next->kind == '!'){
         consume_token('!');

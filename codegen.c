@@ -332,7 +332,11 @@ void codegen(Node_t* ast){
     }
     else if(ast->op == AST_BLOCK){
         codegen(ast->lhs);
+        if(ast->lhs->op == AST_ID)
+            printf("  pop %%rax\n");
         codegen(ast->rhs);
+        if(ast->rhs->op == AST_ID)
+            printf("  pop %%rax\n");
     }
     else if(ast->op == AST_FUNC_DEC){
     }
