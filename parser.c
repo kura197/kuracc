@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 Node_t** case_stmt;
 int num_case;
@@ -20,6 +21,7 @@ char *ast_name[] = {
     "AST_POST_DEC",
     "AST_PRE_INC",
     "AST_PRE_DEC",
+    "AST_SIZEOF",
     "AST_ADD",
     "AST_SUB",
     "AST_MUL",
@@ -186,6 +188,26 @@ int get_type_size(Type_t* type){
     return size;
 }
 
+int get_type_size_char(char* str){
+    int size;
+    char* tmp = str;
+    char last = 0;
+    while(*tmp != '\0'){
+        last = *tmp;
+        tmp++;
+    }
+    if(last == '*')
+        size = 8;
+    else if(!strcmp(str, "char"))
+        size = 1;
+    else if(!strcmp(str, "void"))
+        size = 1;
+    else if(!strcmp(str, "int"))
+        size = 4;
+
+    return size;
+}
+
 ///////////////////////////////////
 ////////////expression/////////////
 ///////////////////////////////////
@@ -320,6 +342,27 @@ Node_t* unary_expr(){
     else if(next->kind == '!'){
         consume_token('!');
         node = new_node(AST_UNARY_REV, cast_expr(), NULL);
+    }
+    else if(next->kind == TK_SIZEOF){
+        consume_token(TK_SIZEOF);
+        next = read_token(0);
+        if(next->kind == '('){
+            consume_token('(');
+            node = new_node(AST_SIZEOF, unary_expr(), NULL);
+            consume_token(')');
+        }
+        else{
+        //    node = new_node(AST_SIZEOF, NULL, NULL);
+        //    node->name = next->name;
+        //    if(next->kind == TK_KW_INT)
+        //        node->type->ty = TYPE_INT;
+        //    else if(next->kind == TK_KW_CHAR)
+        //        node->type->ty = TYPE_CHAR;
+        //    else if(next->kind == TK_KW_VOID)
+        //        node->type->ty = TYPE_VOID;
+        //    else
+        //        node->type->ty = TYPE_UNKNOWN;
+        }
     }
     else
         node = postfix_expr();

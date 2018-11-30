@@ -1,4 +1,5 @@
 #include "semantic.h"
+#include "parser.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -99,6 +100,21 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
         ast->ltype = ast->type;
+    }
+
+    else if(ast->op == AST_SIZEOF){
+        //// sizeof unary_expr
+        //if(ast->lhs != NULL){
+        //    sem_analy(ast->lhs);
+        //    ast->type = ast->lhs->type;
+        //    ast->ltype = ast->type;
+        //    ast->val = get_type_size(ast->type);
+        //}
+        //// sizeof(type)
+        //else{
+        //    char* type_name = ast->name;
+        //    ast->val = get_type_size(type_name);
+        //}
     }
 
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){

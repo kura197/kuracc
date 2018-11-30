@@ -77,6 +77,7 @@ enum ast_kind{
     AST_POST_DEC,
     AST_PRE_INC,
     AST_PRE_DEC,
+    AST_SIZEOF,
     AST_ADD,
     AST_SUB,
     AST_MUL,
@@ -131,6 +132,7 @@ void add_type(Node_t* node, Type_t* type);
 void error(Token_t* tk);
 void dump_node(Node_t* node, int num);
 int get_type_size(Type_t* type);
+int get_type_size_char(char* type_name);
 
 Node_t* primary_expr();
 Node_t* postfix_expr();

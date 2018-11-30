@@ -133,6 +133,10 @@ void codegen(Node_t* ast){
         printf("  pushq %%rbx\n");
         rsp_allign += 8;
     }
+    else if(ast->op == AST_SIZEOF){
+        printf("  movl $%d, %%eax\n", ast->val);
+        printf("  pushq %%rax\n");
+    }
     else if(ast->op == AST_ADD || ast->op == AST_SUB){
         codegen(ast->lhs);
         codegen(ast->rhs);
