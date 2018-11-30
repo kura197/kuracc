@@ -72,7 +72,8 @@ void codegen(Node_t* ast){
     }
     else if(ast->op == AST_STRING){
         char* label = map_search(strlabel, ast->name);
-        printf("  movq $%s, %%rax\n", label);
+        //printf("  movq $%s, %%rax\n", label);
+        printf("  leaq %s(%%rip), %%rax\n", label);
         printf("  pushq %%rax\n");
     }
     else if(ast->op == AST_POST_INC || ast->op == AST_POST_DEC){
