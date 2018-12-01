@@ -281,6 +281,19 @@ void codegen(Node_t* ast){
         printf(".L%d:\n", tmp_num_jmp3);
         printf("  pushq %%rax\n");
     }
+    else if(ast->op == AST_COND){
+        int tmp_num_jmp1 = num_jmp++;
+        int tmp_num_jmp2 = num_jmp++;
+        codegen(ast->lhs);
+        printf("  pop %%rax\n");
+        printf("  cmpl $0, %%eax\n");
+        printf("  je .L%d\n", tmp_num_jmp1);
+        codegen(ast->lcond);
+        printf("  jmp .L%d\n", tmp_num_jmp2);
+        printf(".L%d:\n", tmp_num_jmp1);
+        codegen(ast->rcond);
+        printf(".L%d:\n", tmp_num_jmp2);
+    }
     else if(ast->op == AST_ASSIGN){
         codegen_lval(ast->lhs);
         codegen(ast->rhs);

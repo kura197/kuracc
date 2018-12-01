@@ -48,6 +48,10 @@ typedef struct Node{
     //if
     struct Node* else_stmt;
 
+    // A ? B : C
+    struct Node* lcond;
+    struct Node* rcond;
+
     Type_t *type;
 
     struct SymTable* sym_table;
@@ -96,6 +100,7 @@ enum ast_kind{
     AST_LOG_OR,
     AST_LOG_AND,
     AST_ASSIGN,
+    AST_COND,
     AST_EXPR,
     AST_FUNC_CALL,
     AST_ARG_LIST,

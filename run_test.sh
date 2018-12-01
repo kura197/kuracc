@@ -71,6 +71,7 @@ else
     runtest_print test/t33.c "6, 11"
     runtest_print test/t34.c 14
     runtest_print test/t35.c "3, 3, 3"
+    runtest_print test/t36.c "28, 1"
     echo 'Success!!'
 fi
 

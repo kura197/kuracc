@@ -40,6 +40,7 @@ char *ast_name[] = {
     "AST_LOG_OR",
     "AST_LOG_AND",
     "AST_ASSIGN",
+    "AST_COND",
     "AST_EXPR",
     "AST_FUNC_CALL",
     "AST_ARG_LIST",
@@ -553,13 +554,23 @@ Node_t* logical_or_expr(){
     return node;
 }
 
-Node_t* conditinal_expr(){
+Node_t* conditional_expr(){
     Node_t* node = logical_or_expr();
+    Token_t* next = read_token(0);
+    if(next->kind == '?'){
+        consume_token('?');
+        Node_t* lcond = expr();
+        consume_token(':');
+        Node_t* rcond = conditional_expr();
+        node = new_node(AST_COND, node, NULL);
+        node->lcond = lcond;
+        node->rcond = rcond;
+    }
     return node;
 }
 
 Node_t* assign_expr(){
-    Node_t* node = logical_or_expr();
+    Node_t* node = conditional_expr();
     Token_t* next = read_token(0);
     while(next->kind == '='){
         consume_token('=');
@@ -567,7 +578,7 @@ Node_t* assign_expr(){
             node = new_node(AST_ASSIGN, node, postfix_expr());
         }
         else{
-            node = new_node(AST_ASSIGN, node, logical_or_expr());
+            node = new_node(AST_ASSIGN, node, conditional_expr());
         }
         next = read_token(0);
     }
@@ -741,7 +752,7 @@ Node_t* labeled_stmt(){
     Token_t* next = read_token(0);
     if(next->kind == TK_CASE){
         consume_token(TK_CASE);
-        Node_t* lhs = conditinal_expr();
+        Node_t* lhs = conditional_expr();
         consume_token(':');
         node = new_node(AST_CASE, lhs, stmt());
         case_stmt[num_case++] = node;

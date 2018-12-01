@@ -245,6 +245,19 @@ void sem_analy(Node_t* ast){
         }
     }
 
+    else if(ast->op == AST_COND){
+        sem_analy(ast->lhs);
+        sem_analy(ast->lcond);
+        sem_analy(ast->rcond);
+        ast->ltype = ast->lcond->type;
+        ast->rtype = ast->rcond->type;
+        if(ast->ltype->ty != ast->rtype->ty){
+            fprintf(stderr, "Error : conditional expr() type. %s and %s\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
+            assert(0);
+        }
+        ast->type = ast->ltype;
+    }
+
     else if(ast->op == AST_ASSIGN){
         sem_analy(ast->lhs);
         sem_analy(ast->rhs);
