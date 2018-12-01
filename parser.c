@@ -123,8 +123,7 @@ Node_t* new_node_name(int op, char* name){
 Node_t* new_node_assign(int op, Node_t* lval, Node_t* rval){
     // x += y -> x = x+y; x;
     Node_t* tmp = new_node(op, lval, rval);
-    tmp = new_node(AST_ASSIGN, lval, tmp);
-    Node_t* node = new_node(AST_BLOCK, tmp, lval);
+    Node_t* node = new_node(AST_ASSIGN, lval, tmp);
     return node;
 }
 
@@ -137,7 +136,7 @@ Node_t* conv2ptr(Node_t* node){
 
 void error(Token_t* tk){
     fprintf(stderr, "read token : %s\n", token_name[tk->kind]);
-    assert(0);
+    //assert(0);
 }
 
 void add_type(Node_t* node, Type_t* type){
@@ -329,7 +328,6 @@ Node_t* unary_expr(){
         next = read_token(0);
         if(next->kind == '-'){
             consume_token('-');
-            //node = new_node_assign(AST_SUB, cast_expr(), new_node_num(1, TK_INT));
             node = new_node(AST_PRE_DEC, cast_expr(), NULL);
         }
         else
@@ -338,7 +336,6 @@ Node_t* unary_expr(){
     else if(next->kind == '+'){
         consume_token('+');
         consume_token('+');
-        //node = new_node_assign(AST_ADD, cast_expr(), new_node_num(1, TK_INT));
         node = new_node(AST_PRE_INC, cast_expr(), NULL);
     }
     else if(next->kind == '!'){
@@ -403,8 +400,8 @@ Node_t* cast_expr(){
 
 Node_t* mul_expr(){
     Node_t* node = cast_expr();
-
     Token_t* next = read_token(0);
+    if(read_token(1)->kind == '=') return node;
     while(next->kind == '*' || next->kind == '/'){
         if(next->kind == '*'){
             consume_token('*');
@@ -423,6 +420,7 @@ Node_t* mul_expr(){
 Node_t* add_expr(){
     Node_t *node = mul_expr();
     Token_t* next = read_token(0);
+    if(read_token(1)->kind == '=') return node;
     while(next->kind == '+' || next->kind == '-'){
         if(next->kind == '+'){
             consume_token('+');
@@ -441,6 +439,7 @@ Node_t* add_expr(){
 Node_t* shift_expr(){
     Node_t *node = add_expr();
     Token_t* next = read_token(0);
+    if(read_token(1)->kind == '=') return node;
     while(next->kind == TK_LSHIFT || next->kind == TK_RSHIFT){
         if(next->kind == TK_LSHIFT){
             consume_token(TK_LSHIFT);
@@ -502,6 +501,7 @@ Node_t* equ_expr(){
 Node_t* and_expr(){
     Node_t* node = equ_expr();
     Token_t* next = read_token(0);
+    if(read_token(1)->kind == '=') return node;
     while(next->kind == '&'){
         consume_token('&');
         node = new_node(AST_AND, node, equ_expr());
@@ -513,6 +513,7 @@ Node_t* and_expr(){
 Node_t* exor_expr(){
     Node_t* node = and_expr();
     Token_t* next = read_token(0);
+    if(read_token(1)->kind == '=') return node;
     while(next->kind == '^'){
         consume_token('^');
         node = new_node(AST_EXOR, node, and_expr());
@@ -524,6 +525,7 @@ Node_t* exor_expr(){
 Node_t* or_expr(){
     Node_t* node = exor_expr();
     Token_t* next = read_token(0);
+    if(read_token(1)->kind == '=') return node;
     while(next->kind == '|'){
         consume_token('|');
         node = new_node(AST_OR, node, exor_expr());
@@ -571,16 +573,68 @@ Node_t* conditional_expr(){
 
 Node_t* assign_expr(){
     Node_t* node = conditional_expr();
-    Token_t* next = read_token(0);
-    while(next->kind == '='){
+    Token_t* next1 = read_token(0);
+    Token_t* next2 = read_token(1);
+    if(next1->kind == '='){
         consume_token('=');
-        if(read_token(0)->kind == TK_ID && read_token(1)->kind == '('){
-            node = new_node(AST_ASSIGN, node, postfix_expr());
+        node = new_node(AST_ASSIGN, node, assign_expr());
+    }
+    else if(next2->kind == '='){
+        if(next1->kind == '*'){
+            consume_token('*');
+            consume_token('=');
+            node = new_node_assign(AST_MUL, node, assign_expr());
         }
-        else{
-            node = new_node(AST_ASSIGN, node, conditional_expr());
+        else if(next1->kind == '/'){
+            consume_token('/');
+            consume_token('=');
+            node = new_node_assign(AST_DIV, node, assign_expr());
         }
-        next = read_token(0);
+        else if(next1->kind == '%'){
+            consume_token('%');
+            consume_token('=');
+            //yet
+            //node = new_node_assign(AST_DIV, node, assign_expr());
+        }
+        else if(next1->kind == '+'){
+            consume_token('+');
+            consume_token('=');
+            node = new_node_assign(AST_ADD, node, assign_expr());
+        }
+        else if(next1->kind == '-'){
+            consume_token('-');
+            consume_token('=');
+            node = new_node_assign(AST_SUB, node, assign_expr());
+        }
+        else if(next1->kind == TK_LSHIFT){
+            consume_token(TK_LSHIFT);
+            consume_token('=');
+            node = new_node_assign(AST_LSHIFT, node, assign_expr());
+        }
+        else if(next1->kind == TK_RSHIFT){
+            consume_token(TK_RSHIFT);
+            consume_token('=');
+            node = new_node_assign(AST_RSHIFT, node, assign_expr());
+        }
+        else if(next1->kind == '&'){
+            consume_token('&');
+            consume_token('=');
+            node = new_node_assign(AST_AND, node, assign_expr());
+        }
+        else if(next1->kind == '^'){
+            consume_token('^');
+            consume_token('=');
+            node = new_node_assign(AST_EXOR, node, assign_expr());
+        }
+        else if(next1->kind == '|'){
+            consume_token('|');
+            consume_token('=');
+            node = new_node_assign(AST_OR, node, assign_expr());
+        }
+        //else{
+        //    error(next1);
+        //    assert(0);
+        //}
     }
     return node;
 }
