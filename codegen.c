@@ -297,6 +297,8 @@ void codegen(Node_t* ast){
             else
                 assert(0);
         }
+        printf("  movl (%%rax), %%ebx\n");
+        printf("  pushq %%rbx\n");
     }
     else if(ast->op == AST_EXPR){
         codegen(ast->lhs);
@@ -318,6 +320,10 @@ void codegen(Node_t* ast){
                 printf("  movb %%bl, (%%rax)\n");
             else
                 assert(0);
+        }
+        if(!ast->global) {
+            printf("  movl (%%rax), %%ebx\n");
+            printf("  pushq %%rax\n");
         }
     }
     else if(ast->op == AST_FUNC_CALL){
@@ -374,11 +380,13 @@ void codegen(Node_t* ast){
         int rop = ast->rhs->op;
         codegen(ast->lhs);
         if(lop == AST_ID || lop == AST_INT || lop == AST_CHAR || lop == AST_PRE_INC 
-                || lop == AST_PRE_DEC || lop == AST_POST_INC || lop == AST_POST_DEC)
+                || lop == AST_PRE_DEC || lop == AST_POST_INC || lop == AST_POST_DEC 
+                || lop == AST_ASSIGN || lop == AST_INIT_DEC)
             printf("  pop %%rax\n");
         codegen(ast->rhs);
         if(rop == AST_ID || rop == AST_INT || rop == AST_CHAR || rop == AST_PRE_INC 
-                || rop == AST_PRE_DEC || rop == AST_POST_INC || rop == AST_POST_DEC)
+                || rop == AST_PRE_DEC || rop == AST_POST_INC || rop == AST_POST_DEC
+                || rop == AST_ASSIGN || rop == AST_INIT_DEC)
             printf("  pop %%rax\n");
     }
     else if(ast->op == AST_FUNC_DEC){
