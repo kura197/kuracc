@@ -164,7 +164,7 @@ void codegen(Node_t* ast){
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
-    else if(ast->op == AST_MUL || ast->op == AST_DIV){
+    else if(ast->op == AST_MUL || ast->op == AST_DIV || ast->op == AST_REM){
         codegen(ast->lhs);
         codegen(ast->rhs);
         printf("  pop %%rbx\n");
@@ -176,6 +176,11 @@ void codegen(Node_t* ast){
         else if(ast->op == AST_DIV){
             printf("  cltd\n");
             printf("  div %%ebx\n");
+        }
+        else if(ast->op == AST_REM){
+            printf("  cltd\n");
+            printf("  idivl %%ebx\n");
+            printf("  movl %%edx, %%eax\n");
         }
         printf("  pushq %%rax\n");
         rsp_allign += 8;

@@ -86,6 +86,7 @@ enum ast_kind{
     AST_SUB,
     AST_MUL,
     AST_DIV,
+    AST_REM,
     AST_LSHIFT,
     AST_RSHIFT,
     AST_LARGE, 

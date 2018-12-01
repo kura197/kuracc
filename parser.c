@@ -26,6 +26,7 @@ char *ast_name[] = {
     "AST_SUB",
     "AST_MUL",
     "AST_DIV",
+    "AST_REM",
     "AST_LSHIFT",
     "AST_RSHIFT",
     "AST_LEQ", 
@@ -402,7 +403,7 @@ Node_t* mul_expr(){
     Node_t* node = cast_expr();
     Token_t* next = read_token(0);
     if(read_token(1)->kind == '=') return node;
-    while(next->kind == '*' || next->kind == '/'){
+    while(next->kind == '*' || next->kind == '/' || next->kind == '%'){
         if(next->kind == '*'){
             consume_token('*');
             node = new_node(AST_MUL, node, cast_expr());
@@ -411,6 +412,10 @@ Node_t* mul_expr(){
         else if(next->kind == '/'){
             consume_token('/');
             node = new_node(AST_DIV, node, cast_expr());
+        }
+        else if(next->kind == '%'){
+            consume_token('%');
+            node = new_node(AST_REM, node, cast_expr());
         }
         next = read_token(0);
     }
@@ -593,8 +598,7 @@ Node_t* assign_expr(){
         else if(next1->kind == '%'){
             consume_token('%');
             consume_token('=');
-            //yet
-            //node = new_node_assign(AST_DIV, node, assign_expr());
+            node = new_node_assign(AST_REM, node, assign_expr());
         }
         else if(next1->kind == '+'){
             consume_token('+');

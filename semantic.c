@@ -147,13 +147,13 @@ void sem_analy(Node_t* ast){
         }
     }
 
-    else if(ast->op == AST_MUL || ast->op == AST_DIV){
+    else if(ast->op == AST_MUL || ast->op == AST_DIV || ast->op == AST_REM){
         sem_analy(ast->lhs);
         sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
         if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
-            fprintf(stderr, "Error : mul/div TYPE_PTR.\n");
+            fprintf(stderr, "Error : mul/div/rem TYPE_PTR.\n");
             assert(0);
         }
         else{

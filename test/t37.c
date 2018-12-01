@@ -23,39 +23,45 @@ int main(){
         return -1;
     }
 
-    y /= 4;
-    if(y != 5){
+    y %= 7;
+    if(y != 6){
         printf("Error%d : %d\n", 4, y);
         return -1;
     }
 
-    y <<= 2;
-    if(y != 20){
+    y /= 3;
+    if(y != 2){
         printf("Error%d : %d\n", 5, y);
         return -1;
     }
 
-    y >>= 1;
-    if(y != 10){
+    y <<= 4;
+    if(y != 32){
         printf("Error%d : %d\n", 6, y);
         return -1;
     }
 
-    y |= 15;
-    if(y != 15){
+    y >>= 1;
+    if(y != 16){
         printf("Error%d : %d\n", 7, y);
+        return -1;
+    }
+
+    y |= 15;
+    if(y != 31){
+        printf("Error%d : %d\n", 8, y);
         return -1;
     }
 
     y &= 12;
     if(y != 12){
-        printf("Error%d : %d\n", 8, y);
+        printf("Error%d : %d\n", 9, y);
         return -1;
     }
 
     y ^= 15;
     if(y != 3){
-        printf("Error%d : %d\n", 9, y);
+        printf("Error%d : %d\n", 10, y);
         return -1;
     }
 
