@@ -37,6 +37,7 @@ enum token_kind{
     TK_LEQ,     //<=
     TK_SEQ,     //>=
     TK_SIZEOF,
+    TK_STRUCT,
     TK_EOF
 };
 

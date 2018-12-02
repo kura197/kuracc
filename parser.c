@@ -7,6 +7,7 @@
 Node_t** case_stmt;
 int num_case;
 Node_t* default_stmt;
+Map_t* struct_dec;
 
 char *ast_name[] = {
     "AST_INT",
@@ -49,8 +50,10 @@ char *ast_name[] = {
     "AST_PARA_LIST",
     "AST_COMP_STMT",
     "AST_BLOCK",
+    "AST_DECLN",
     "AST_DEC",
     "AST_INIT_DEC",
+    //"AST_STRUCT",
     "AST_FUNC_DEC",
     "AST_WHILE",
     "AST_IF",
@@ -72,6 +75,7 @@ char *type_name[] = {
     "TYPE_INT",
     "TYPE_LONG",
     "TYPE_PTR",
+    "TYPE_STRUCT",
     "TYPE_ARRAY"
 };
 
@@ -179,12 +183,24 @@ void dump_node(Node_t* node, int num){
 
 int get_type_size(Type_t* type){
     int size;
+    Map_t* st_dec;
     switch(type->ty){
         case TYPE_VOID: size = 1; break;
         case TYPE_CHAR: size = 1; break;
         case TYPE_INT: size = 4; break;
         case TYPE_PTR: size = 8; break;
         case TYPE_ARRAY: size = get_type_size(type->ptrof); break;
+        case TYPE_STRUCT: 
+                         if((st_dec = map_search(struct_dec, type->name)) == NULL){
+                             fprintf(stderr, "struct %s was not declarerd.\n", type->name);
+                             assert(0);
+                         }
+                         size = 0;
+                         for(int i = 0; i < map_size(st_dec); i++){
+                             Node_t* dec_ast = vector_get(st_dec->val, i);
+                             size += get_type_size(dec_ast->type);
+                         }
+                         break; 
         default: size = 0; break;
     }
     return size;
@@ -659,9 +675,17 @@ Node_t* expr(){
 ////////////////////////////////////
 
 Node_t* declaration(){
+    Node_t* node;
     Type_t* type = type_specifier();
-    Node_t* node = init_declarator(type);
-    consume_token(';');
+    if(read_token(0)->kind == ';'){
+        node = new_node(AST_DECLN, NULL, NULL);
+        node->type = type;
+        consume_token(';');
+    }
+    else{
+        node = init_declarator(type);
+        consume_token(';');
+    }
     return node;
 }
 
@@ -690,11 +714,48 @@ Type_t* type_specifier(){
         consume_token(TK_KW_VOID);
         type->ty = TYPE_VOID;
     }
+    else if(next->kind == TK_STRUCT){
+        consume_token(TK_STRUCT);
+        type->ty = TYPE_STRUCT;
+        next = read_token(0);
+        if(next->kind == '{'){
+            fprintf(stderr, "not yet implemented\n");
+            assert(0);
+        }
+        else if(next->kind == TK_ID){
+            consume_token(TK_ID);
+            type->name = next->name;
+            next = read_token(0);
+            if(next->kind == '{'){
+                consume_token('{');
+                next = read_token(0);
+                Map_t* st_var = map_new();
+                while(next->kind != '}'){
+                    Node_t* st_dec = struct_declaration();
+                    map_push(st_var, st_dec->name, st_dec);
+                    next = read_token(0);
+                }
+                consume_token('}');
+                map_push(struct_dec, type->name, st_var);
+            }
+        }
+        else{
+            error(next);
+            assert(0);
+        }
+    }
     else{
-        printf("not yet implemented\n");
+        fprintf(stderr, "not yet implemented\n");
         assert(0);
     }
     return type;
+}
+
+Node_t* struct_declaration(){
+    Type_t* type = type_specifier();
+    Node_t* node = declarator(type);
+    consume_token(';');
+    return node;
 }
 
 Node_t* declarator(Type_t* type){
@@ -861,7 +922,7 @@ Node_t* compound_stmt(){
 Node_t* block_item(){
     Node_t* node;
     Token_t* next = read_token(0);
-    if(next->kind == TK_KW_INT || next->kind == TK_KW_CHAR){
+    if(next->kind == TK_KW_INT || next->kind == TK_KW_CHAR || next->kind == TK_KW_VOID || next->kind == TK_STRUCT){
         node = declaration();
     }
     else{
@@ -998,10 +1059,18 @@ Node_t* translation_unit(){
 }
 
 Node_t* function_definition(){
+    Node_t* node;
     Type_t* type = type_specifier();
-    Node_t* node = declarator(type);
-
     Token_t* next = read_token(0);
+    if(next->kind == ';'){
+        node = new_node(AST_DECLN, NULL, NULL);
+        node->type = type;
+        consume_token(';');
+        return node;
+    }
+
+    node = declarator(type);
+    next = read_token(0);
     if(next->kind == '{'){
         Node_t* tmp = new_node(AST_FUNC, node, compound_stmt());
         tmp->name = node->name;

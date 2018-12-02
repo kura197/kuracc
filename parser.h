@@ -15,13 +15,17 @@ enum type{
     TYPE_INT,
     TYPE_LONG,
     TYPE_PTR,
+    TYPE_STRUCT,
     TYPE_ARRAY
 };
 
 typedef struct Type{
     int ty;
+    // for pointer
     struct Type *ptrof;
     size_t array_size;
+    //for struct
+    char* name;
 }Type_t;
 
 typedef struct Node{
@@ -109,8 +113,10 @@ enum ast_kind{
     AST_PARA_LIST,
     AST_COMP_STMT,
     AST_BLOCK,
+    AST_DECLN,
     AST_DEC,
     AST_INIT_DEC,
+    //AST_STRUCT,
     AST_FUNC_DEC,
     AST_WHILE,
     AST_IF,
@@ -162,6 +168,7 @@ Node_t* expr();
 Node_t* declaration();
 Node_t* init_declarator(Type_t* type);
 Type_t* type_specifier();
+Node_t* struct_declaration();
 Node_t* declarator(Type_t* type);
 Node_t* direct_declarator(Type_t** root);
 Vector_t* get_paras();
@@ -182,6 +189,6 @@ Node_t* function_definition();
 
 extern char *ast_name[];
 extern char *type_name[];
-extern Map_t* global_var;
+extern Map_t* struct_dec;
 
 #endif

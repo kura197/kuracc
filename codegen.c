@@ -411,6 +411,8 @@ void codegen(Node_t* ast){
     }
     else if(ast->op == AST_FUNC_DEC){
     }
+    else if(ast->op == AST_DECLN){   //struct
+    }
     else if(ast->op == AST_DEC){   //global
     }
     else if(ast->op == AST_WHILE){

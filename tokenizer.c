@@ -37,6 +37,7 @@ char *token_name[] = {
     "TK_LEQ",     
     "TK_SEQ",     
     "TK_SIZEOF",
+    "TK_STRUCT",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -341,6 +342,9 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "sizeof")){
                 tokens[idx++].kind = TK_SIZEOF;
+            }
+            else if(!strcmp(tmp, "struct")){
+                tokens[idx++].kind = TK_STRUCT;
             }
             else{
                 tokens[idx].kind = TK_ID;
