@@ -746,8 +746,8 @@ Type_t* type_specifier(){
                 type->member = map_new();
                 while(next->kind != '}'){
                     Node_t* st_dec = struct_declaration();
-                    st_dec->type->offset = offset;
                     offset += get_type_size(st_dec->type);
+                    st_dec->type->offset = offset;
                     map_push(type->member, st_dec->name, st_dec->type);
                     next = read_token(0);
                 }

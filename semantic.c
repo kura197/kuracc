@@ -124,18 +124,25 @@ void sem_analy(Node_t* ast){
             assert(0);
         }
         char *struct_name = ast->lhs->name;
+        char *member_name = ast->rhs->name;
         if((sym = local_sym_search(sym_table, struct_name)) == NULL)
             if((sym = map_search(sym_table->arg, struct_name)) == NULL)
                 if((sym = map_search(sym_table->global, struct_name)) == NULL) {
                     fprintf(stderr, "Error : %s was not declared\n", struct_name);
                     assert(0);
                 }
-        Type_t* type;
-        if((type = map_search(struct_dec, ast->type->name)) == NULL){
+        Type_t* struct_type;
+        Type_t* member_type;
+        if((struct_type = map_search(struct_dec, sym->type->name)) == NULL){
                     fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
                     assert(0);
         }
-        ast->type = type; 
+        if((member_type = map_search(struct_type->member, member_name)) == NULL){
+                    fprintf(stderr, "Error : struct %s does not have %s\n", ast->type->name, member_name);
+                    assert(0);
+        }
+        ast->type = member_type; 
+        ast->sym = sym;
     }
 
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){

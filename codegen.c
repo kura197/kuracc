@@ -117,17 +117,30 @@ void codegen(Node_t* ast){
         //    rsp_allign += 8;
         //}
         //else{
-            if(ast->type->ty == TYPE_ARRAY){
-                printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
+            Type_t* struct_type;
+            Type_t* member_type;
+            char* member_name = ast->rhs->name;
+            if((struct_type = map_search(struct_dec, sym->type->name)) == NULL){
+                        fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
+                        assert(0);
+            }
+            if((member_type = map_search(struct_type->member, member_name)) == NULL){
+                        fprintf(stderr, "Error : struct %s does not have %s\n", ast->type->name, member_name);
+                        assert(0);
+            }
+
+            int offset = sym->offset - get_type_size(sym->type) + member_type->offset;
+            if(member_type->ty == TYPE_ARRAY){
+                printf("  leaq -%d(%%rbp), %%rax\n", offset);
             }
             else{
-                if(is_ptr(ast->type))
-                    printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
+                if(is_ptr(member_type))
+                    printf("  movq -%d(%%rbp), %%rax\n", offset);
                 else{
-                    if(get_type_size(ast->type) == 4)
-                        printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
-                    else if(get_type_size(ast->type) == 1)
-                        printf("  movzbl -%d(%%rbp), %%eax\n", sym->offset);
+                    if(get_type_size(member_type) == 4)
+                        printf("  movl -%d(%%rbp), %%eax\n", offset);
+                    else if(get_type_size(member_type) == 1)
+                        printf("  movzbl -%d(%%rbp), %%eax\n", offset);
                     else
                         assert(0);
                 }
@@ -587,6 +600,32 @@ void codegen_lval(Node_t* ast){
         printf("  pushq  %%rax\n");
         rsp_allign += 4;
     }    
+    else if(ast->op == AST_STRUCT_ID){
+        sym = ast->sym;
+        if(sym->name_space == NS_GLOBAL){
+            printf("  leaq %s(%%rip), %%rax\n", ast->name);
+            printf("  pushq  %%rax\n");
+            rsp_allign += 4;
+        }
+        else{
+            sym = ast->sym;
+            Type_t* struct_type;
+            Type_t* member_type;
+            char* member_name = ast->rhs->name;
+            if((struct_type = map_search(struct_dec, sym->type->name)) == NULL){
+                        fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
+                        assert(0);
+            }
+            if((member_type = map_search(struct_type->member, member_name)) == NULL){
+                        fprintf(stderr, "Error : struct %s does not have %s\n", ast->type->name, member_name);
+                        assert(0);
+            }
+            int offset = sym->offset - get_type_size(sym->type) + member_type->offset;
+            printf("  leaq -%d(%%rbp), %%rax\n", offset);
+            printf("  pushq  %%rax\n");
+            rsp_allign += 4;
+        }
+    }
     else{
         fprintf(stderr, "not ID lvalue\n");
         assert(0);
