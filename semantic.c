@@ -73,6 +73,7 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->lhs);
         type = (Type_t*)ast->lhs->type;
         ast->sym = ast->lhs->sym;
+        ast->name = ast->lhs->name;
         if(type->ty == TYPE_PTR || type->ty == TYPE_ARRAY){
             ast->type = type->ptrof;
         }
@@ -88,6 +89,7 @@ void sem_analy(Node_t* ast){
         type->ty = TYPE_PTR;
         type->ptrof = ast->lhs->type;
         ast->type = type;
+        ast->name = ast->lhs->name;
     }
 
     else if(ast->op == AST_UNARY_MINUS){
@@ -118,25 +120,33 @@ void sem_analy(Node_t* ast){
         ast->type->ty = TYPE_INT;
     }
 
-    else if(ast->op == AST_STRUCT_ID){
-        if(ast->lhs->op != AST_ID){
-            fprintf(stderr, "Error : not yet implemented.\n");
+    else if(ast->op == AST_STRUCT_ID || ast->op == AST_STRUCT_ID_ARR){
+        //if(ast->lhs->op != AST_ID){
+        //    fprintf(stderr, "Error : not yet implemented.\n");
+        //    assert(0);
+        //}
+        sem_analy(ast->lhs);
+        ast->ltype = ast->lhs->type;
+        int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+        if((ast->op == AST_STRUCT_ID && left_ptr) || (ast->op == AST_STRUCT_ID_ARR && !left_ptr)){
+            fprintf(stderr, "Error : struct type is invalid.\n");
             assert(0);
         }
-        char *struct_name = ast->lhs->name;
-        char *member_name = ast->rhs->name;
-        if((sym = local_sym_search(sym_table, struct_name)) == NULL)
-            if((sym = map_search(sym_table->arg, struct_name)) == NULL)
-                if((sym = map_search(sym_table->global, struct_name)) == NULL) {
-                    fprintf(stderr, "Error : %s was not declared\n", struct_name);
+        char *var_name = ast->lhs->name;
+        if((sym = local_sym_search(sym_table, var_name)) == NULL)
+            if((sym = map_search(sym_table->arg, var_name)) == NULL)
+                if((sym = map_search(sym_table->global, var_name)) == NULL) {
+                    fprintf(stderr, "Error : %s was not declared\n", var_name);
                     assert(0);
                 }
         Type_t* struct_type;
         Type_t* member_type;
-        if((struct_type = map_search(struct_dec, sym->type->name)) == NULL){
+        char* struct_name = (ast->lhs->op == AST_ID) ? sym->type->name : sym->type->ptrof->name;
+        if((struct_type = map_search(struct_dec, struct_name)) == NULL){
                     fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
                     assert(0);
         }
+        char *member_name = ast->rhs->name;
         if((member_type = map_search(struct_type->member, member_name)) == NULL){
                     fprintf(stderr, "Error : struct %s does not have %s\n", ast->type->name, member_name);
                     assert(0);

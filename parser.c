@@ -319,6 +319,11 @@ Node_t* postfix_expr(){
             node = new_node(AST_STRUCT_ID, node, new_node_ID(read_token(0)->name));
             consume_token(TK_ID);
         }
+        else if(next->kind == TK_ARROW){
+            consume_token(TK_ARROW);
+            node = new_node(AST_STRUCT_ID_ARR, node, new_node_ID(read_token(0)->name));
+            consume_token(TK_ID);
+        }
         else break;
         next = read_token(0);
     }

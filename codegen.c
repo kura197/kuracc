@@ -100,7 +100,8 @@ void codegen(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        if((struct_type = map_search(struct_dec, sym->type->name)) == NULL){
+        char* struct_name = (ast->lhs->op == AST_ID) ? sym->type->name : sym->type->ptrof->name;
+        if((struct_type = map_search(struct_dec, struct_name)) == NULL){
             fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
             assert(0);
         }
@@ -109,48 +110,26 @@ void codegen(Node_t* ast){
             assert(0);
         }
 
-        if(sym->name_space == NS_GLOBAL){
-            Type_t* first_member = vector_get(struct_type->member->val, 0);
-            int offset = member_type->offset - first_member->offset;
-            if(ast->type->ty == TYPE_ARRAY){
-                printf("  leaq %s+%d(%%rip), %%rax\n", ast->name, offset);
-            }
-            else{
-                if(is_ptr(ast->type))
-                    printf("  movq %s+%d(%%rip), %%rax\n", ast->name, offset);
-                else{
-                    if(get_type_size(ast->type) == 4)
-                        printf("  movl %s+%d(%%rip), %%eax\n", ast->name, offset);
-                    else if(get_type_size(ast->type) == 1)
-                        printf("  movzbl %s+%d(%%rip), %%eax\n", ast->name, offset);
-                    else
-                        assert(0);
-                }
-            }
-            printf("  pushq %%rax\n");
-            rsp_allign += 8;
+        codegen_lval(ast->lhs);
+        printf("  pop %%rbx\n");
+        int offset = get_type_size(struct_type) - member_type->offset;
+        if(ast->type->ty == TYPE_ARRAY){
+            printf("  leaq %d(%%rbx), %%rax\n", offset);
         }
         else{
-            int offset = sym->offset - get_type_size(sym->type) + member_type->offset;
-            if(member_type->ty == TYPE_ARRAY){
-                printf("  leaq -%d(%%rbp), %%rax\n", offset);
-            }
+            if(is_ptr(ast->type))
+                printf("  movq %d(%%rbx), %%rax\n", offset);
             else{
-                if(is_ptr(member_type))
-                    printf("  movq -%d(%%rbp), %%rax\n", offset);
-                else{
-                    if(get_type_size(member_type) == 4)
-                        printf("  movl -%d(%%rbp), %%eax\n", offset);
-                    else if(get_type_size(member_type) == 1)
-                        printf("  movzbl -%d(%%rbp), %%eax\n", offset);
-                    else
-                        assert(0);
-                }
+                if(get_type_size(ast->type) == 4)
+                    printf("  movl %d(%%rbx), %%eax\n", offset);
+                else if(get_type_size(ast->type) == 1)
+                    printf("  movzbl %d(%%rbx), %%eax\n", offset);
+                else
+                    assert(0);
             }
-            printf("  pushq %%rax\n");
-            rsp_allign += 8;
         }
-
+        printf("  pushq %%rax\n");
+        rsp_allign += 8;
     }
     else if(ast->op == AST_UNARY_PTR){
         codegen(ast->lhs);
@@ -607,28 +586,23 @@ void codegen_lval(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        if((struct_type = map_search(struct_dec, sym->type->name)) == NULL){
-                    fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
+        char* struct_name = (ast->lhs->op == AST_ID) ? sym->type->name : sym->type->ptrof->name;
+        if((struct_type = map_search(struct_dec, struct_name)) == NULL){
+                    fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
                     assert(0);
         }
         if((member_type = map_search(struct_type->member, member_name)) == NULL){
-                    fprintf(stderr, "Error : struct %s does not have %s\n", ast->type->name, member_name);
+                    fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
                     assert(0);
         }
+        codegen_lval(ast->lhs);
+        printf("  pop %%rax\n");
 
-        if(sym->name_space == NS_GLOBAL){
-            Type_t* first_member = vector_get(struct_type->member->val, 0);
-            int offset = member_type->offset - first_member->offset;
-            printf("  leaq %s+%d(%%rip), %%rax\n", ast->name, offset);
-            printf("  pushq  %%rax\n");
-            rsp_allign += 4;
-        }
-        else{
-            int offset = sym->offset - get_type_size(sym->type) + member_type->offset;
-            printf("  leaq -%d(%%rbp), %%rax\n", offset);
-            printf("  pushq  %%rax\n");
-            rsp_allign += 4;
-        }
+        int offset;
+        offset = get_type_size(struct_type) - member_type->offset;
+        printf("  addq $%d, %%rax\n", offset);
+        printf("  pushq  %%rax\n");
+        rsp_allign += 4;
     }
     else{
         fprintf(stderr, "not ID lvalue\n");

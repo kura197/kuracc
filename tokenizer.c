@@ -38,6 +38,7 @@ char *token_name[] = {
     "TK_SEQ",     
     "TK_SIZEOF",
     "TK_STRUCT",
+    "TK_ARROW",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -162,7 +163,12 @@ void tokenize(char* p){
             tokens[idx++].kind = '+';
         }
         else if(*p == '-'){
-            tokens[idx++].kind = '-';
+            if(*(p+1) == '>'){
+                tokens[idx++].kind = TK_ARROW;
+                p++;
+            }
+            else
+                tokens[idx++].kind = '-';
         }
         else if(*p == '*'){
             tokens[idx++].kind = '*';
