@@ -95,6 +95,48 @@ void codegen(Node_t* ast){
         printf("  pushq %%rbx\n");
         rsp_allign += 8;
     }
+    else if(ast->op == AST_STRUCT_ID){
+        sym = ast->sym;
+        //if(sym->name_space == NS_GLOBAL){
+        //    if(ast->type->ty == TYPE_ARRAY){
+        //        printf("  leaq %s(%%rip), %%rax\n", ast->name);
+        //    }
+        //    else{
+        //        if(is_ptr(ast->type))
+        //            printf("  movq %s(%%rip), %%rax\n", ast->name);
+        //        else{
+        //            if(get_type_size(ast->type) == 4)
+        //                printf("  movl %s(%%rip), %%eax\n", ast->name);
+        //            else if(get_type_size(ast->type) == 1)
+        //                printf("  movzbl %s(%%rip), %%eax\n", ast->name);
+        //            else
+        //                assert(0);
+        //        }
+        //    }
+        //    printf("  pushq %%rax\n");
+        //    rsp_allign += 8;
+        //}
+        //else{
+            if(ast->type->ty == TYPE_ARRAY){
+                printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
+            }
+            else{
+                if(is_ptr(ast->type))
+                    printf("  movq -%d(%%rbp), %%rax\n", sym->offset);
+                else{
+                    if(get_type_size(ast->type) == 4)
+                        printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
+                    else if(get_type_size(ast->type) == 1)
+                        printf("  movzbl -%d(%%rbp), %%eax\n", sym->offset);
+                    else
+                        assert(0);
+                }
+            }
+            printf("  pushq %%rax\n");
+            rsp_allign += 8;
+    //    }
+
+    }
     else if(ast->op == AST_UNARY_PTR){
         codegen(ast->lhs);
         printf("  pop %%rbx\n");

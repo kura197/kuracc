@@ -60,6 +60,7 @@ char *token_name[] = {
     [':'] = ":",
     ['?'] = "?",
     ['%'] = "%",
+    ['.'] = ".",
     ['='] = "="
 };
 
@@ -261,6 +262,9 @@ void tokenize(char* p){
         else if(*p == '%'){
             tokens[idx++].kind = '%';
         }
+        else if(*p == '.'){
+            tokens[idx++].kind = '.';
+        }
         else{
             int num = 0;
             while(1){
@@ -287,6 +291,7 @@ void tokenize(char* p){
                     case ':':
                     case '?':
                     case '%':
+                    case '.':
                     case '\n':
                     case '\t':
                     case ';': out = 1; break;

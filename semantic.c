@@ -118,6 +118,26 @@ void sem_analy(Node_t* ast){
         ast->type->ty = TYPE_INT;
     }
 
+    else if(ast->op == AST_STRUCT_ID){
+        if(ast->lhs->op != AST_ID){
+            fprintf(stderr, "Error : not yet implemented.\n");
+            assert(0);
+        }
+        char *struct_name = ast->lhs->name;
+        if((sym = local_sym_search(sym_table, struct_name)) == NULL)
+            if((sym = map_search(sym_table->arg, struct_name)) == NULL)
+                if((sym = map_search(sym_table->global, struct_name)) == NULL) {
+                    fprintf(stderr, "Error : %s was not declared\n", struct_name);
+                    assert(0);
+                }
+        Type_t* type;
+        if((type = map_search(struct_dec, ast->type->name)) == NULL){
+                    fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
+                    assert(0);
+        }
+        ast->type = type; 
+    }
+
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
         sem_analy(ast->lhs);
         ast->type = ast->lhs->type;

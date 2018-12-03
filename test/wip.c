@@ -14,6 +14,7 @@ struct st{
 
 int main(){
     struct st test;
-    struct st ttt;
+    struct st test2;
+    test.y = 3;
     return 0;
 }

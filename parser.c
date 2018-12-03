@@ -20,6 +20,7 @@ char *ast_name[] = {
     "AST_UNARY_REV",
     "AST_POST_INC",
     "AST_POST_DEC",
+    "AST_STRUCT_ID",
     "AST_PRE_INC",
     "AST_PRE_DEC",
     "AST_SIZEOF",
@@ -183,24 +184,31 @@ void dump_node(Node_t* node, int num){
 
 int get_type_size(Type_t* type){
     int size;
-    Map_t* st_dec;
+    Type_t* st_dec;
     switch(type->ty){
         case TYPE_VOID: size = 1; break;
         case TYPE_CHAR: size = 1; break;
         case TYPE_INT: size = 4; break;
         case TYPE_PTR: size = 8; break;
         case TYPE_ARRAY: size = get_type_size(type->ptrof); break;
+        //case TYPE_STRUCT: 
+        //                 if((st_dec = map_search(struct_dec, type->name)) == NULL){
+        //                     fprintf(stderr, "struct %s was not declarerd.\n", type->name);
+        //                     assert(0);
+        //                 }
+        //                 size = 0;
+        //                 for(int i = 0; i < map_size(st_dec); i++){
+        //                     Node_t* dec_ast = vector_get(st_dec->val, i);
+        //                     size += get_type_size(dec_ast->type);
+        //                 }
+        //                 break; 
         case TYPE_STRUCT: 
                          if((st_dec = map_search(struct_dec, type->name)) == NULL){
                              fprintf(stderr, "struct %s was not declarerd.\n", type->name);
                              assert(0);
                          }
-                         size = 0;
-                         for(int i = 0; i < map_size(st_dec); i++){
-                             Node_t* dec_ast = vector_get(st_dec->val, i);
-                             size += get_type_size(dec_ast->type);
-                         }
-                         break; 
+                         size = st_dec->offset;
+                         break;
         default: size = 0; break;
     }
     return size;
@@ -305,6 +313,11 @@ Node_t* postfix_expr(){
                 node = new_node(AST_POST_DEC, node, NULL);
             }
             else break;
+        }
+        else if(next->kind == '.'){
+            consume_token('.');
+            node = new_node(AST_STRUCT_ID, node, new_node_ID(read_token(0)->name));
+            consume_token(TK_ID);
         }
         else break;
         next = read_token(0);
@@ -729,14 +742,18 @@ Type_t* type_specifier(){
             if(next->kind == '{'){
                 consume_token('{');
                 next = read_token(0);
-                Map_t* st_var = map_new();
+                int offset = 0;
+                type->member = map_new();
                 while(next->kind != '}'){
                     Node_t* st_dec = struct_declaration();
-                    map_push(st_var, st_dec->name, st_dec);
+                    st_dec->type->offset = offset;
+                    offset += get_type_size(st_dec->type);
+                    map_push(type->member, st_dec->name, st_dec->type);
                     next = read_token(0);
                 }
                 consume_token('}');
-                map_push(struct_dec, type->name, st_var);
+                map_push(struct_dec, type->name, type);
+                type->offset = offset;
             }
         }
         else{

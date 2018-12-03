@@ -26,6 +26,8 @@ typedef struct Type{
     size_t array_size;
     //for struct
     char* name;
+    Map_t* member;
+    int offset;
 }Type_t;
 
 typedef struct Node{
@@ -83,6 +85,7 @@ enum ast_kind{
     AST_UNARY_REV,  //!
     AST_POST_INC,
     AST_POST_DEC,
+    AST_STRUCT_ID,
     AST_PRE_INC,
     AST_PRE_DEC,
     AST_SIZEOF,
