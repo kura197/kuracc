@@ -75,6 +75,7 @@ else
     runtest_print test/t37.c "OK"
     runtest_print test/t38.c "0 2 4 1 3 5 "
     runtest_print test/t39.c "Hello, World. 14"
+    runtest_print test/t40.c "HELLOHELLO 7"
     echo 'Success!!'
 fi
 

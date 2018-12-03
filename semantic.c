@@ -143,6 +143,7 @@ void sem_analy(Node_t* ast){
         }
         ast->type = member_type; 
         ast->sym = sym;
+        ast->name = ast->lhs->name;
     }
 
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
