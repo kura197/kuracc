@@ -86,7 +86,6 @@ enum ast_kind{
     AST_POST_INC,
     AST_POST_DEC,
     AST_STRUCT_ID,
-    AST_STRUCT_ID_ARR,  //->
     AST_PRE_INC,
     AST_PRE_DEC,
     AST_SIZEOF,

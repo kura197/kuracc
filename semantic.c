@@ -120,7 +120,7 @@ void sem_analy(Node_t* ast){
         ast->type->ty = TYPE_INT;
     }
 
-    else if(ast->op == AST_STRUCT_ID || ast->op == AST_STRUCT_ID_ARR){
+    else if(ast->op == AST_STRUCT_ID){
         //if(ast->lhs->op != AST_ID){
         //    fprintf(stderr, "Error : not yet implemented.\n");
         //    assert(0);
@@ -128,7 +128,7 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->lhs);
         ast->ltype = ast->lhs->type;
         int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
-        if((ast->op == AST_STRUCT_ID && left_ptr) || (ast->op == AST_STRUCT_ID_ARR && !left_ptr)){
+        if((ast->op == AST_STRUCT_ID && left_ptr)){
             fprintf(stderr, "Error : struct type is invalid.\n");
             assert(0);
         }

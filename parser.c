@@ -321,7 +321,9 @@ Node_t* postfix_expr(){
         }
         else if(next->kind == TK_ARROW){
             consume_token(TK_ARROW);
-            node = new_node(AST_STRUCT_ID_ARR, node, new_node_ID(read_token(0)->name));
+            //node = new_node(AST_STRUCT_ID_ARR, node, new_node_ID(read_token(0)->name));
+            Node_t* st = new_node(AST_UNARY_PTR, node, NULL);
+            node = new_node(AST_STRUCT_ID, st, new_node_ID(read_token(0)->name));
             consume_token(TK_ID);
         }
         else break;
