@@ -59,6 +59,7 @@ int main(int argc, char* argv[]){
     }
 
     struct_dec = map_new();
+    enum_dec = map_new();
     Vector_t *vec = vector_new();
     Token_t *next = read_token(0);
     while(next->kind != TK_EOF){

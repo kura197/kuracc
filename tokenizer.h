@@ -38,6 +38,7 @@ enum token_kind{
     TK_SEQ,     //>=
     TK_SIZEOF,
     TK_STRUCT,
+    TK_ENUM,
     TK_ARROW,   //->
     TK_EOF
 };

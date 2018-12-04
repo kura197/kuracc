@@ -357,6 +357,9 @@ void tokenize(char* p){
             else if(!strcmp(tmp, "struct")){
                 tokens[idx++].kind = TK_STRUCT;
             }
+            else if(!strcmp(tmp, "enum")){
+                tokens[idx++].kind = TK_ENUM;
+            }
             else{
                 tokens[idx].kind = TK_ID;
                 tokens[idx].name = (char*)malloc((num+1)*sizeof(char));

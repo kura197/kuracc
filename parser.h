@@ -16,6 +16,7 @@ enum type{
     TYPE_LONG,
     TYPE_PTR,
     TYPE_STRUCT,
+    TYPE_ENUM,
     TYPE_ARRAY
 };
 
@@ -119,7 +120,6 @@ enum ast_kind{
     AST_DECLN,
     AST_DEC,
     AST_INIT_DEC,
-    //AST_STRUCT,
     AST_FUNC_DEC,
     AST_WHILE,
     AST_IF,
@@ -193,5 +193,6 @@ Node_t* function_definition();
 extern char *ast_name[];
 extern char *type_name[];
 extern Map_t* struct_dec;
+extern Map_t* enum_dec;
 
 #endif

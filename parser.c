@@ -8,6 +8,7 @@ Node_t** case_stmt;
 int num_case;
 Node_t* default_stmt;
 Map_t* struct_dec;
+Map_t* enum_dec;
 
 char *ast_name[] = {
     "AST_INT",
@@ -77,6 +78,7 @@ char *type_name[] = {
     "TYPE_LONG",
     "TYPE_PTR",
     "TYPE_STRUCT",
+    "TYPE_ENUM",
     "TYPE_ARRAY"
 };
 
@@ -766,6 +768,44 @@ Type_t* type_specifier(){
         else{
             error(next);
             assert(0);
+        }
+    }
+    else if(next->kind == TK_ENUM){
+        consume_token(TK_ENUM);
+        next = read_token(0);
+        if(next->kind == '{'){
+            consume_token('{');
+            fprintf(stderr, "not yet implemented.\n");
+            consume_token('}');
+        }
+        else if(next->kind == TK_ID){
+            consume_token(TK_ID);
+            consume_token('{');
+            next = read_token(0);
+            int offset = 0;
+            while(next->kind != '}'){
+                consume_token(TK_ID);
+                char* id_name = next->name;
+                next = read_token(0);
+                if(next->kind == '='){
+                    consume_token('=');
+                    consume_token(TK_INT);
+                    offset = next->value;
+                    next = read_token(0);
+                }
+                //error
+                //consume_token(',');
+                next = read_token(0);
+                if(map_search(enum_dec, id_name) != NULL){
+                    fprintf(stderr, "Error : redeclaration of enumrator %s.\n", id_name);
+                    assert(0);
+                }
+                int* val = (int*)malloc(sizeof(int));
+                *val = offset;
+                map_push(enum_dec, id_name, val);
+                offset++;
+            }
+            consume_token('}');
         }
     }
     else{
