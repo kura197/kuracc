@@ -46,15 +46,22 @@ Symbol_t* local_sym_search(SymTable_t* symt, char* name){
 
 void sem_analy(Node_t* ast){
     if(ast->op == AST_ID){
-        if((sym = local_sym_search(sym_table, ast->name)) == NULL)
-            if((sym = map_search(sym_table->arg, ast->name)) == NULL)
-                if((sym = map_search(sym_table->global, ast->name)) == NULL) {
-                    fprintf(stderr, "Error : %s was not declared\n", ast->name);
-                    assert(0);
-                }
-        Type_t* tmp = sym->type;
-        ast->type = tmp;
-        ast->sym = sym;
+        int *offset;
+        if((offset = map_search(enum_dec, ast->name)) != NULL){
+            ast->type = (Type_t*)malloc(sizeof(Type_t));
+            ast->type->ty = TYPE_INT;
+            ast->sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, *offset, VAR);
+        }
+        else{
+            if((sym = local_sym_search(sym_table, ast->name)) == NULL)
+                if((sym = map_search(sym_table->arg, ast->name)) == NULL)
+                    if((sym = map_search(sym_table->global, ast->name)) == NULL) {
+                        fprintf(stderr, "Error : %s was not declared\n", ast->name);
+                        assert(0);
+                    }
+            ast->type = sym->type;
+            ast->sym = sym;
+        }
     }
 
     else if(ast->op == AST_STRING){

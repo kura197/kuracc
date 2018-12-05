@@ -781,21 +781,18 @@ Type_t* type_specifier(){
         else if(next->kind == TK_ID){
             consume_token(TK_ID);
             consume_token('{');
-            next = read_token(0);
             int offset = 0;
-            while(next->kind != '}'){
+            while(1){
+                next = read_token(0);
                 consume_token(TK_ID);
                 char* id_name = next->name;
                 next = read_token(0);
                 if(next->kind == '='){
                     consume_token('=');
+                    offset = read_token(0)->value;
                     consume_token(TK_INT);
-                    offset = next->value;
                     next = read_token(0);
                 }
-                //error
-                //consume_token(',');
-                next = read_token(0);
                 if(map_search(enum_dec, id_name) != NULL){
                     fprintf(stderr, "Error : redeclaration of enumrator %s.\n", id_name);
                     assert(0);
@@ -804,8 +801,18 @@ Type_t* type_specifier(){
                 *val = offset;
                 map_push(enum_dec, id_name, val);
                 offset++;
+                if(next->kind == '}'){
+                    consume_token('}');
+                    break;
+                }
+                else if(next->kind == ','){
+                    consume_token(',');
+                }
+                else{
+                    error(next);
+                    assert(0);
+                }
             }
-            consume_token('}');
         }
     }
     else{
