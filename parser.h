@@ -17,18 +17,24 @@ enum type{
     TYPE_PTR,
     TYPE_STRUCT,
     TYPE_ENUM,
+    TYPE_TYPEDEF,
     TYPE_ARRAY
 };
 
 typedef struct Type{
     int ty;
+
     // for pointer
     struct Type *ptrof;
     size_t array_size;
+
     //for struct
     char* name;
     Map_t* member;
     int offset;
+
+    //for typedef
+    struct Type* typeof;
 }Type_t;
 
 typedef struct Node{
@@ -169,6 +175,7 @@ Node_t* assign_expr();
 Node_t* expr();
 
 Node_t* declaration();
+Type_t* declaration_specifier();
 Node_t* init_declarator(Type_t* type);
 Type_t* type_specifier();
 Node_t* struct_declaration();
@@ -194,5 +201,6 @@ extern char *ast_name[];
 extern char *type_name[];
 extern Map_t* struct_dec;
 extern Map_t* enum_dec;
+extern Map_t* typedef_dec;
 
 #endif

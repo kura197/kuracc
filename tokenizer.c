@@ -38,7 +38,9 @@ char *token_name[] = {
     "TK_SEQ",     
     "TK_SIZEOF",
     "TK_STRUCT",
+    "TK_ENUM",
     "TK_ARROW",
+    "TK_TYPEDEF",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -359,6 +361,9 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "enum")){
                 tokens[idx++].kind = TK_ENUM;
+            }
+            else if(!strcmp(tmp, "typedef")){
+                tokens[idx++].kind = TK_TYPEDEF;
             }
             else{
                 tokens[idx].kind = TK_ID;

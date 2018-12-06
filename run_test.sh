@@ -79,6 +79,7 @@ else
     runtest_print test/t41.c "OK"
     runtest_print test/t42.c "OK"
     runtest_print test/t43.c "OK"
+    runtest_print test/t44.c 12
     echo 'Success!!'
 fi
 

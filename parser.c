@@ -9,6 +9,7 @@ int num_case;
 Node_t* default_stmt;
 Map_t* struct_dec;
 Map_t* enum_dec;
+Map_t* typedef_dec;
 
 char *ast_name[] = {
     "AST_INT",
@@ -698,7 +699,7 @@ Node_t* expr(){
 
 Node_t* declaration(){
     Node_t* node;
-    Type_t* type = type_specifier();
+    Type_t* type = declaration_specifier();
     if(read_token(0)->kind == ';'){
         node = new_node(AST_DECLN, NULL, NULL);
         node->type = type;
@@ -709,6 +710,26 @@ Node_t* declaration(){
         consume_token(';');
     }
     return node;
+}
+
+Type_t* declaration_specifier(){
+    Type_t* type;
+    Token_t* next = read_token(0);
+    if(next->kind == TK_TYPEDEF){
+        consume_token(TK_TYPEDEF);
+        Type_t* tmp = type_specifier();
+        type = (Type_t*)malloc(sizeof(Type_t));
+        type->ty = TYPE_TYPEDEF;
+        type->typeof = tmp;
+        next = read_token(0);
+        consume_token(TK_ID);
+        type->name = next->name;
+        map_push(typedef_dec, type->name, type);
+    }
+    else{
+        type = type_specifier();
+    }
+    return type;
 }
 
 Node_t* init_declarator(Type_t* type){
@@ -814,6 +835,16 @@ Type_t* type_specifier(){
                 }
             }
         }
+    }
+    else if(next->kind == TK_ID){
+        //typedef
+        consume_token(TK_ID);
+        Type_t* tmp;
+        if((tmp = map_search(typedef_dec, next->name)) == NULL){
+            fprintf(stderr, "Error : unknown type name '%s'\n", next->name);
+            assert(0);
+        }
+        type = tmp->typeof;
     }
     else{
         fprintf(stderr, "not yet implemented\n");
@@ -993,7 +1024,8 @@ Node_t* compound_stmt(){
 Node_t* block_item(){
     Node_t* node;
     Token_t* next = read_token(0);
-    if(next->kind == TK_KW_INT || next->kind == TK_KW_CHAR || next->kind == TK_KW_VOID || next->kind == TK_STRUCT){
+    if(next->kind == TK_KW_INT || next->kind == TK_KW_CHAR || next->kind == TK_KW_VOID 
+            || next->kind == TK_STRUCT || (next->kind == TK_ID && map_search(typedef_dec, next->name) != NULL)){
         node = declaration();
     }
     else{
@@ -1131,7 +1163,7 @@ Node_t* translation_unit(){
 
 Node_t* function_definition(){
     Node_t* node;
-    Type_t* type = type_specifier();
+    Type_t* type = declaration_specifier();
     Token_t* next = read_token(0);
     if(next->kind == ';'){
         node = new_node(AST_DECLN, NULL, NULL);

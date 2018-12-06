@@ -40,6 +40,7 @@ enum token_kind{
     TK_STRUCT,
     TK_ENUM,
     TK_ARROW,   //->
+    TK_TYPEDEF,   
     TK_EOF
 };
 
