@@ -45,6 +45,7 @@ enum token_kind{
 };
 
 void tokenize(char *p);
+int get_ident(char *id, char **p);
 struct Token* read_token(int n);
 struct Token* get_token();
 int end_tokens();

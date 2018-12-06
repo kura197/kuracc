@@ -273,44 +273,17 @@ void tokenize(char* p){
         else if(*p == '.'){
             tokens[idx++].kind = '.';
         }
+        else if(*p == '#'){
+            p++;
+            //char tmp[64];
+            //int num = get_ident(tmp, &p);
+            //if(!strcmp(tmp, "include")){
+            //    ;
+            //}
+        }
         else{
-            int num = 0;
-            while(1){
-                p++;
-                int out = 0;
-                switch(*p){
-                    case ' ':
-                    case '+':
-                    case '-':
-                    case '*':
-                    case '<':
-                    case '>':
-                    case '^':
-                    case '/':
-                    case '(':
-                    case ')':
-                    case '=':
-                    case '!':
-                    case ',':
-                    case '{':
-                    case '}':
-                    case '[':
-                    case ']':
-                    case ':':
-                    case '?':
-                    case '%':
-                    case '.':
-                    case '\n':
-                    case '\t':
-                    case ';': out = 1; break;
-                }
-                if(out) break;
-                else num++;
-            }
             char tmp[64];
-            p--;
-            strncpy(tmp, p-num, num+1);
-            tmp[num+1] = '\0';
+            int num = get_ident(tmp, &p);
             if(!strcmp(tmp, "if")){
                 tokens[idx++].kind = TK_IF;
             }
@@ -376,6 +349,47 @@ void tokenize(char* p){
     }
     tokens[idx].kind = TK_EOF;
     num_tokens += idx;
+}
+
+int get_ident(char *id, char **p){
+    int num = 0;
+    while(1){
+        int out = 0;
+        //??
+        (*p)++;
+        switch(**p){
+            case ' ':
+            case '+':
+            case '-':
+            case '*':
+            case '<':
+            case '>':
+            case '^':
+            case '/':
+            case '(':
+            case ')':
+            case '=':
+            case '!':
+            case ',':
+            case '{':
+            case '}':
+            case '[':
+            case ']':
+            case ':':
+            case '?':
+            case '%':
+            case '.':
+            case '\n':
+            case '\t':
+            case ';': out = 1; break;
+        }
+        if(out) break;
+        else num++;
+    }
+    (*p)--;
+    strncpy(id, *p-num, num+1);
+    id[num+1] = '\0';
+    return num;
 }
 
 Token_t* read_token(int n){
