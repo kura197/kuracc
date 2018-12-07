@@ -52,6 +52,7 @@ int main(int argc, char* argv[]){
         return 0;
     }
 
+    define = map_new();
     tokenize(p);
     if(dump_tk) {
         printf("\ndump tokens\n");

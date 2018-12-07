@@ -8,6 +8,8 @@
 Token_t tokens[NUM_TK];
 int token_idx;
 int num_tokens;
+Map_t* define;
+int idx;
 
 //for debug purpose
 char *token_name[] = {
@@ -69,7 +71,6 @@ char *token_name[] = {
 };
 
 void tokenize(char* p){
-    int idx = 0;
     while(*p){
         if('0' <= *p && *p <= '9'){
             char values[16];
@@ -290,14 +291,40 @@ void tokenize(char* p){
                     p++;
                 }
                 tmp[n] = '\0';
-                char* header = map_file(tmp);
-                if(!libc) tokenize(header);
+                if(!libc){
+                    char* header = map_file(tmp);
+                    tokenize(header);
+                    //idx--;
+                }
                 p++;
+            }
+            else if(!strcmp(tmp, "define")){
+                while(*p == ' ') p++;
+                char* def_l = (char*)malloc(128*sizeof(char));
+                int n = 0;
+                while(*p != ' ' && *p != '\n'){
+                    def_l[n++] = *p;
+                    p++;
+                }
+                def_l[n] = '\0';
+
+                while(*p == ' ') p++;
+                char* def_r = (char*)malloc(128*sizeof(char));
+                n = 0;
+                while(*p != ' ' && *p != '\n'){
+                    def_r[n++] = *p;
+                    p++;
+                }
+                def_r[n] = '\0';
+
+                map_push(define, def_l, def_r);
             }
         }
         else{
             char tmp[64];
             int num = get_ident(tmp, &p);
+            p--;
+            char* def;
             if(!strcmp(tmp, "if")){
                 tokens[idx++].kind = TK_IF;
             }
@@ -352,6 +379,10 @@ void tokenize(char* p){
             else if(!strcmp(tmp, "typedef")){
                 tokens[idx++].kind = TK_TYPEDEF;
             }
+            else if((def = map_search(define, tmp)) != NULL){
+                tokenize(def);
+                //idx--;
+            }
             else{
                 tokens[idx].kind = TK_ID;
                 tokens[idx].name = (char*)malloc((num+1)*sizeof(char));
@@ -362,15 +393,13 @@ void tokenize(char* p){
         p++;
     }
     tokens[idx].kind = TK_EOF;
-    num_tokens += idx;
+    num_tokens = idx;
 }
 
 int get_ident(char *id, char **p){
     int num = 0;
     while(1){
         int out = 0;
-        //??
-        (*p)++;
         switch(**p){
             case ' ':
             case '+':
@@ -395,14 +424,17 @@ int get_ident(char *id, char **p){
             case '.':
             case '\n':
             case '\t':
+            case '\0':
             case ';': out = 1; break;
         }
         if(out) break;
-        else num++;
+        id[num] = **p;
+        (*p)++;
+        num++;
     }
-    (*p)--;
-    strncpy(id, *p-num, num+1);
-    id[num+1] = '\0';
+    //strncpy(id, *p-num, num);
+    //(*p)--;
+    id[num] = '\0';
     return num;
 }
 

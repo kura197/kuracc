@@ -1,6 +1,8 @@
 #ifndef TOKEN_H_
 #define TOKEN_H_
 
+#include "vector_map.h"
+
 #define NUM_TK 1000
 
 typedef struct Token{
@@ -56,5 +58,6 @@ extern Token_t tokens[NUM_TK];
 extern int token_idx;
 extern int num_tokens;
 extern char *token_name[];
+extern Map_t* define;
 
 #endif
