@@ -2,8 +2,8 @@
 //vector_map
 typedef struct Vector{
     void** item;     
-    size_t len;
-    size_t cap;
+    int len;
+    int cap;
 }Vector_t;
 
 typedef struct Map{
@@ -14,15 +14,15 @@ typedef struct Map{
 
 Vector_t* vector_new();
 void vector_push(Vector_t *vec, void *item);
-void* vector_get(Vector_t *vec, size_t idx);
-size_t vector_size(Vector_t *vec);
+void* vector_get(Vector_t *vec, int idx);
+int vector_size(Vector_t *vec);
 void vector_pop(Vector_t *vec);
-void vector_delete(Vector_t *vec, size_t idx);
+void vector_delete(Vector_t *vec, int idx);
 
 Map_t* map_new();
 void map_push(Map_t* map, char* key, void* val);
 void* map_search(Map_t* map, char* key);
-size_t map_size(Map_t* map);
+int map_size(Map_t* map);
 void map_pop(Map_t* map);
 
 
@@ -116,7 +116,7 @@ typedef struct Type{
 
     // for pointer
     struct Type *ptrof;
-    size_t array_size;
+    int array_size;
 
     //for struct
     char* name;

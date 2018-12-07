@@ -25,11 +25,11 @@ void vector_push(Vector_t *vec, void *item){
     vec->item[vec->len++] = item;
 }
 
-void *vector_get(Vector_t *vec, size_t idx){
+void *vector_get(Vector_t *vec, int idx){
     return vec->item[idx];
 }
 
-size_t vector_size(Vector_t *vec){
+int vector_size(Vector_t *vec){
     return vec->len;
 }
 
@@ -37,7 +37,7 @@ void vector_pop(Vector_t *vec){
     vec->len--;
 }
 
-void vector_delete(Vector_t *vec, size_t idx){
+void vector_delete(Vector_t *vec, int idx){
     vec->len--;
     if(vec->len == 0){
         vec = NULL;
@@ -68,7 +68,7 @@ void* map_search(Map_t* map, char* key){
     return NULL;
 }
 
-size_t map_size(Map_t* map){
+int map_size(Map_t* map){
     return vector_size(map->key);
 }
 
