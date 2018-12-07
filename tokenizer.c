@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "mycc.h"
 
 Token_t tokens[NUM_TK];
 int token_idx;
@@ -275,11 +276,24 @@ void tokenize(char* p){
         }
         else if(*p == '#'){
             p++;
-            //char tmp[64];
-            //int num = get_ident(tmp, &p);
-            //if(!strcmp(tmp, "include")){
-            //    ;
-            //}
+            char tmp[64];
+            get_ident(tmp, &p);
+            p++;
+            if(!strcmp(tmp, "include")){
+                while(*p != '<' && *p != '\"') p++;
+                int libc = 1;
+                if(*p == '\"') libc = 0;
+                p++;
+                int n = 0;
+                while(*p != '\"' && *p != '>'){
+                    tmp[n++] = *p;
+                    p++;
+                }
+                tmp[n] = '\0';
+                char* header = map_file(tmp);
+                if(!libc) tokenize(header);
+                p++;
+            }
         }
         else{
             char tmp[64];

@@ -12,8 +12,8 @@
 #include "parser.h"
 #include "codegen.h"
 #include "semantic.h"
+#include "mycc.h"
 
-char *map_file(char *filename);
 
 int main(int argc, char* argv[]){
     if(argc == 1){
