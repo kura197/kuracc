@@ -47,6 +47,7 @@ char *token_name[] = {
     "TK_ENUM",
     "TK_ARROW",
     "TK_TYPEDEF",
+    "TK_EXTERN",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -381,6 +382,9 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "typedef")){
                 tokens[idx++].kind = TK_TYPEDEF;
+            }
+            else if(!strcmp(tmp, "extern")){
+                tokens[idx++].kind = TK_EXTERN;
             }
             else if((def = map_search(define, tmp)) != NULL){
                 tokenize(def);

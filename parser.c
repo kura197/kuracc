@@ -728,6 +728,11 @@ Type_t* declaration_specifier(){
         type->name = next->name;
         map_push(typedef_dec, type->name, type);
     }
+    else if(next->kind == TK_EXTERN){
+        consume_token(TK_EXTERN);
+        Type_t* type = type_specifier();
+        type->ext = 1;
+    }
     else{
         type = type_specifier();
     }

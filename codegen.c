@@ -689,6 +689,7 @@ void codegen_global_init(){
 void codegen_global(){
     for(int i = 0; i < map_size(global); i++){
         Symbol_t* sym = vector_get(global->val, i);
+        if(sym->type->ext) continue;
         if(sym->role == FUNC) continue;
         if(map_search(global_init, sym->name) != NULL) continue;
         int size = get_type_size(sym->type);

@@ -74,6 +74,7 @@ enum token_kind{
     TK_ENUM,
     TK_ARROW,   //->
     TK_TYPEDEF,   
+    TK_EXTERN,   
     TK_EOF
 };
 
@@ -125,6 +126,9 @@ typedef struct Type{
 
     //for typedef
     struct Type* typeof;
+
+    //for extern
+    int ext;
 }Type_t;
 
 typedef struct Node{

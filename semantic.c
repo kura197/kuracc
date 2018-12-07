@@ -328,7 +328,7 @@ void sem_analy(Node_t* ast){
         func_name = ast->name;
         sym_table = sym_table_new();
         ast->sym_table = sym_table;
-        for(int i = 0; i < (int)map_size(global); i++){
+        for(int i = 0; i < map_size(global); i++){
             map_push(sym_table->global, vector_get(global->key, i), vector_get(global->val, i));
         }
         for(int i = 0; i < ast->num_arg; i++){
@@ -383,6 +383,14 @@ void sem_analy(Node_t* ast){
 
     else if(ast->op == AST_DEC){
         if(ast->global){
+            Symbol_t* sym;
+            if((sym = map_search(global, ast->name)) != NULL){
+                //
+                if(!sym->type->ext){
+                    fprintf(stderr, "Error : %s was already declared.\n", ast->name);
+                    assert(0);
+                }
+            }
             sym = sym_new(ast->name, ast->type, ast, NS_GLOBAL, 0, VAR);
             map_push(global, ast->name, sym);
             ast->sym = sym;
