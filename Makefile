@@ -5,11 +5,7 @@ SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 OUTPUT = mycc
 
-HEADER = tokenizer.h \
-		 vector_map.h \
-		 parser.h \
-		 codegen.h \
-		 semantic.h
+HEADER = mycc.h 
 
 .PHONY: test
 

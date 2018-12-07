@@ -1,8 +1,10 @@
-#include "parser.h"
+//#include "parser.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include "mycc.h"
+
 
 Node_t** case_stmt;
 int num_case;

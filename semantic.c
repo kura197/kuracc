@@ -1,8 +1,10 @@
-#include "semantic.h"
-#include "parser.h"
+//#include "semantic.h"
+//#include "parser.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include "mycc.h"
+
 
 
 SymTable_t* sym_table;

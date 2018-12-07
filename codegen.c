@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "codegen.h"
-#include "semantic.h"
+//#include "codegen.h"
+//#include "semantic.h"
+#include "mycc.h"
 
 int rsp_allign;
 int num_jmp;

@@ -1,9 +1,11 @@
-#include "vector_map.h"
+//#include "vector_map.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "mycc.h"
 
-//itemに問題あり？？
+
 Vector_t *vector_new(){
     struct Vector* vec;
     //free when program is done.

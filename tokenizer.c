@@ -1,8 +1,11 @@
-#include "tokenizer.h"
+//#include "tokenizer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "mycc.h"
 
 Token_t tokens[NUM_TK];
@@ -485,3 +488,16 @@ void dump_tokens(){
     }
 }
 
+char *map_file(char *filename){
+    struct stat sbuf;
+    char* ptr;
+    int fd;
+    if((fd = open(filename, O_RDWR)) < 0){
+        printf("File open error.\n");
+        assert(0);
+    }
+    fstat(fd, &sbuf);
+    ptr = mmap(NULL, sbuf.st_size+1, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+    ptr[sbuf.st_size] = '\0';
+    return ptr;
+}

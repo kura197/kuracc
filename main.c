@@ -5,13 +5,11 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include "tokenizer.h"
-#include "vector_map.h"
-#include "parser.h"
-#include "codegen.h"
-#include "semantic.h"
+//#include "tokenizer.h"
+//#include "vector_map.h"
+//#include "parser.h"
+//#include "codegen.h"
+//#include "semantic.h"
 #include "mycc.h"
 
 
@@ -93,18 +91,4 @@ int main(int argc, char* argv[]){
         codegen((Node_t*)vector_get(vec, i));
     }
     return 0;
-}
-
-char *map_file(char *filename){
-    struct stat sbuf;
-    char* ptr;
-    int fd;
-    if((fd = open(filename, O_RDWR)) < 0){
-        printf("File open error.\n");
-        assert(0);
-    }
-    fstat(fd, &sbuf);
-    ptr = mmap(NULL, sbuf.st_size+1, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
-    ptr[sbuf.st_size] = '\0';
-    return ptr;
 }
