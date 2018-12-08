@@ -1,4 +1,13 @@
 
+int printf();
+int assert();
+int* malloc();
+int* realloc();
+int fprintf();
+int strcmp();
+int free();
+
+
 //vector_map
 typedef struct Vector{
     void** item;     
@@ -75,7 +84,6 @@ enum token_kind{
     TK_ARROW,   //->
     TK_TYPEDEF,   
     TK_EXTERN,   
-    TK_NULL,   
     TK_EOF
 };
 

@@ -1,11 +1,17 @@
 
-extern int a;
-int b;
+//#include "./test/header.h"
+//#include "mycc.h"
 
-//int a;
+int printf();
+struct test{
+    int a;
+    int b;
+    int c;
+    char* name;
+};
 
 int main(){
-    a = 1;
-    b = 10;
+    struct test* t0;
+    t0 = NULL;
     return 0;
 }

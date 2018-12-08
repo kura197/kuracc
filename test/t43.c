@@ -1,13 +1,22 @@
 
 enum test{
-    MON, TUE, WED, THU, FRI
-};
-
-enum test2{
-    A, B = 2, C, D = 0, E
+    MON, 
+    TUE, 
+    WED, 
+    THU, 
+    FRI
 };
 
 int printf();
+
+enum test2{
+    A, 
+    B = 2, 
+    C, 
+    D = 0, 
+    E
+};
+
 int strcmp();
 
 char* mon = "MONDAY";

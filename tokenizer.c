@@ -15,7 +15,7 @@ Map_t* define;
 int idx;
 
 //for debug purpose
-char *token_name[] = {
+char *token_name[256] = {
     "TK_INT",
     "TK_CHAR",
     "TK_KW_INT",
@@ -48,6 +48,7 @@ char *token_name[] = {
     "TK_ARROW",
     "TK_TYPEDEF",
     "TK_EXTERN",
+    "TK_NULL",
     "TK_EOF",
     ['+'] = "+",
     ['-'] = "-",
@@ -385,6 +386,9 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "extern")){
                 tokens[idx++].kind = TK_EXTERN;
+            }
+            else if(!strcmp(tmp, "NULL")){
+                tokens[idx++].kind = TK_NULL;
             }
             else if((def = map_search(define, tmp)) != NULL){
                 tokenize(def);

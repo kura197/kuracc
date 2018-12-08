@@ -23,6 +23,7 @@ SymTable_t* sym_table_new(){
     symt->string = map_new();
     symt->local_index = -1;
     symt->num_var = 0;
+    symt->offset = 0;
     return symt;
 }
 
@@ -250,8 +251,10 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
-        if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
-            fprintf(stderr, "Error : && / || TYPE_PTR.\n");
+        int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+        int right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
+        if((left_ptr && !right_ptr) || (!left_ptr && right_ptr)){
+            fprintf(stderr, "Error : == / != TYPE_PTR.\n");
             assert(0);
         }
         else{
@@ -375,18 +378,12 @@ void sem_analy(Node_t* ast){
         if(ast->rhs != NULL) sem_analy(ast->rhs);
     }
 
-    //else if(ast->op == AST_BLOCK){
-    //    sem_analy(ast->lhs);
-    //    if(ast->rhs != NULL) sem_analy(ast->rhs);
-    //    ast->type = ast->lhs->type;
-    //}
-
     else if(ast->op == AST_DEC){
         if(ast->global){
-            Symbol_t* sym;
-            if((sym = map_search(global, ast->name)) != NULL){
+            Symbol_t* tmp;
+            if((tmp = map_search(global, ast->name)) != NULL){
                 //
-                if(!sym->type->ext){
+                if(!tmp->ast->ext){
                     fprintf(stderr, "Error : %s was already declared.\n", ast->name);
                     assert(0);
                 }

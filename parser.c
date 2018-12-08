@@ -12,8 +12,9 @@ Node_t* default_stmt;
 Map_t* struct_dec;
 Map_t* enum_dec;
 Map_t* typedef_dec;
+int ext_flag;
 
-char *ast_name[] = {
+char *ast_name[128] = {
     "AST_INT",
     "AST_CHAR",
     "AST_ID",
@@ -73,7 +74,7 @@ char *ast_name[] = {
     "AST_BREAK"
 };
 
-char *type_name[] = {
+char *type_name[16] = {
     "TYPE_UNKNOWN",
     "TYPE_VOID",
     "TYPE_CHAR",
@@ -85,9 +86,48 @@ char *type_name[] = {
     "TYPE_ARRAY"
 };
 
+Node_t* make_node(){
+    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    node->op = 0;
+    node->lhs = NULL;
+    node->rhs = NULL;
+    node->val = 0;
+    node->name = NULL;
+    node->num_arg = 0;
+    node->args = NULL;
+    node->lfor = NULL;
+    node->mfor = NULL;
+    node->rfor = NULL;
+    node->else_stmt = NULL;
+    node->lcond = NULL;
+    node->rcond = NULL;
+    node->type = NULL;
+    node->sym_table = NULL;
+    node->sym = NULL;
+    node->ltype = NULL;
+    node->rtype = NULL;
+    node->global = 0;
+    node->ext = 0;
+    node->case_stmt = NULL;
+    node->default_stmt = NULL;
+    node->num_case = 0;
+    return node;
+}
+
+Type_t* make_type(){
+    Type_t* type = (Type_t*)malloc(sizeof(Type_t));
+    type->ty = 0;
+    type->ptrof = NULL;
+    type->array_size = 0;
+    type->name = NULL;
+    type->member = NULL;
+    type->offset = 0;
+    type->typeof = NULL;
+    return type;
+}
 
 Node_t* new_node(int op, Node_t* lhs, Node_t* rhs){
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    Node_t* node = make_node();
     node->op = op;
     node->lhs = lhs;
     node->rhs = rhs;
@@ -95,37 +135,37 @@ Node_t* new_node(int op, Node_t* lhs, Node_t* rhs){
 }
 
 Node_t* new_node_num(int val, int type){
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    Node_t* node = make_node();
     node->op = AST_INT;
     node->val = val;
-    node->type = (Type_t*)malloc(sizeof(Type_t));
+    node->type = make_type();
     node->type->ty = type;
     return node;
 }
 
 Node_t* new_node_ID(char* ID){
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    Node_t* node = make_node();
     node->op = AST_ID;
     node->name = ID;
     return node;
 }
 
 Node_t* new_node_STRING(char* str){
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    Node_t* node = make_node();
     node->op = AST_STRING;
     node->name = str;
     return node;
 }
 
 Node_t* new_node_DEC(char* name){
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    Node_t* node = make_node();
     node->op = AST_DEC;
     node->name = name;
     return node;
 }
 
 Node_t* new_node_name(int op, char* name){
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
+    Node_t* node = make_node();
     node->op = op;
     node->name = name;
     return node;
@@ -196,17 +236,6 @@ int get_type_size(Type_t* type){
         case TYPE_INT: size = 4; break;
         case TYPE_PTR: size = 8; break;
         case TYPE_ARRAY: size = get_type_size(type->ptrof); break;
-        //case TYPE_STRUCT: 
-        //                 if((st_dec = map_search(struct_dec, type->name)) == NULL){
-        //                     fprintf(stderr, "struct %s was not declarerd.\n", type->name);
-        //                     assert(0);
-        //                 }
-        //                 size = 0;
-        //                 for(int i = 0; i < map_size(st_dec); i++){
-        //                     Node_t* dec_ast = vector_get(st_dec->val, i);
-        //                     size += get_type_size(dec_ast->type);
-        //                 }
-        //                 break; 
         case TYPE_STRUCT: 
                          if((st_dec = map_search(struct_dec, type->name)) == NULL){
                              fprintf(stderr, "struct %s was not declarerd.\n", type->name);
@@ -250,10 +279,14 @@ Node_t* primary_expr(){
         consume_token(TK_INT);
         node =  new_node_num(next->value, TYPE_INT);
     }
+    else if(next->kind == TK_NULL){
+        consume_token(TK_NULL);
+        node =  new_node_num(0, TYPE_PTR);
+    }
     else if(next->kind == TK_CHAR){
         consume_token(TK_CHAR);
         node = new_node_name(AST_CHAR, next->name);
-        node->type = (Type_t*)malloc(sizeof(Type_t));
+        node->type = make_type();
         node->type->ty = TYPE_CHAR;
         node->val = next->value;
     }
@@ -395,7 +428,7 @@ Node_t* unary_expr(){
             next = read_token(0);
             while(next->kind == '*'){
                 consume_token('*');
-                Type_t* tmp = (Type_t*)malloc(sizeof(Type_t));
+                Type_t* tmp = make_type();
                 tmp->ty = TYPE_PTR;
                 tmp->ptrof = root;
                 root = tmp;
@@ -720,7 +753,7 @@ Type_t* declaration_specifier(){
     if(next->kind == TK_TYPEDEF){
         consume_token(TK_TYPEDEF);
         Type_t* tmp = type_specifier();
-        type = (Type_t*)malloc(sizeof(Type_t));
+        type = make_type();
         type->ty = TYPE_TYPEDEF;
         type->typeof = tmp;
         next = read_token(0);
@@ -730,8 +763,9 @@ Type_t* declaration_specifier(){
     }
     else if(next->kind == TK_EXTERN){
         consume_token(TK_EXTERN);
-        Type_t* type = type_specifier();
-        type->ext = 1;
+        type = type_specifier();
+        //type->ext = 1;
+        ext_flag = 1;
     }
     else{
         type = type_specifier();
@@ -750,7 +784,7 @@ Node_t* init_declarator(Type_t* type){
 }
 
 Type_t* type_specifier(){
-    Type_t* type = (Type_t*)malloc(sizeof(Type_t));
+    Type_t* type = make_type();
     Token_t* next = read_token(0);
     if(next->kind == TK_KW_INT){
         consume_token(TK_KW_INT);
@@ -872,7 +906,7 @@ Node_t* declarator(Type_t* type){
     Type_t* root = type;
     while(next->kind == '*'){
         consume_token('*');
-        Type_t* tmp = (Type_t*)malloc(sizeof(Type_t));
+        Type_t* tmp = make_type();
         tmp->ty = TYPE_PTR;
         tmp->ptrof = root;
         root = tmp;
@@ -903,7 +937,7 @@ Node_t* direct_declarator(Type_t** root){
         else if(next->kind == '['){
             consume_token('[');
             int size = read_token(0)->value;
-            Type_t* tmp = (Type_t*)malloc(sizeof(Type_t));
+            Type_t* tmp = make_type();
             tmp->ty = TYPE_ARRAY;
             tmp->array_size = size;
             tmp->ptrof = *root;
@@ -1165,6 +1199,9 @@ Node_t* jump_stmt(){
 Node_t* translation_unit(){
     Node_t* node = function_definition();   
     node->global = 1;
+    //if(node->type != NULL && node->type->ext) node->ext = 1;
+    if(ext_flag) node->ext = 1;
+    ext_flag = 0;
     return node;
 }
 
