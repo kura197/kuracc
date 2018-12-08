@@ -85,7 +85,7 @@ int main(int argc, char* argv[]){
     codegen_global();
 
     printf("  .text\n");
-    printf("  .global main\n");
+    //printf("  .global main\n");
 
     for(int i = 0; i < vector_size(vec); i++){
         codegen((Node_t*)vector_get(vec, i));

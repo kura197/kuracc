@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include "./test/header.h"
+#include <myassert.h>
+#include "mycc.h"
 
 
 Vector_t *vector_new(){
@@ -14,6 +14,7 @@ Vector_t *vector_new(){
     vec->len = 0;
     return vec;
 }
+
 void vector_push(Vector_t *vec, void *item){
     if(vec->len >= vec->cap){
         vec->item = realloc(vec->item, 2*vec->cap*sizeof(void*));
@@ -41,8 +42,7 @@ void vector_delete(Vector_t *vec, int idx){
         vec = NULL;
         return;
     }
-    int i;
-    for(i = idx; i < vec->len; i++){
+    for(int i = idx; i < vec->len; i++){
         vec->item[i] = vec->item[i+1];
     }
 }
@@ -60,8 +60,7 @@ void map_push(Map_t* map, char* key, void* val){
 }
 
 void* map_search(Map_t* map, char* key){
-    int i;
-    for(i = vector_size(map->key)-1; i >= 0; i--){
+    for(int i = vector_size(map->key)-1; i >= 0; i--){
         if(!strcmp(vector_get(map->key, i), key))
             return vector_get(map->val, i);
     }
@@ -81,22 +80,21 @@ void test_vector(){
     Vector_t* vec = vector_new();
 
     int x[1024];
-    int i;
-    for(i = 0; i < 1024; i++){
+    for(int i = 0; i < 1024; i++){
         x[i] = i;
-        vector_push(vec, &x[i]);
+        vector_push(vec, (int*)&x[i]);
     }
 
     if(vector_size(vec) != 1024){
-        printf("vector_len : %d\n", vector_size(vec));
-        assert(0);
+        printf("vector_len : %d\n", (int)vector_size(vec));
+        myassert(0);
     }
 
-    for(i = 0; i < 1024; i++){
+    for(int i = 0; i < 1024; i++){
         int *y = vector_get(vec, i);
         if(*y != x[i]){
             printf("item : %d\n", *y);
-            assert(0);
+            myassert(0);
         }
     }
 
@@ -104,7 +102,7 @@ void test_vector(){
     int *z = vector_get(vec, 100);
     if(*z != 101){
         printf("item : %d\n", *z);
-        assert(0);
+        myassert(0);
     }
 
     free(vec);
@@ -116,8 +114,7 @@ void test_map(){
     Map_t* map = map_new();
 
     int* val[5];
-    int i;
-    for(i = 0; i < 5; i++){
+    for(int i = 0; i < 5; i++){
         val[i] = malloc(sizeof(int));
     }
     *val[0] = 5;
@@ -134,18 +131,20 @@ void test_map(){
     int* alice = map_search(map, "Alice");
     if(alice == NULL){
         printf("Address is NULL\n");
-        assert(0);
+        myassert(0);
     }
     if(*alice != 40){
         printf("val : %d\n", *alice);
-        assert(0);
+        myassert(0);
     }
 
     int* yumi = map_search(map, "Yumi");
     if(yumi != NULL){
         printf("search : %p\n", yumi);
-        assert(0);
+        myassert(0);
     }
 
     printf("Map test passed.\n");
 }
+
+

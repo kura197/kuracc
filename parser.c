@@ -1142,8 +1142,13 @@ Node_t* iter_stmt(){
             if(next->kind == ';')
                 consume_token(';');
             else{
-                tmp[i] = expr();
-                consume_token(';');
+                if(i == 0 && (next->kind == TK_KW_INT || next->kind == TK_KW_CHAR || next->kind == TK_KW_VOID 
+                            || next->kind == TK_STRUCT || (next->kind == TK_ID && map_search(typedef_dec, next->name) != NULL)))
+                        tmp[i] = declaration();
+                else{
+                    tmp[i] = expr();
+                    consume_token(';');
+                }
             }
         }
         next = read_token(0);

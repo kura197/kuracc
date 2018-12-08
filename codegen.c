@@ -405,6 +405,7 @@ void codegen(Node_t* ast){
         printf("  pushq %%rax\n");
     }
     else if(ast->op == AST_FUNC){
+        printf("\n  .global %s\n", ast->name);
         printf("\n%s:\n", ast->name);
         printf("  pushq %%rbp\n");
         printf("  movq %%rsp, %%rbp\n");

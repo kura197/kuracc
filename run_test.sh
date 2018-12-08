@@ -36,6 +36,7 @@ then
     gcc -o tmp tmp.s ./test/lib.o -g
     ./tmp
 else
+    gcc ./test/lib.c -c -o ./test/lib.o
     runtest_print test/t1.c 10
     runtest_print test/t2.c 3
     runtest_print test/t3.c 1024
@@ -81,6 +82,7 @@ else
     runtest_print test/t43.c "OK"
     runtest_print test/t44.c 12
     runtest_print test/t45.c 10
+    runtest_print test/t46.c "OK"
     echo 'Success!!'
 fi
 

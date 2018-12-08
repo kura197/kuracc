@@ -1,10 +1,11 @@
 
 int printf();
+void print();
 
-void print(int d){
-    printf("%d\n", d);
-    return;
-}
+//void print(int d){
+//    printf("%d\n", d);
+//    return;
+//}
 
 int main(){
     //int x = print(3); //gen error

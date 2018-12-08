@@ -411,6 +411,8 @@ void sem_analy(Node_t* ast){
     else if(ast->op == AST_COMP_STMT){
         sym_table->local_index++;
         sym_table->local[sym_table->local_index] = map_new();
+        //if(for_dec_flag) sem_analy(for_dec_ast);
+        //for_dec_flag = 0;
         if(ast->lhs != NULL) sem_analy(ast->lhs);
         sym_table->local_index--;
     }
@@ -421,10 +423,19 @@ void sem_analy(Node_t* ast){
     }
 
     else if(ast->op == AST_FOR){
-        if(ast->lfor != NULL) sem_analy(ast->lfor);
+        int dec_flag = 0;
+        if(ast->lfor != NULL) {
+            if(ast->lfor->op == AST_DEC || ast->lfor->op == AST_INIT_DEC || ast->lfor->op == AST_DECLN){
+                dec_flag = 1;
+                sym_table->local_index++;
+                sym_table->local[sym_table->local_index] = map_new();
+            }
+            sem_analy(ast->lfor);
+        }
         if(ast->mfor != NULL) sem_analy(ast->mfor);
         if(ast->rfor != NULL) sem_analy(ast->rfor);
         sem_analy(ast->lhs);
+        if(dec_flag) sym_table->local_index--;
     }
 
     else if(ast->op == AST_IF){
