@@ -82,11 +82,13 @@ void test_vector(){
     int x[1024];
     for(int i = 0; i < 1024; i++){
         x[i] = i;
-        vector_push(vec, (int*)&x[i]);
+        //vector_push(vec, (int*)&x[i]);
+        vector_push(vec, &x[i]);
     }
 
     if(vector_size(vec) != 1024){
-        printf("vector_len : %d\n", (int)vector_size(vec));
+        //printf("vector_len : %d\n", (int)vector_size(vec));
+        printf("vector_len : %d\n", vector_size(vec));
         assert(0);
     }
 

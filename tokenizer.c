@@ -119,7 +119,7 @@ void tokenize(char* p){
             }
             tmp[n] = '\0';
             tokens[idx].kind = TK_STRING;
-            tokens[idx].name = (char*)malloc((n+1)*sizeof(char));
+            tokens[idx].name = malloc((n+1)*sizeof(char));
             strcpy(tokens[idx].name, tmp);
             idx++;
         }
@@ -135,7 +135,7 @@ void tokenize(char* p){
         else if(*p == '\''){
             p++;
             tokens[idx].kind = TK_CHAR;
-            tokens[idx].name = (char*)malloc(2*sizeof(char));
+            tokens[idx].name = malloc(2*sizeof(char));
             tokens[idx].name[0] = *p;
             if(*p == '\\'){
                 p++;
@@ -305,7 +305,7 @@ void tokenize(char* p){
             }
             else if(!strcmp(tmp, "define")){
                 while(*p == ' ') p++;
-                char* def_l = (char*)malloc(128*sizeof(char));
+                char* def_l = malloc(128*sizeof(char));
                 int n = 0;
                 while(*p != ' ' && *p != '\n'){
                     def_l[n++] = *p;
@@ -314,7 +314,7 @@ void tokenize(char* p){
                 def_l[n] = '\0';
 
                 while(*p == ' ') p++;
-                char* def_r = (char*)malloc(128*sizeof(char));
+                char* def_r = malloc(128*sizeof(char));
                 n = 0;
                 while(*p != ' ' && *p != '\n'){
                     def_r[n++] = *p;
@@ -396,7 +396,7 @@ void tokenize(char* p){
             }
             else{
                 tokens[idx].kind = TK_ID;
-                tokens[idx].name = (char*)malloc((num+1)*sizeof(char));
+                tokens[idx].name = malloc((num+1)*sizeof(char));
                 strcpy(tokens[idx].name, tmp);
                 idx++;
             }

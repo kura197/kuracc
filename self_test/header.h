@@ -1,6 +1,6 @@
 
 int printf();
-int assert();
+int myassert();
 int* malloc();
 int* realloc();
 int fprintf();

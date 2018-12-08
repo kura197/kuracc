@@ -75,7 +75,7 @@ int main(int argc, char* argv[]){
     global = map_new();
     global_init = map_new();
     str_lit = vector_new();
-    for(int i = 0; i < (int)vector_size(vec); i++){
+    for(int i = 0; i < vector_size(vec); i++){
         sem_analy(vector_get(vec, i));
     }
 
