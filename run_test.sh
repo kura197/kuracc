@@ -83,6 +83,7 @@ else
     runtest_print test/t44.c 12
     runtest_print test/t45.c 10
     runtest_print test/t46.c "OK"
+    runtest_print test/t47.c "97 a 12345"
     echo 'Success!!'
 fi
 

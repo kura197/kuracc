@@ -130,6 +130,11 @@ void sem_analy(Node_t* ast){
         ast->type->ty = TYPE_INT;
     }
 
+    else if(ast->op == AST_CAST){
+        sem_analy(ast->lhs);
+        ast->ltype = ast->lhs->type;
+    }
+
     else if(ast->op == AST_STRUCT_ID){
         //if(ast->lhs->op != AST_ID){
         //    fprintf(stderr, "Error : not yet implemented.\n");

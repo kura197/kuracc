@@ -5,15 +5,10 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
-//#include "tokenizer.h"
-//#include "vector_map.h"
-//#include "parser.h"
-//#include "codegen.h"
-//#include "semantic.h"
 #include "mycc.h"
 
 
-int main(int argc, char* argv[]){
+int main(int argc, char** argv){
     if(argc == 1){
         fprintf(stderr, "usage : ./mycc source [-t] [-a] [-v]\n");
         return -1;

@@ -6,6 +6,9 @@ int* realloc();
 int fprintf();
 int strcmp();
 int free();
+int getopt();
+
+#define stderr 2
 
 
 //vector_map

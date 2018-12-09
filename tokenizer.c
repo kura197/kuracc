@@ -455,11 +455,14 @@ Token_t* read_token(int n){
     return token;
 }
 
-void consume_token(char token){
-    if(tokens[token_idx].kind == token)
+int consume_token(char token){
+    if(tokens[token_idx].kind == token){
         token_idx++;
+        return 1;
+    }
     else{
-        fprintf(stderr, "does not match consume_token\n");
+        fprintf(stderr, "does not match consume_token.\n token : %d\tneed : %s\n", token, token_name[tokens[token_idx].kind]);
+        return -1;
     }
 }
 

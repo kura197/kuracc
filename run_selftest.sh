@@ -1,13 +1,13 @@
 #! /bin/sh
 
 OBJS=" 
-       main.o 
-       tokenizer.o 
        parser.o 
        semantic.o 
+       tokenizer.o 
        codegen.o 
+       vector_map.o 
      "
-       #"vector_map.o 
+       #main.o 
 
 if [ "$1" != "" ]
 then

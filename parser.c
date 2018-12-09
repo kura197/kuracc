@@ -23,6 +23,7 @@ char *ast_name[128] = {
     "AST_UNARY_PTR",
     "AST_UNARY_MINUS",
     "AST_UNARY_REV",
+    "AST_CAST",
     "AST_POST_INC",
     "AST_POST_DEC",
     "AST_STRUCT_ID",
@@ -305,7 +306,7 @@ Node_t* primary_expr(){
             error(read_token(0));
             assert(0);
         }
-        consume_token(')');
+        if(consume_token(')') < 0) assert(0);
     }
     else{
         error(next);
@@ -327,12 +328,12 @@ Node_t* postfix_expr(){
             else{
                 node = new_node(AST_FUNC_CALL, node, NULL);
             }
-            consume_token(')');
+            if(consume_token(')') < 0) assert(0);
         }
         else if(next->kind == '['){
             consume_token('[');
             node = conv2ptr(node);
-            consume_token(']');
+            if(consume_token(']') < 0) assert(0);
         }
         else if(next->kind == '+'){
             next = read_token(1);
@@ -355,14 +356,14 @@ Node_t* postfix_expr(){
         else if(next->kind == '.'){
             consume_token('.');
             node = new_node(AST_STRUCT_ID, node, new_node_ID(read_token(0)->name));
-            consume_token(TK_ID);
+            if(consume_token(TK_ID) < 0) assert(0);
         }
         else if(next->kind == TK_ARROW){
             consume_token(TK_ARROW);
             //node = new_node(AST_STRUCT_ID_ARR, node, new_node_ID(read_token(0)->name));
             Node_t* st = new_node(AST_UNARY_PTR, node, NULL);
             node = new_node(AST_STRUCT_ID, st, new_node_ID(read_token(0)->name));
-            consume_token(TK_ID);
+            if(consume_token(TK_ID) < 0) assert(0);
         }
         else break;
         next = read_token(0);
@@ -410,7 +411,7 @@ Node_t* unary_expr(){
     }
     else if(next->kind == '+'){
         consume_token('+');
-        consume_token('+');
+        if(consume_token('+') < 0) assert(0);
         node = new_node(AST_PRE_INC, cast_expr(), NULL);
     }
     else if(next->kind == '!'){
@@ -435,7 +436,7 @@ Node_t* unary_expr(){
                 next = read_token(0);
             }
             node->type = root;
-            consume_token(')');
+            if(consume_token(')') < 0) assert(0);
         }
         else{
             node = new_node(AST_SIZEOF, unary_expr(), NULL);
@@ -453,18 +454,23 @@ Node_t* cast_expr(){
         node = unary_expr();
     }
     else{
-        Token_t* nnext = read_token(1);
-        if(nnext->kind == TK_KW_INT){
+        next = read_token(1);
+        if(next->kind == TK_KW_INT || next->kind == TK_KW_CHAR || next->kind == TK_KW_VOID 
+                || next->kind == TK_STRUCT || (next->kind == TK_ID && map_search(typedef_dec, next->name) != NULL)){
             consume_token('(');
-            printf("not yet implemented\n");
-            assert(0);
-            consume_token(')');
-        }
-        if(nnext->kind == TK_KW_CHAR){
-            consume_token('(');
-            printf("not yet implemented\n");
-            assert(0);
-            consume_token(')');
+            Type_t* root = type_specifier();
+            next = read_token(0);
+            while(next->kind == '*'){
+                consume_token('*');
+                Type_t* tmp = make_type();
+                tmp->ty = TYPE_PTR;
+                tmp->ptrof = root;
+                root = tmp;
+                next = read_token(0);
+            }
+            if(consume_token(')') < 0) assert(0);
+            node = new_node(AST_CAST, cast_expr(), NULL);
+            node->type = root;
         }
         else{
             node = unary_expr();
@@ -641,7 +647,7 @@ Node_t* conditional_expr(){
     if(next->kind == '?'){
         consume_token('?');
         Node_t* lcond = expr();
-        consume_token(':');
+        if(consume_token(':') < 0) assert(0);
         Node_t* rcond = conditional_expr();
         node = new_node(AST_COND, node, NULL);
         node->lcond = lcond;
@@ -757,7 +763,7 @@ Type_t* declaration_specifier(){
         type->ty = TYPE_TYPEDEF;
         type->typeof = tmp;
         next = read_token(0);
-        consume_token(TK_ID);
+        if(consume_token(TK_ID) < 0) assert(0);
         type->name = next->name;
         map_push(typedef_dec, type->name, type);
     }
@@ -822,7 +828,7 @@ Type_t* type_specifier(){
                     map_push(type->member, st_dec->name, st_dec->type);
                     next = read_token(0);
                 }
-                consume_token('}');
+                if(consume_token('}') < 0) assert(0);
                 map_push(struct_dec, type->name, type);
                 type->offset = offset;
             }
@@ -838,21 +844,21 @@ Type_t* type_specifier(){
         if(next->kind == '{'){
             consume_token('{');
             fprintf(stderr, "not yet implemented.\n");
-            consume_token('}');
+            if(consume_token('}') < 0) assert(0);
         }
         else if(next->kind == TK_ID){
             consume_token(TK_ID);
-            consume_token('{');
+            if(consume_token('{') < 0) assert(0);
             int offset = 0;
             while(1){
                 next = read_token(0);
-                consume_token(TK_ID);
+                if(consume_token(TK_ID) < 0) assert(0);
                 char* id_name = next->name;
                 next = read_token(0);
                 if(next->kind == '='){
                     consume_token('=');
                     offset = read_token(0)->value;
-                    consume_token(TK_INT);
+                    if(consume_token(TK_INT) < 0) assert(0);
                     next = read_token(0);
                 }
                 if(map_search(enum_dec, id_name) != NULL){
@@ -897,7 +903,7 @@ Type_t* type_specifier(){
 Node_t* struct_declaration(){
     Type_t* type = type_specifier();
     Node_t* node = declarator(type);
-    consume_token(';');
+    if(consume_token(';') < 0) assert(0);
     return node;
 }
 
@@ -932,7 +938,7 @@ Node_t* direct_declarator(Type_t** root){
                 node->args = get_paras();
                 node->num_arg = (int)vector_size(node->args);
             }
-            consume_token(')');
+            if(consume_token(')') < 0) assert(0);
         }
         else if(next->kind == '['){
             consume_token('[');
@@ -942,8 +948,8 @@ Node_t* direct_declarator(Type_t** root){
             tmp->array_size = size;
             tmp->ptrof = *root;
             *root = tmp;
-            consume_token(TK_INT);
-            consume_token(']');
+            if(consume_token(TK_INT) < 0) assert(0);
+            if(consume_token(']') < 0) assert(0);
         }
     }
     else if(next->kind == '('){
@@ -951,7 +957,7 @@ Node_t* direct_declarator(Type_t** root){
         fprintf(stderr, "not yet implemented\n");
         assert(0);
         //node = declarator();
-        consume_token(')');
+        if(consume_token(')') < 0) assert(0);
     }
     else{
         error(next);
@@ -1015,14 +1021,14 @@ Node_t* labeled_stmt(){
     if(next->kind == TK_CASE){
         consume_token(TK_CASE);
         Node_t* lhs = conditional_expr();
-        consume_token(':');
+        if(consume_token(':') < 0) assert(0);
         node = new_node(AST_CASE, lhs, stmt());
         case_stmt[num_case++] = node;
         case_stmt = realloc(case_stmt, (1+num_case)*sizeof(Node_t*));
     }
     else if(next->kind == TK_DEFAULT){
         consume_token(TK_DEFAULT);
-        consume_token(':');
+        if(consume_token(':') < 0) assert(0);
         node = new_node(AST_DEFAULT, NULL, stmt());
         default_stmt = node;
     }
@@ -1052,7 +1058,7 @@ Node_t* compound_stmt(){
             }
             node = new_node(AST_BLOCK, node, block_item());
         }
-        consume_token('}');
+        if(consume_token('}') < 0) assert(0);
         return node;
     }
     else{
@@ -1082,7 +1088,7 @@ Node_t* expr_stmt(){
         error(next);
         assert(0);
     }
-    consume_token(';');
+    if(consume_token(';') < 0) assert(0);
     return node;
 }
 
@@ -1091,9 +1097,9 @@ Node_t* sel_stmt(){
     Token_t* next = read_token(0);
     if(next->kind == TK_IF){
         consume_token(TK_IF);
-        consume_token('(');
+        if(consume_token('(') < 0) assert(0);
         Node_t* lhs = expr();
-        consume_token(')');
+        if(consume_token(')') < 0) assert(0);
         Node_t* rhs = stmt();
         node = new_node(AST_IF, lhs, rhs);
         next = read_token(0);
@@ -1104,9 +1110,9 @@ Node_t* sel_stmt(){
     }
     else if(next->kind == TK_SWITCH){
         consume_token(TK_SWITCH);
-        consume_token('(');
+        if(consume_token('(') < 0) assert(0);
         Node_t* lhs = expr();
-        consume_token(')');
+        if(consume_token(')') < 0) assert(0);
         case_stmt = (Node_t**)malloc(sizeof(Node_t*));
         num_case = 0;
         Node_t* rhs = stmt();
@@ -1127,15 +1133,15 @@ Node_t* iter_stmt(){
     Token_t* next = read_token(0);
     if(next->kind == TK_WHILE){
         consume_token(TK_WHILE);
-        consume_token('(');
+        if(consume_token('(') < 0) assert(0);
         Node_t* lhs = expr();
-        consume_token(')');
+        if(consume_token(')') < 0) assert(0);
         Node_t* rhs = stmt();
         node = new_node(AST_WHILE, lhs, rhs);
     }
     else if(next->kind == TK_FOR){
         consume_token(TK_FOR);
-        consume_token('(');
+        if(consume_token('(') < 0) assert(0);
         Node_t* tmp[3] = {NULL};
         for(int i = 0; i < 2; i++){
             next = read_token(0);
@@ -1147,7 +1153,7 @@ Node_t* iter_stmt(){
                         tmp[i] = declaration();
                 else{
                     tmp[i] = expr();
-                    consume_token(';');
+                    if(consume_token(';') < 0) assert(0);
                 }
             }
         }
@@ -1181,17 +1187,17 @@ Node_t* jump_stmt(){
             node = new_node(AST_RET, NULL, NULL);
         else
             node = new_node(AST_RET, expr(), NULL);
-        consume_token(';');
+        if(consume_token(';') < 0) assert(0);
     }
     //onlt parse
     else if(next->kind == TK_CONT){
         consume_token(TK_CONT);
-        consume_token(';');
+        if(consume_token(';') < 0) assert(0);
         node = new_node(AST_CONT, NULL, NULL);
     }
     else if(next->kind == TK_BREAK){
         consume_token(TK_BREAK);
-        consume_token(';');
+        if(consume_token(';') < 0) assert(0);
         node = new_node(AST_BREAK, NULL, NULL);
     }
     return node;
@@ -1217,7 +1223,7 @@ Node_t* function_definition(){
     if(next->kind == ';'){
         node = new_node(AST_DECLN, NULL, NULL);
         node->type = type;
-        consume_token(';');
+        if(consume_token(';') < 0) assert(0);
         return node;
     }
 
@@ -1239,7 +1245,7 @@ Node_t* function_definition(){
         consume_token('=');
         node->global = 1;
         node = new_node(AST_INIT_DEC, node, assign_expr());
-        consume_token(';');
+        if(consume_token(';') < 0) assert(0);
     }
     else{
         error(next);

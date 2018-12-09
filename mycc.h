@@ -85,7 +85,7 @@ struct Token* read_token(int n);
 struct Token* get_token();
 int end_tokens();
 void dump_tokens();
-void consume_token(char token);
+int consume_token(char token);
 char *map_file(char *filename);
 
 extern Token_t tokens[NUM_TK];
@@ -181,6 +181,7 @@ enum ast_kind{
     AST_UNARY_PTR,  //*
     AST_UNARY_MINUS,  //-
     AST_UNARY_REV,  //!
+    AST_CAST,
     AST_POST_INC,
     AST_POST_DEC,
     AST_STRUCT_ID,

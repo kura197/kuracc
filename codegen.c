@@ -11,8 +11,8 @@ int num_ret;
 SymTable_t* symt;
 Symbol_t* sym;
 Map_t* strlabel;
-char* arg_regq_name[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
-char* arg_regl_name[] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+char* arg_regq_name[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+char* arg_regl_name[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 int case_label;
 int break_label;
 int cont_label;
@@ -179,6 +179,30 @@ void codegen(Node_t* ast){
     else if(ast->op == AST_SIZEOF){
         printf("  movl $%d, %%eax\n", ast->val);
         printf("  pushq %%rax\n");
+    }
+    else if(ast->op == AST_CAST){
+        codegen(ast->lhs);
+        int cast_type = ast->type->ty;
+        int pre_type = ast->ltype->ty;
+        if(cast_type != pre_type){
+            if(cast_type == TYPE_INT && pre_type == TYPE_CHAR){
+                printf("  pop %%rax\n");
+                printf("  movsbl %%al, %%eax\n");
+                printf("  pushq %%rax\n");
+            }
+            else if(cast_type == TYPE_CHAR && pre_type == TYPE_INT){
+                ;
+            }
+            else if(cast_type == TYPE_PTR && pre_type == TYPE_INT){
+                printf("  pop %%rax\n");
+                printf("  cltq\n");
+                printf("  pushq %%rax\n");
+            }
+            else{
+                fprintf(stderr, "Error : not yet implemented.\n");
+                assert(0);
+            }
+        }
     }
     else if(ast->op == AST_ADD || ast->op == AST_SUB){
         codegen(ast->lhs);
@@ -500,7 +524,7 @@ void codegen(Node_t* ast){
         codegen(ast->lhs);
         printf("  pop %%rax\n");
         for(int i = 0; i < ast->num_case; i++){
-            if(ast->case_stmt[i]->lhs->op != AST_INT){
+            if(ast->case_stmt[i]->lhs->op != AST_INT && ast->case_stmt[i]->lhs->op != AST_CHAR){
                 fprintf(stderr, "Error : case label is only constant\n");
                 assert(0);
             }
