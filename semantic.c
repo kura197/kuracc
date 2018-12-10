@@ -136,10 +136,6 @@ void sem_analy(Node_t* ast){
     }
 
     else if(ast->op == AST_STRUCT_ID){
-        //if(ast->lhs->op != AST_ID){
-        //    fprintf(stderr, "Error : not yet implemented.\n");
-        //    assert(0);
-        //}
         sem_analy(ast->lhs);
         ast->ltype = ast->lhs->type;
         int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);

@@ -823,8 +823,17 @@ Type_t* type_specifier(){
                 type->member = map_new();
                 while(next->kind != '}'){
                     Node_t* st_dec = struct_declaration();
-                    offset += get_type_size(st_dec->type);
+                    //st_dec->type->offset = offset;
+                    //offset += get_type_size(st_dec->type);
+                    int add_offset = get_type_size(st_dec->type);
+                    if(add_offset == 8 && offset % 8 != 0){
+                        offset += (8 - offset%8);
+                    }
+                    else if(add_offset == 4 && offset % 4 != 0){
+                        offset += (4 - offset%4);
+                    }
                     st_dec->type->offset = offset;
+                    offset += add_offset;    
                     map_push(type->member, st_dec->name, st_dec->type);
                     next = read_token(0);
                 }

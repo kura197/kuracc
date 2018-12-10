@@ -118,9 +118,10 @@ void codegen(Node_t* ast){
         codegen_lval(ast->lhs);
         printf("  pop %%rbx\n");
         int offset;
-        offset = get_type_size(struct_type) - member_type->offset;
+        //offset = get_type_size(struct_type) - member_type->offset;
         //Type_t* first_member = vector_get(struct_type->member->val, 0);
-        //int offset = member_type->offset - first_member->offset;
+        //offset = member_type->offset - first_member->offset;
+        offset = member_type->offset;
         if(ast->type->ty == TYPE_ARRAY){
             printf("  leaq %d(%%rbx), %%rax\n", offset);
         }
@@ -632,9 +633,10 @@ void codegen_lval(Node_t* ast){
         printf("  pop %%rax\n");
 
         int offset;
-        offset = get_type_size(struct_type) - member_type->offset;
+        //offset = get_type_size(struct_type) - member_type->offset;
         //Type_t* first_member = vector_get(struct_type->member->val, 0);
         //offset = member_type->offset - first_member->offset;
+        offset = member_type->offset;
         printf("  addq $%d, %%rax\n", offset);
         printf("  pushq  %%rax\n");
         rsp_allign += 4;

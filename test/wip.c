@@ -1,22 +1,24 @@
 
 int printf();
-int malloc();
+int strcmp();
 
-typedef struct test{
-    char a;
-    char b;
-    char c;
-    char d;
-}test_t;
+struct test{
+    int x;
+    int y;
+    int z;
+    int v;
+    int w;
+    char* name;
+};
+
+char* str = "Hello.";
 
 int main(){
-    test_t* t0 = (test_t*)malloc(sizeof(test_t));
-    t0->a = 20;
-    t0->b = 40;
-    t0->c = 60;
-    t0->d = 80;
-    int x = t0->b;
-    int y = t0->d;
-    //printf("%d %d %d %d\n", t0->a, t0->b, t0->c, t0->d);
+    struct test* t2;
+    struct test t3;
+    t2 = &t3;
+    (*t2).z = 6;
+    (*t2).name = str;
+    printf("%d\n", (*t2).x);
     return 0;
 }
