@@ -5,9 +5,9 @@ OBJS="
        semantic.o 
        tokenizer.o 
        codegen.o 
-       vector_map.o 
+       main.o 
      "
-       #main.o 
+       #vector_map.o 
 
 if [ "$1" != "" ]
 then

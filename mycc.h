@@ -347,7 +347,7 @@ void codegen(Node_t *node);
 void codegen_lval(Node_t *node);
 int codegen_arg(Node_t* node, int num);
 int is_ptr(Type_t* type);
-int allign4(int x);
+int allign8(int x);
 void codegen_str();
 void codegen_global_init();
 void codegen_global();

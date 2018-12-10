@@ -117,7 +117,10 @@ void codegen(Node_t* ast){
 
         codegen_lval(ast->lhs);
         printf("  pop %%rbx\n");
-        int offset = get_type_size(struct_type) - member_type->offset;
+        int offset;
+        offset = get_type_size(struct_type) - member_type->offset;
+        //Type_t* first_member = vector_get(struct_type->member->val, 0);
+        //int offset = member_type->offset - first_member->offset;
         if(ast->type->ty == TYPE_ARRAY){
             printf("  leaq %d(%%rbx), %%rax\n", offset);
         }
@@ -437,8 +440,8 @@ void codegen(Node_t* ast){
         symt = ast->sym_table;
         rsp_allign = 8;
         if(symt->offset > 0){
-            printf("  subq $%d, %%rsp\n", allign4(symt->offset));
-            rsp_allign += symt->offset;
+            printf("  subq $%d, %%rsp\n", allign8(symt->offset)+8);
+            rsp_allign += allign8(symt->offset) + 8;
         }
         for(int arg = 0; arg < map_size(symt->arg); arg++){
             //max:6
@@ -630,6 +633,8 @@ void codegen_lval(Node_t* ast){
 
         int offset;
         offset = get_type_size(struct_type) - member_type->offset;
+        //Type_t* first_member = vector_get(struct_type->member->val, 0);
+        //offset = member_type->offset - first_member->offset;
         printf("  addq $%d, %%rax\n", offset);
         printf("  pushq  %%rax\n");
         rsp_allign += 4;
@@ -664,10 +669,10 @@ int is_ptr(Type_t* type){
         return 0;
 }
 
-int allign4(int x){
+int allign8(int x){
     int n = 0;
     while(x > n){
-        n += 4;
+        n += 8;
     }
     return n;
 }
