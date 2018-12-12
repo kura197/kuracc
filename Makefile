@@ -8,6 +8,8 @@ OUTPUT = mycc
 HEADER = mycc.h 
 
 .PHONY: test
+.PHONY: self
+.PHONY: wip
 
 $(OUTPUT): $(OBJS)
 	cc -o $@ $^
@@ -15,7 +17,10 @@ $(OUTPUT): $(OBJS)
 $(OBJS): $(HEADER)
 
 test: $(OUTPUT)
-	./run_test.sh
+	./run_test.sh $(OUTPUT)
+
+self: $(OUTPUT)
+	./run_test.sh self
 
 wip: $(OUTPUT)
 	./run_test.sh wip

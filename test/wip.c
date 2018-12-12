@@ -1,24 +1,32 @@
 
-int printf();
-int strcmp();
+int* malloc();
 
-struct test{
-    int x;
-    int y;
-    int z;
-    int v;
-    int w;
-    char* name;
-};
+typedef struct Vector{
+    void** item;     
+    int len;
+    int cap;
+}Vector_t;
 
-char* str = "Hello.";
+typedef struct Map{
+    //char -> int
+    Vector_t* key;
+    Vector_t* val;
+}Map_t;
 
-int main(){
-    struct test* t2;
-    struct test t3;
-    t2 = &t3;
-    (*t2).z = 6;
-    (*t2).name = str;
-    printf("%d\n", (*t2).x);
-    return 0;
+Vector_t *vector_new(){
+    struct Vector* vec;
+    //free when program is done.
+    vec = malloc(sizeof(struct Vector));
+    vec->item = malloc(sizeof(void*));
+    vec->cap = 1;
+    vec->len = 0;
+    return vec;
+}
+
+Map_t* map_new(){
+    Map_t* map = malloc(sizeof(Map_t));
+    map->key = vector_new();
+    map->val = vector_new();
+    //fprintf(stderr, "map:%x\n", map);
+    return map;
 }

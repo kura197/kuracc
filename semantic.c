@@ -5,8 +5,6 @@
 #include <assert.h>
 #include "mycc.h"
 
-
-
 SymTable_t* sym_table;
 Symbol_t* sym;
 Map_t* global;
@@ -411,9 +409,11 @@ void sem_analy(Node_t* ast){
 
     else if(ast->op == AST_COMP_STMT){
         sym_table->local_index++;
+        //Map_t* tmp = map_new();
+        //sym_table->local[sym_table->local_index] = tmp;
         sym_table->local[sym_table->local_index] = map_new();
-        //if(for_dec_flag) sem_analy(for_dec_ast);
-        //for_dec_flag = 0;
+        //sym_table->local[0] = tmp;
+        //fprintf(stderr, "idx : %d,  local : %x\n", sym_table->local_index, sym_table->local[sym_table->local_index]);
         if(ast->lhs != NULL) sem_analy(ast->lhs);
         sym_table->local_index--;
     }

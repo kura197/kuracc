@@ -51,6 +51,7 @@ Map_t* map_new(){
     Map_t* map = malloc(sizeof(Map_t));
     map->key = vector_new();
     map->val = vector_new();
+    //fprintf(stderr, "map:%x\n", map);
     return map;
 }
 

@@ -11,10 +11,10 @@ OBJS="
 
 if [ "$1" != "" ]
 then
-    ./self_test/replace.sh "$1" > tmp
-    ./mycc tmp > tmp.s
-    gcc -c tmp.s
+    ./self_test/replace.sh "$1" > self
+    ./mycc self > self.s
+    gcc -c self.s -g
 
-    gcc -o tmp -g tmp.o ./test/lib.o $OBJS
+    gcc -o self -g self.o ./test/lib.o $OBJS
 fi
 

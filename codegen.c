@@ -82,10 +82,12 @@ void codegen(Node_t* ast){
         //printf("  movq $%s, %%rax\n", label);
         printf("  leaq %s(%%rip), %%rax\n", label);
         printf("  pushq %%rax\n");
+        rsp_allign += 8;
     }
     else if(ast->op == AST_POST_INC || ast->op == AST_POST_DEC){
         codegen_lval(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         int add_val = 1;
         if(ast->type->ty == TYPE_PTR || ast->type->ty == TYPE_ARRAY){
             add_val = get_type_size(ast->ltype->ptrof);
@@ -117,6 +119,7 @@ void codegen(Node_t* ast){
 
         codegen_lval(ast->lhs);
         printf("  pop %%rbx\n");
+        rsp_allign -= 8;
         int offset;
         //offset = get_type_size(struct_type) - member_type->offset;
         //Type_t* first_member = vector_get(struct_type->member->val, 0);
@@ -143,6 +146,7 @@ void codegen(Node_t* ast){
     else if(ast->op == AST_UNARY_PTR){
         codegen(ast->lhs);
         printf("  pop %%rbx\n");
+        rsp_allign -= 8;
         printf("  movq (%%rbx), %%rax\n");
         printf("  pushq %%rax\n");
     }
@@ -152,12 +156,14 @@ void codegen(Node_t* ast){
     else if(ast->op == AST_UNARY_MINUS){
         codegen(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  negl %%eax\n");
         printf("  pushq %%rax\n");
     }
     else if(ast->op == AST_UNARY_REV){
         codegen(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  cmpl $0, %%eax\n");
         printf("  sete %%al\n");
         printf("  movzbl %%al, %%eax\n");
@@ -166,6 +172,7 @@ void codegen(Node_t* ast){
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
         codegen_lval(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         int add_val = 1;
         if(ast->type->ty == TYPE_PTR || ast->type->ty == TYPE_ARRAY){
             add_val = get_type_size(ast->ltype->ptrof);
@@ -183,6 +190,7 @@ void codegen(Node_t* ast){
     else if(ast->op == AST_SIZEOF){
         printf("  movl $%d, %%eax\n", ast->val);
         printf("  pushq %%rax\n");
+        rsp_allign += 8;
     }
     else if(ast->op == AST_CAST){
         codegen(ast->lhs);
@@ -191,6 +199,7 @@ void codegen(Node_t* ast){
         if(cast_type != pre_type){
             if(cast_type == TYPE_INT && pre_type == TYPE_CHAR){
                 printf("  pop %%rax\n");
+                rsp_allign -= 8;
                 printf("  movsbl %%al, %%eax\n");
                 printf("  pushq %%rax\n");
             }
@@ -199,6 +208,7 @@ void codegen(Node_t* ast){
             }
             else if(cast_type == TYPE_PTR && pre_type == TYPE_INT){
                 printf("  pop %%rax\n");
+                rsp_allign -= 8;
                 printf("  cltq\n");
                 printf("  pushq %%rax\n");
             }
@@ -323,10 +333,12 @@ void codegen(Node_t* ast){
         num_jmp+=2;
         codegen(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  cmpl $0, %%eax\n");
         printf("  je .L%d\n", tmp_num_jmp1);
         codegen(ast->rhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  cmpl $0, %%eax\n");
         printf("  je .L%d\n", tmp_num_jmp1);
         printf("  movl $1, %%eax\n");
@@ -335,6 +347,7 @@ void codegen(Node_t* ast){
         printf("  movl $0, %%eax\n");
         printf(".L%d:\n", tmp_num_jmp2);
         printf("  pushq %%rax\n");
+        rsp_allign += 8;
     }
     else if(ast->op == AST_LOG_OR){
         int tmp_num_jmp1 = num_jmp;
@@ -343,10 +356,12 @@ void codegen(Node_t* ast){
         num_jmp+=3;
         codegen(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  cmpl $0, %%eax\n");
         printf("  jne .L%d\n", tmp_num_jmp1);
         codegen(ast->rhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  cmpl $0, %%eax\n");
         printf("  je .L%d\n", tmp_num_jmp2);
         printf(".L%d:\n", tmp_num_jmp1);
@@ -356,12 +371,14 @@ void codegen(Node_t* ast){
         printf("  movl $0, %%eax\n");
         printf(".L%d:\n", tmp_num_jmp3);
         printf("  pushq %%rax\n");
+        rsp_allign += 8;
     }
     else if(ast->op == AST_COND){
         int tmp_num_jmp1 = num_jmp++;
         int tmp_num_jmp2 = num_jmp++;
         codegen(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  cmpl $0, %%eax\n");
         printf("  je .L%d\n", tmp_num_jmp1);
         codegen(ast->lcond);
@@ -388,6 +405,7 @@ void codegen(Node_t* ast){
         }
         printf("  movl (%%rax), %%ebx\n");
         printf("  pushq %%rbx\n");
+        rsp_allign += 8;
     }
     else if(ast->op == AST_EXPR){
         codegen(ast->lhs);
@@ -413,6 +431,7 @@ void codegen(Node_t* ast){
         if(!ast->global) {
             printf("  movl (%%rax), %%ebx\n");
             printf("  pushq %%rax\n");
+            rsp_allign += 8;
         }
     }
     else if(ast->op == AST_FUNC_CALL){
@@ -431,15 +450,17 @@ void codegen(Node_t* ast){
         printf("  call %s\n", ast->lhs->name);
         if(rem > 0) printf("  addq $%d, %%rsp\n", rem);
         printf("  pushq %%rax\n");
+        rsp_allign += 8;
     }
     else if(ast->op == AST_FUNC){
+        rsp_allign = 8;
         printf("\n  .global %s\n", ast->name);
         printf("\n%s:\n", ast->name);
         printf("  pushq %%rbp\n");
+        rsp_allign += 8;
         printf("  movq %%rsp, %%rbp\n");
 
         symt = ast->sym_table;
-        rsp_allign = 8;
         if(symt->offset > 0){
             printf("  subq $%d, %%rsp\n", allign8(symt->offset)+8);
             rsp_allign += allign8(symt->offset) + 8;
@@ -460,6 +481,7 @@ void codegen(Node_t* ast){
         printf(".End%d:\n", num_ret++);
         printf("  movq %%rbp, %%rsp\n");
         printf("  pop %%rbp\n");
+        rsp_allign -= 8;
         printf("  ret\n");
     }
     else if(ast->op == AST_COMP_STMT){
@@ -471,13 +493,17 @@ void codegen(Node_t* ast){
         codegen(ast->lhs);
         if(lop == AST_ID || lop == AST_INT || lop == AST_CHAR || lop == AST_PRE_INC 
                 || lop == AST_PRE_DEC || lop == AST_POST_INC || lop == AST_POST_DEC 
-                || lop == AST_ASSIGN || lop == AST_INIT_DEC)
+                || lop == AST_ASSIGN || lop == AST_INIT_DEC){
             printf("  pop %%rax\n");
+            rsp_allign -= 8;
+        }
         codegen(ast->rhs);
         if(rop == AST_ID || rop == AST_INT || rop == AST_CHAR || rop == AST_PRE_INC 
                 || rop == AST_PRE_DEC || rop == AST_POST_INC || rop == AST_POST_DEC
-                || rop == AST_ASSIGN || rop == AST_INIT_DEC)
+                || rop == AST_ASSIGN || rop == AST_INIT_DEC){
             printf("  pop %%rax\n");
+            rsp_allign -= 8;
+        }
     }
     else if(ast->op == AST_FUNC_DEC){
     }
@@ -504,6 +530,7 @@ void codegen(Node_t* ast){
             int tmp_num_jmp = num_jmp++;
             codegen(ast->lhs);
             printf("  pop %%rax\n");
+            rsp_allign -= 8;
             printf("  cmp $0, %%rax\n");
             printf("  je .L%d\n", tmp_num_jmp);
             codegen(ast->rhs);
@@ -514,6 +541,7 @@ void codegen(Node_t* ast){
             int tmp_num_jmp1 = num_jmp++;
             codegen(ast->lhs);
             printf("  pop %%rax\n");
+            rsp_allign -= 8;
             printf("  cmp $0, %%rax\n");
             printf("  je .L%d\n", tmp_num_jmp0);
             codegen(ast->rhs);
@@ -527,6 +555,7 @@ void codegen(Node_t* ast){
         case_label = num_jmp;
         codegen(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         for(int i = 0; i < ast->num_case; i++){
             if(ast->case_stmt[i]->lhs->op != AST_INT && ast->case_stmt[i]->lhs->op != AST_CHAR){
                 fprintf(stderr, "Error : case label is only constant\n");
@@ -567,6 +596,7 @@ void codegen(Node_t* ast){
         printf(".L%d:\n", tmp_num_jmp2);
         if(ast->mfor != NULL) codegen(ast->mfor);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
         printf("  cmp $0, %%rax\n");
         printf("  jne .L%d\n", tmp_num_jmp0);
         printf(".L%d:\n", tmp_num_jmp3);
@@ -575,6 +605,7 @@ void codegen(Node_t* ast){
         if(ast->lhs != NULL){
             codegen(ast->lhs);
             printf("  pop %%rax\n");
+            rsp_allign -= 8;
             printf("  jmp .End%d\n", num_ret);
         }
     }
@@ -597,13 +628,13 @@ void codegen_lval(Node_t* ast){
         if(sym->name_space == NS_GLOBAL){
             printf("  leaq %s(%%rip), %%rax\n", ast->name);
             printf("  pushq  %%rax\n");
-            rsp_allign += 4;
+            rsp_allign += 8;
         }
         else{
             sym = ast->sym;
             printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
             printf("  pushq  %%rax\n");
-            rsp_allign += 4;
+            rsp_allign += 8;
         }
     }
     else if(ast->op == AST_UNARY_PTR){
@@ -613,7 +644,7 @@ void codegen_lval(Node_t* ast){
         sym = ast->sym;
         printf("  leaq -%d(%%rbp), %%rax\n", sym->offset);
         printf("  pushq  %%rax\n");
-        rsp_allign += 4;
+        rsp_allign += 8;
     }    
     else if(ast->op == AST_STRUCT_ID){
         sym = ast->sym;
@@ -631,6 +662,7 @@ void codegen_lval(Node_t* ast){
         }
         codegen_lval(ast->lhs);
         printf("  pop %%rax\n");
+        rsp_allign -= 8;
 
         int offset;
         //offset = get_type_size(struct_type) - member_type->offset;
@@ -639,7 +671,7 @@ void codegen_lval(Node_t* ast){
         offset = member_type->offset;
         printf("  addq $%d, %%rax\n", offset);
         printf("  pushq  %%rax\n");
-        rsp_allign += 4;
+        rsp_allign += 8;
     }
     else{
         fprintf(stderr, "not ID lvalue\n");
