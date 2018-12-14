@@ -72,7 +72,9 @@ char *ast_name[128] = {
     "AST_FOR",
     "AST_RET",
     "AST_CONT",
-    "AST_BREAK"
+    "AST_BREAK",
+    "AST_INIT_LIST",
+    "AST_DESIG"
 };
 
 char *type_name[16] = {
@@ -1253,7 +1255,8 @@ Node_t* function_definition(){
     else if(next->kind == '='){
         consume_token('=');
         node->global = 1;
-        node = new_node(AST_INIT_DEC, node, assign_expr());
+        next = read_token(0);
+        node = new_node(AST_INIT_DEC, node, initializer());
         if(consume_token(';') < 0) assert(0);
     }
     else{
@@ -1264,4 +1267,61 @@ Node_t* function_definition(){
     return node;
 }
 
-
+Node_t* initializer(){
+    Node_t* node;
+    Token_t* next = read_token(0);
+    if(next->kind == '{'){
+        int first = 1;
+        Node_t* node2;
+        consume_token('{');
+        next = read_token(0);
+        while(1){
+            Node_t* tmp;
+            if(next->kind == '['){
+                consume_token('[');
+                next = read_token(0);
+                Node_t* lhs; 
+                if(next->kind == TK_INT){
+                    consume_token(TK_INT);
+                    lhs = new_node_num(next->value, TYPE_INT);
+                }
+                else if(next->kind == TK_CHAR){
+                    consume_token(TK_CHAR);
+                    lhs = new_node_name(AST_CHAR, next->name);
+                    lhs->type = make_type();
+                    lhs->type->ty = TYPE_CHAR;
+                    lhs->val = next->value;
+                }
+                else{
+                    error(next);
+                    assert(0);
+                }
+                if(consume_token(']') < 0) assert(0);
+                if(consume_token('=') < 0) assert(0);
+                tmp = new_node(AST_DESIG, lhs, assign_expr());
+            }
+            else{
+                tmp = assign_expr();
+            }
+            if(first){
+                first = 0;
+                node = new_node(AST_INIT_LIST, tmp, NULL);
+                node2 = node;
+            }
+            else{
+                Node_t* tmp2 = new_node(AST_INIT_LIST, tmp, NULL);
+                node2->rhs = tmp2;
+                node2 = tmp2;
+            }
+            //node = new_node(AST_INIT_LIST, tmp, NULL);
+            next = read_token(0);
+            if(next->kind != ',') break;
+            consume_token(',');
+        }
+        if(consume_token('}') < 0) assert(0);
+    }
+    else{
+        node = assign_expr();
+    }
+    return node;
+}

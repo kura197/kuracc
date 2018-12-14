@@ -229,7 +229,9 @@ enum ast_kind{
     AST_FOR,
     AST_RET,
     AST_CONT,
-    AST_BREAK
+    AST_BREAK,
+    AST_INIT_LIST,
+    AST_DESIG
 };
 
 
@@ -289,6 +291,7 @@ Node_t* jump_stmt();
 
 Node_t* translation_unit();
 Node_t* function_definition();
+Node_t* initializer();
 
 
 extern char *ast_name[128];

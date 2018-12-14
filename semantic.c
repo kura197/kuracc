@@ -104,6 +104,7 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->lhs);
         ast->type = ast->lhs->type;
         ast->ltype = ast->type;
+        //ast->val = -ast->lhs->val;
     }
 
     else if(ast->op == AST_UNARY_REV){
@@ -362,7 +363,8 @@ void sem_analy(Node_t* ast){
         ast->type = ast->ltype;
         ast->sym = ast->lhs->sym;
         if(ast->global){
-            map_push(global_init, ast->lhs->name, ast->rhs);
+            //map_push(global_init, ast->lhs->name, ast->rhs);
+            map_push(global_init, ast->lhs->name, ast);
         }
     }
 
@@ -470,6 +472,26 @@ void sem_analy(Node_t* ast){
                 fprintf(stderr, "Warning : return type %s is not the same as function %s(%s)\n", type_name[ret_type], func_name, type_name[type]);
             }
         }
+    }
+
+    else if(ast->op == AST_INIT_LIST){
+        sem_analy(ast->lhs);
+        ast->ltype = ast->lhs->type;
+        if(ast->rhs != NULL) {
+            sem_analy(ast->rhs);
+            ast->rtype = ast->rhs->type;
+            //if(ast->ltype->ty != ast->rtype->ty){
+            //    fprintf(stderr, "Error : init_list\n");
+            //    assert(0);
+            //}
+        }
+        ast->type = ast->ltype;
+        //
+        ast->type->ty = TYPE_PTR;
+    }
+
+    else if(ast->op == AST_DESIG){
+        ast->type = ast->lhs->type;
     }
 
     else{

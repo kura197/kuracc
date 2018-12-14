@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-//#include "codegen.h"
-//#include "semantic.h"
 #include "mycc.h"
 
 int rsp_allign;
@@ -16,7 +14,6 @@ char* arg_regl_name[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 int case_label;
 int break_label;
 int cont_label;
-
 
 void codegen(Node_t* ast){
     if(ast == NULL){
@@ -725,6 +722,7 @@ void codegen_str(){
 void codegen_global_init(){
     for(int i = 0; i < map_size(global_init); i++){
         Node_t* ast = vector_get(global_init->val, i);
+        ast = ast->rhs;
         char *name = vector_get(global_init->key, i);
         if(ast->op == AST_UNARY_MINUS){
             ast = ast->lhs;
@@ -737,15 +735,36 @@ void codegen_global_init(){
             printf("%s:\n", name);
             printf("  .quad %s\n", label);
         }else{
-            Symbol_t* sym = map_search(global, name);
-            int size = get_type_size(sym->type);
+            //Symbol_t* sym = map_search(global, name);
             printf("%s:\n", name);
-            if(size == 4){
-                printf("  .long %d\n", ast->val);
+            if(ast->op != AST_INIT_LIST){
+                int size = get_type_size(ast->type);
+                if(size == 4){
+                    printf("  .long %d\n", ast->val);
+                }
+                else if(size == 1){
+                    printf("  .byte %d\n", ast->val);
+                }
             }
-            else if(size == 1){
-                printf("  .byte %d\n", ast->val);
-            }
+            else
+                while(ast != NULL){
+                    Node_t* tmp = ast->lhs;
+                    int size = get_type_size(tmp->type);
+                    int val;
+                    if(tmp->op == AST_DESIG) val = tmp->lhs->val;
+                    else val = tmp->val;
+                    if(size == 4){
+                        printf("  .long %d\n", val);
+                    }
+                    else if(size == 1){
+                        printf("  .byte %d\n", val);
+                    }
+                    //
+                    else if(size == 8){
+                        printf("  .long %d\n", val);
+                    }
+                    ast = ast->rhs;
+                }
         }
     }
 }
@@ -762,4 +781,3 @@ void codegen_global(){
         printf("  .comm  %s,%d\n", sym->name, size);
     }
 }
-

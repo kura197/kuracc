@@ -12,7 +12,7 @@ HEADER = mycc.h
 .PHONY: wip
 
 $(OUTPUT): $(OBJS)
-	cc -o $@ $^
+	cc -o  $@ $^
 
 $(OBJS): $(HEADER)
 
