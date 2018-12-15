@@ -1317,6 +1317,7 @@ Node_t* initializer(){
             next = read_token(0);
             if(next->kind != ',') break;
             consume_token(',');
+            next = read_token(0);
         }
         if(consume_token('}') < 0) assert(0);
     }

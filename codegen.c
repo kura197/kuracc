@@ -746,12 +746,13 @@ void codegen_global_init(){
                     printf("  .byte %d\n", ast->val);
                 }
             }
-            else
+            else{
+                //int offset = 0;
                 while(ast != NULL){
                     Node_t* tmp = ast->lhs;
                     int size = get_type_size(tmp->type);
                     int val;
-                    if(tmp->op == AST_DESIG) val = tmp->lhs->val;
+                    if(tmp->op == AST_DESIG) val = tmp->rhs->val;
                     else val = tmp->val;
                     if(size == 4){
                         printf("  .long %d\n", val);
@@ -765,6 +766,8 @@ void codegen_global_init(){
                     }
                     ast = ast->rhs;
                 }
+
+            }
         }
     }
 }
