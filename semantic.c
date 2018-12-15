@@ -354,11 +354,13 @@ void sem_analy(Node_t* ast){
             fprintf(stderr, "Error : cannot assign type void\n");
             assert(0);
         }
-        int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
-        int right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
-        if(left_ptr != right_ptr){
-            fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
-            assert(0);
+        if(ast->rhs->op != AST_INIT_LIST){
+            int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+            int right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
+            if(left_ptr != right_ptr){
+                fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
+                assert(0);
+            }
         }
         ast->type = ast->ltype;
         ast->sym = ast->lhs->sym;
@@ -487,7 +489,7 @@ void sem_analy(Node_t* ast){
         }
         ast->type = ast->ltype;
         //
-        ast->type->ty = TYPE_PTR;
+        //ast->type->ty = TYPE_PTR;
     }
 
     else if(ast->op == AST_DESIG){

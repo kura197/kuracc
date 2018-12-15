@@ -722,6 +722,7 @@ void codegen_str(){
 void codegen_global_init(){
     for(int i = 0; i < map_size(global_init); i++){
         Node_t* ast = vector_get(global_init->val, i);
+        Type_t* ast_type = ast->type;
         ast = ast->rhs;
         char *name = vector_get(global_init->key, i);
         if(ast->op == AST_UNARY_MINUS){
@@ -747,26 +748,53 @@ void codegen_global_init(){
                 }
             }
             else{
-                //int offset = 0;
+                int offset = 0;
+                int init_list[128];
+                for(int i = 0; i < 128; i++) init_list[i] = 0;
+                int size = get_type_size(ast->type);
+                int array_size = ast_type->array_size;
                 while(ast != NULL){
                     Node_t* tmp = ast->lhs;
-                    int size = get_type_size(tmp->type);
                     int val;
-                    if(tmp->op == AST_DESIG) val = tmp->rhs->val;
+                    if(tmp->op == AST_DESIG){
+                        offset = tmp->lhs->val;
+                        if(tmp->rhs->op == AST_STRING)
+                            ;
+                        else
+                            val = tmp->rhs->val;
+                    }
                     else val = tmp->val;
-                    if(size == 4){
-                        printf("  .long %d\n", val);
-                    }
-                    else if(size == 1){
-                        printf("  .byte %d\n", val);
-                    }
-                    //
-                    else if(size == 8){
-                        printf("  .long %d\n", val);
-                    }
+                    init_list[offset] = val;
+                    offset++;
                     ast = ast->rhs;
                 }
+                offset = 0;
+                int zeros = 0;
+                while(offset < array_size){
+                    int init = init_list[offset++];
+                    if(init == 0) zeros++;
+                    else{
+                        if(zeros > 0){
+                            printf("  .zero %d\n", zeros*size);
+                            zeros = 0;
+                        }
 
+                        if(size == 4){
+                            printf("  .long %d\n", init);
+                        }
+                        else if(size == 1){
+                            printf("  .byte %d\n", init);
+                        }
+                        else if(size == 8){
+                            char* label = map_search(strlabel, ast->name);
+                            printf("  .quad %s\n", label);
+                        }
+                    }
+                }
+                if(zeros > 0){
+                    printf("  .zero %d\n", zeros*size);
+                    zeros = 0;
+                }
             }
         }
     }
