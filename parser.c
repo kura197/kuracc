@@ -189,7 +189,7 @@ Node_t* conv2ptr(Node_t* node){
 }
 
 void error(Token_t* tk){
-    fprintf(stderr, "read token : %s\n", token_name[tk->kind]);
+    fprintf(stderr, "read token at line %d : %s\n", tk->row, token_name[tk->kind]);
     //assert(0);
 }
 
@@ -811,7 +811,7 @@ Type_t* type_specifier(){
         type->ty = TYPE_STRUCT;
         next = read_token(0);
         if(next->kind == '{'){
-            fprintf(stderr, "not yet implemented\n");
+            fprintf(stderr, "not yet implemented at line %d\n", next->row);
             assert(0);
         }
         else if(next->kind == TK_ID){
@@ -854,7 +854,7 @@ Type_t* type_specifier(){
         next = read_token(0);
         if(next->kind == '{'){
             consume_token('{');
-            fprintf(stderr, "not yet implemented.\n");
+            fprintf(stderr, "not yet implemented at line %d.\n", next->row);
             if(consume_token('}') < 0) assert(0);
         }
         else if(next->kind == TK_ID){
@@ -905,7 +905,7 @@ Type_t* type_specifier(){
         type = tmp->typeof;
     }
     else{
-        fprintf(stderr, "not yet implemented\n");
+        fprintf(stderr, "not yet implemented at line %d\n", next->row);
         assert(0);
     }
     return type;
@@ -965,7 +965,7 @@ Node_t* direct_declarator(Type_t** root){
     }
     else if(next->kind == '('){
         consume_token('(');
-        fprintf(stderr, "not yet implemented\n");
+        fprintf(stderr, "not yet implemented at line %d\n",next->row);
         assert(0);
         //node = declarator();
         if(consume_token(')') < 0) assert(0);
@@ -1178,7 +1178,7 @@ Node_t* iter_stmt(){
         node->rfor = tmp[2];
     }
     else if(next->kind == TK_DO){
-        printf("not yet implemented\n");
+        printf("not yet implemented at line %d\n", next->row);
         assert(0);
     }
     else{

@@ -40,6 +40,7 @@ typedef struct Token{
     int kind;
     int value;
     char* name;
+    int row;
 }Token_t;
 
 enum token_kind{

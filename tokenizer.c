@@ -13,6 +13,7 @@ int token_idx;
 int num_tokens;
 Map_t* define;
 int idx;
+int row;
 
 //for debug purpose
 char *token_name[256] = {
@@ -91,6 +92,7 @@ void tokenize(char* p){
             }
             values[num_values] = '\0';
             tokens[idx].value = strtol(values, NULL, 10);
+            tokens[idx].row = row;
             tokens[idx++].kind = TK_INT;
         }
         else if(*p == '/'){
@@ -98,16 +100,22 @@ void tokenize(char* p){
                 while(*p != '\n'){
                     p++;
                 }
+                row++;
             }
             else if(*(p+1) == '*'){
                 p++;
                 while(!(*p == '*' && *(p+1) == '/')){
+                    if(*p == '\n'){
+                        row++;
+                    }
                     p++;
                 }
                 p++;
             }
-            else
+            else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '/';
+            }
         }
         else if(*p == '"'){
             p++;
@@ -121,20 +129,20 @@ void tokenize(char* p){
             tokens[idx].kind = TK_STRING;
             tokens[idx].name = malloc((n+1)*sizeof(char));
             strcpy(tokens[idx].name, tmp);
+            tokens[idx].row = row;
             idx++;
         }
         else if(*p == ' '){
-            ;
         }
         else if(*p == '\n'){
-            ;
+            row++;
         }
         else if(*p == '\t'){
-            ;
         }
         else if(*p == '\''){
             p++;
             tokens[idx].kind = TK_CHAR;
+            tokens[idx].row = row;
             tokens[idx].name = malloc(2*sizeof(char));
             tokens[idx].name[0] = *p;
             if(*p == '\\'){
@@ -166,118 +174,156 @@ void tokenize(char* p){
                 fprintf(stderr, "invalid character-constant\n");
                 assert(0);
             }
+            tokens[idx].row = row;
             idx++;
         }
         else if(*p == '+'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '+';
         }
         else if(*p == '-'){
             if(*(p+1) == '>'){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_ARROW;
                 p++;
             }
-            else
+            else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '-';
+            }
         }
         else if(*p == '*'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '*';
         }
         else if(*p == '<'){
             if(*(p+1) == '<'){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_LSHIFT;
                 p++;
             }
             else if(*(p+1) == '='){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_LEQ;
                 p++;
             }
-            else
+            else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '<';
+            }
         }
         else if(*p == '>'){
             if(*(p+1) == '>'){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_RSHIFT;
                 p++;
             }
             else if(*(p+1) == '='){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_SEQ;
                 p++;
             }
-            else
+            else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '>';
+            }
         }
         else if(*p == '^'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '^';
         }
         else if(*p == '|'){
             if(*(p+1) == '|'){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_LOG_OR;
                 p++;
             }
-            else
+            else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '|';
+            }
         }
         else if(*p == '('){
+            tokens[idx].row = row;
             tokens[idx++].kind = '(';
         }
         else if(*p == ')'){
+            tokens[idx].row = row;
             tokens[idx++].kind = ')';
         }
         else if(*p == '='){
             char next = *(p+1);
             if(next == '='){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_EQ;
                 p++;
             }
             else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '=';
             }
         }
         else if(*p == '!'){
             char next = *(p+1);
             if(next == '='){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_NEQ;
                 p++;
             }
-            else
+            else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '!';
+            }
         }
         else if(*p == ';'){
+            tokens[idx].row = row;
             tokens[idx++].kind = ';';
         }
         else if(*p == ','){
+            tokens[idx].row = row;
             tokens[idx++].kind = ',';
         }
         else if(*p == '{'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '{';
         }
         else if(*p == '}'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '}';
         }
         else if(*p == '&'){
             if(*(p+1) == '&'){
+                tokens[idx].row = row;
                 tokens[idx++].kind = TK_LOG_AND;
                 p++;
             }
-            else
+            else{
+                tokens[idx].row = row;
                 tokens[idx++].kind = '&';
+            }
         }
         else if(*p == '['){
+            tokens[idx].row = row;
             tokens[idx++].kind = '[';
         }
         else if(*p == ']'){
+            tokens[idx].row = row;
             tokens[idx++].kind = ']';
         }
         else if(*p == ':'){
+            tokens[idx].row = row;
             tokens[idx++].kind = ':';
         }
         else if(*p == '?'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '?';
         }
         else if(*p == '%'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '%';
         }
         else if(*p == '.'){
+            tokens[idx].row = row;
             tokens[idx++].kind = '.';
         }
         else if(*p == '#'){
@@ -330,6 +376,7 @@ void tokenize(char* p){
             int num = get_ident(tmp, &p);
             p--;
             char* def;
+            tokens[idx].row = row;
             if(!strcmp(tmp, "if")){
                 tokens[idx++].kind = TK_IF;
             }
@@ -461,7 +508,8 @@ int consume_token(char token){
         return 1;
     }
     else{
-        fprintf(stderr, "does not match consume_token.\n token : %d\tneed : %s\n", token, token_name[tokens[token_idx].kind]);
+        fprintf(stderr, "does not match consume_token at line %d.\n token : %d\tneed : %s\n" 
+                               , tokens[token_idx].row, token, token_name[tokens[token_idx].kind]);
         return -1;
     }
 }

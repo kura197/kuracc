@@ -201,7 +201,6 @@ void codegen(Node_t* ast){
                 printf("  pushq %%rax\n");
             }
             else if(cast_type == TYPE_CHAR && pre_type == TYPE_INT){
-                ;
             }
             else if(cast_type == TYPE_PTR && pre_type == TYPE_INT){
                 printf("  pop %%rax\n");
