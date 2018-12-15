@@ -749,45 +749,51 @@ void codegen_global_init(){
             }
             else{
                 int offset = 0;
-                int init_list[128];
-                for(int i = 0; i < 128; i++) init_list[i] = 0;
+                Node_t* init_list[128];
+                for(int i = 0; i < 128; i++) init_list[i] = NULL;
                 int size = get_type_size(ast->type);
                 int array_size = ast_type->array_size;
                 while(ast != NULL){
                     Node_t* tmp = ast->lhs;
-                    int val;
                     if(tmp->op == AST_DESIG){
                         offset = tmp->lhs->val;
-                        if(tmp->rhs->op == AST_STRING)
-                            ;
-                        else
-                            val = tmp->rhs->val;
+                        init_list[offset] = tmp->rhs;
                     }
-                    else val = tmp->val;
-                    init_list[offset] = val;
+                    else init_list[offset] = tmp;
                     offset++;
                     ast = ast->rhs;
                 }
                 offset = 0;
                 int zeros = 0;
                 while(offset < array_size){
-                    int init = init_list[offset++];
-                    if(init == 0) zeros++;
-                    else{
+                    if(init_list[offset] == NULL){
+                        zeros++;
+                        offset++;
+                        continue;
+                    }
+                    Node_t* init = init_list[offset++];
+                    if(init->op == AST_STRING){
                         if(zeros > 0){
                             printf("  .zero %d\n", zeros*size);
                             zeros = 0;
                         }
+                        char* label = map_search(strlabel, init->name);
+                        printf("  .quad %s\n", label);
+                    }
+                    else{
+                        if(init->val == 0) zeros++;
+                        else{
+                            if(zeros > 0){
+                                printf("  .zero %d\n", zeros*size);
+                                zeros = 0;
+                            }
 
-                        if(size == 4){
-                            printf("  .long %d\n", init);
-                        }
-                        else if(size == 1){
-                            printf("  .byte %d\n", init);
-                        }
-                        else if(size == 8){
-                            char* label = map_search(strlabel, ast->name);
-                            printf("  .quad %s\n", label);
+                            if(size == 4){
+                                printf("  .long %d\n", init->val);
+                            }
+                            else if(size == 1){
+                                printf("  .byte %d\n", init->val);
+                            }
                         }
                     }
                 }

@@ -493,6 +493,8 @@ void sem_analy(Node_t* ast){
     }
 
     else if(ast->op == AST_DESIG){
+        sem_analy(ast->lhs);
+        sem_analy(ast->rhs);
         ast->type = ast->lhs->type;
     }
 

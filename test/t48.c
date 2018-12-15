@@ -1,5 +1,6 @@
 
 int printf();
+int strcmp();
 
 int test[20] = {
     2, 
@@ -13,8 +14,9 @@ int test[20] = {
 
 char* test2[5] = {
     "Hello",
-    "World",
-    "Thanks"
+    [3] = "World",
+    "Thanks",
+    "Bye"
 };
 
 int main(){
@@ -23,6 +25,13 @@ int main(){
         printf("Error 0: %d\n", x);
         return -1;
     }
+
+    char* s = test2[4];
+    if(strcmp(s, "Thanks")){
+        printf("Error 1: %s\n", s);
+        return -1;
+    }
+
     printf("OK\n");
     return 0;
 }

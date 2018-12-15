@@ -83,6 +83,7 @@ else
     runtest_print "$1" test/t45.c 10
     runtest_print "$1" test/t46.c "OK"
     runtest_print "$1" test/t47.c "97 a 12345"
+    runtest_print "$1" test/t48.c "OK"
     echo 'Success!!'
 fi
 
