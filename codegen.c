@@ -104,13 +104,15 @@ void codegen(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        char* struct_name = (ast->lhs->op == AST_ID) ? sym->type->name : sym->type->ptrof->name;
+        //char* struct_name = (ast->lhs->op == AST_ID || ast->lhs->op == AST_STRUCT_ID) ? sym->type->name : sym->type->ptrof->name;
+        char* struct_name = get_ptr_name(sym->type);
         if((struct_type = map_search(struct_dec, struct_name)) == NULL){
-            fprintf(stderr, "Error : struct %s was not declared\n", ast->type->name);
+            fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
             assert(0);
         }
-        if((member_type = map_search(struct_type->member, member_name)) == NULL){
-            fprintf(stderr, "Error : struct %s does not have %s\n", ast->type->name, member_name);
+        //if((member_type = map_search(struct_type->member, member_name)) == NULL){
+        if((member_type = struct_search_wrapper(struct_type, member_name)) == NULL){
+            fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
             assert(0);
         }
 
@@ -647,12 +649,14 @@ void codegen_lval(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        char* struct_name = (ast->lhs->op == AST_ID) ? sym->type->name : sym->type->ptrof->name;
+        //char* struct_name = (ast->lhs->op == AST_ID || ast->lhs->op == AST_STRUCT_ID) ? sym->type->name : sym->type->ptrof->name;
+        char* struct_name = get_ptr_name(sym->type);
         if((struct_type = map_search(struct_dec, struct_name)) == NULL){
                     fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
                     assert(0);
         }
-        if((member_type = map_search(struct_type->member, member_name)) == NULL){
+        //if((member_type = map_search(struct_type->member, member_name)) == NULL){
+        if((member_type = struct_search_wrapper(struct_type, member_name)) == NULL){
                     fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
                     assert(0);
         }
