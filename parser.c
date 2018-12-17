@@ -1051,7 +1051,9 @@ Node_t* compound_stmt(){
     if(next->kind == '{'){
         consume_token('{');
         Node_t* node;
-        if(read_token(0)->kind == '}'){
+        next = read_token(0);
+        if(next->kind == '}'){
+            consume_token('}');
             node = new_node(AST_COMP_STMT, NULL, NULL);
             return node;
         }

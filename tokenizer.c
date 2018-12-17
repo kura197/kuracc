@@ -344,7 +344,9 @@ void tokenize(char* p){
                 tmp[n] = '\0';
                 if(!libc){
                     char* header = map_file(tmp);
+                    int tmp = row;
                     tokenize(header);
+                    row = tmp;
                     //idx--;
                 }
                 p++;
@@ -367,9 +369,9 @@ void tokenize(char* p){
                     p++;
                 }
                 def_r[n] = '\0';
-
                 map_push(define, def_l, def_r);
             }
+            row++;
         }
         else{
             char tmp[64];
