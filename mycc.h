@@ -34,7 +34,7 @@ void test_map();
 
 //tokenizer
 
-#define NUM_TK 65536
+#define NUM_TK 200000
 
 typedef struct Token{
     int kind;
@@ -304,7 +304,7 @@ extern Map_t* typedef_dec;
 
 
 //semantic
-#define MAX_BLOCK_DEPTH 128
+#define MAX_BLOCK_DEPTH 256
 
 enum NameSpace{
     NS_GLOBAL,

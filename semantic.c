@@ -95,7 +95,7 @@ void sem_analy(Node_t* ast){
 
     else if(ast->op == AST_UNARY_ADR){
         sem_analy(ast->lhs);
-        type = (Type_t*)malloc(sizeof(type));
+        type = (Type_t*)malloc(sizeof(Type_t));
         type->ty = TYPE_PTR;
         type->ptrof = ast->lhs->type;
         ast->type = type;

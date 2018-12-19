@@ -1,4 +1,3 @@
-//#include "tokenizer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -160,8 +159,9 @@ void tokenize(char* p){
                     case 'r' : tokens[idx].value = '\r'; break;
                     case 't' : tokens[idx].value = '\t'; break;
                     case 'v' : tokens[idx].value = '\v'; break;
+                    case '0' : tokens[idx].value = '\0'; break;
                     default : 
-                                fprintf(stderr, "invalid character-constant\n");
+                                fprintf(stderr, "invalid character-constant at line %d.\n", row);
                                 assert(0);
                                 break;
                 }
@@ -554,7 +554,7 @@ char *map_file(char *filename){
     char* ptr;
     int fd;
     if((fd = open(filename, O_RDWR)) < 0){
-        printf("File open error.\n");
+        printf("File open error at line %d.\n", row);
         assert(0);
     }
     fstat(fd, &sbuf);

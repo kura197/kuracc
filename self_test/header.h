@@ -1,4 +1,3 @@
-
 int printf();
 int myassert();
 int* malloc();
@@ -9,7 +8,6 @@ int free();
 int getopt();
 
 #define stderr 2
-
 
 //vector_map
 typedef struct Vector{
@@ -46,12 +44,13 @@ void test_map();
 
 //tokenizer
 
-#define NUM_TK 65536
+#define NUM_TK 200000
 
 typedef struct Token{
     int kind;
     int value;
     char* name;
+    int row;
 }Token_t;
 
 enum token_kind{
@@ -87,6 +86,7 @@ enum token_kind{
     TK_ARROW,   //->
     TK_TYPEDEF,   
     TK_EXTERN,   
+    TK_NULL,   
     TK_EOF
 };
 
@@ -96,7 +96,7 @@ struct Token* read_token(int n);
 struct Token* get_token();
 int end_tokens();
 void dump_tokens();
-void consume_token(char token);
+int consume_token(char token);
 char *map_file(char *filename);
 
 extern Token_t tokens[NUM_TK];
@@ -192,6 +192,7 @@ enum ast_kind{
     AST_UNARY_PTR,  //*
     AST_UNARY_MINUS,  //-
     AST_UNARY_REV,  //!
+    AST_CAST,
     AST_POST_INC,
     AST_POST_DEC,
     AST_STRUCT_ID,
@@ -239,7 +240,9 @@ enum ast_kind{
     AST_FOR,
     AST_RET,
     AST_CONT,
-    AST_BREAK
+    AST_BREAK,
+    AST_INIT_LIST,
+    AST_DESIG
 };
 
 
@@ -299,6 +302,7 @@ Node_t* jump_stmt();
 
 Node_t* translation_unit();
 Node_t* function_definition();
+Node_t* initializer();
 
 
 extern char *ast_name[128];
@@ -310,7 +314,7 @@ extern Map_t* typedef_dec;
 
 
 //semantic
-#define MAX_BLOCK_DEPTH 128
+#define MAX_BLOCK_DEPTH 256
 
 enum NameSpace{
     NS_GLOBAL,
@@ -344,7 +348,10 @@ typedef struct SymTable{
 SymTable_t* sym_table_new();
 Symbol_t* sym_new(char* name, struct Type* type, struct Node* ast, int name_space, int num_var, int role);
 void sem_analy(struct Node* ast);
+Type_t* struct_search_wrapper(Type_t* st, char* name);
+Type_t* struct_search(Type_t* st, char* name);
 Symbol_t* local_sym_search(SymTable_t* symt, char* name);
+char* get_ptr_name(Type_t* type);
 
 extern Map_t* global;
 extern Map_t* global_init;
@@ -357,7 +364,7 @@ void codegen(Node_t *node);
 void codegen_lval(Node_t *node);
 int codegen_arg(Node_t* node, int num);
 int is_ptr(Type_t* type);
-int allign4(int x);
+int allign8(int x);
 void codegen_str();
 void codegen_global_init();
 void codegen_global();

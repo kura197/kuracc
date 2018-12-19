@@ -873,7 +873,7 @@ Type_t* type_specifier(){
                     next = read_token(0);
                 }
                 if(map_search(enum_dec, id_name) != NULL){
-                    fprintf(stderr, "Error : redeclaration of enumrator %s.\n", id_name);
+                    fprintf(stderr, "Error : redeclaration of enumrator %s at line %d.\n", id_name, next->row);
                     assert(0);
                 }
                 int* val = (int*)malloc(sizeof(int));
@@ -899,7 +899,7 @@ Type_t* type_specifier(){
         consume_token(TK_ID);
         Type_t* tmp;
         if((tmp = map_search(typedef_dec, next->name)) == NULL){
-            fprintf(stderr, "Error : unknown type name '%s'\n", next->name);
+            fprintf(stderr, "Error : unknown type name '%s' at line %d.\n", next->name, next->row);
             assert(0);
         }
         type = tmp->typeof;

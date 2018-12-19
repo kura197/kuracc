@@ -1,13 +1,14 @@
 #! /bin/sh
 
+# main : passed(vprintf error)
 OBJS=" 
-       tokenizer.o 
        main.o 
-       semantic.o 
        parser.o 
+       codegen.o 
        vector_map.o 
+       semantic.o 
      "
-       #codegen.o 
+       #tokenizer.o 
 
 if [ "$1" != "" ]
 then
