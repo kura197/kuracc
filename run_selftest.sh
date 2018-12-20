@@ -4,11 +4,11 @@
 OBJS=" 
        main.o 
        parser.o 
-       codegen.o 
        vector_map.o 
+       tokenizer.o 
        semantic.o 
      "
-       #tokenizer.o 
+       #codegen.o 
 
 if [ "$1" != "" ]
 then

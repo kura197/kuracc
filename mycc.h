@@ -18,6 +18,7 @@ void* vector_get(Vector_t *vec, int idx);
 int vector_size(Vector_t *vec);
 void vector_pop(Vector_t *vec);
 void vector_delete(Vector_t *vec, int idx);
+char get_special_char(char p);
 
 Map_t* map_new();
 void map_push(Map_t* map, char* key, void* val);

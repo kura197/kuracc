@@ -3,6 +3,7 @@ int myassert();
 int* malloc();
 int* realloc();
 int fprintf();
+int sprintf();
 int strcmp();
 int free();
 int getopt();

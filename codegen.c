@@ -549,6 +549,7 @@ void codegen(Node_t* ast){
             printf(".L%d:\n", tmp_num_jmp1);
         }
     }
+    //Error
     else if(ast->op == AST_SWITCH){
         case_label = num_jmp;
         codegen(ast->lhs);

@@ -121,8 +121,14 @@ void tokenize(char* p){
             int n = 0;
             char tmp[64];
             while(*p != '"'){
-                tmp[n++] = *p;
-                p++;
+                if(*p == '\\' && *(p+1) == '\"'){
+                    p += 2;
+                    tmp[n++] = '\"';
+                }
+                else{
+                    tmp[n++] = *p;
+                    p++;
+                }
             }
             tmp[n] = '\0';
             tokens[idx].kind = TK_STRING;
@@ -147,24 +153,7 @@ void tokenize(char* p){
             if(*p == '\\'){
                 p++;
                 tokens[idx].name[1] = *p;
-                switch(*p){
-                    case '\'' : tokens[idx].value = '\''; break;
-                    case '\"' : tokens[idx].value = '\"'; break;
-                    case '?' : tokens[idx].value = '\?'; break;
-                    case '\\' : tokens[idx].value = '\\'; break;
-                    case 'a' : tokens[idx].value = '\a'; break;
-                    case 'b' : tokens[idx].value = '\b'; break;
-                    case 'f' : tokens[idx].value = '\f'; break;
-                    case 'n' : tokens[idx].value = '\n'; break;
-                    case 'r' : tokens[idx].value = '\r'; break;
-                    case 't' : tokens[idx].value = '\t'; break;
-                    case 'v' : tokens[idx].value = '\v'; break;
-                    case '0' : tokens[idx].value = '\0'; break;
-                    default : 
-                                fprintf(stderr, "invalid character-constant at line %d.\n", row);
-                                assert(0);
-                                break;
-                }
+                tokens[idx].value = get_special_char(*p);
             }
             else
                 tokens[idx].value = *p;
@@ -561,4 +550,27 @@ char *map_file(char *filename){
     ptr = mmap(NULL, sbuf.st_size+1, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
     ptr[sbuf.st_size] = '\0';
     return ptr;
+}
+
+char get_special_char(char p){
+    char ret = 0;
+    switch(p){
+        case '\'': ret = '\''; break;
+        case '\"': ret = '\"'; break;
+        case '?' : ret = '\?'; break;
+        case '\\': ret = '\\'; break;
+        case 'a' : ret = '\a'; break;
+        case 'b' : ret = '\b'; break;
+        case 'f' : ret = '\f'; break;
+        case 'n' : ret = '\n'; break;
+        case 'r' : ret = '\r'; break;
+        case 't' : ret = '\t'; break;
+        case 'v' : ret = '\v'; break;
+        case '0' : ret = '\0'; break;
+        default : 
+                   fprintf(stderr, "invalid character-constant at line %d.\n", row);
+                   assert(0);
+                   break;
+    }
+    return ret;
 }
