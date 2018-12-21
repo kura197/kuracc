@@ -145,6 +145,10 @@ void sem_analy(Node_t* ast){
             assert(0);
         }
         char *var_name = ast->lhs->name;
+        //for array
+        if(var_name == NULL) var_name = ast->lhs->lhs->lhs->name;
+        if(var_name == NULL) var_name = ast->lhs->lhs->lhs->lhs->name;
+
         if((sym = local_sym_search(sym_table, var_name)) == NULL)
             if((sym = map_search(sym_table->arg, var_name)) == NULL)
                 if((sym = map_search(sym_table->global, var_name)) == NULL) {
@@ -525,7 +529,7 @@ Type_t* struct_search(Type_t* st, char* name){
         if(!strcmp(key, name)){
             return type;
         }
-        while(type->ty == TYPE_PTR) type = type->ptrof;
+        while(type->ty == TYPE_PTR || type->ty == TYPE_ARRAY) type = type->ptrof;
         if(type->ty == TYPE_STRUCT && map_search(is_searched, type->name) == NULL){
             if((type = map_search(struct_dec, type->name)) == NULL){
                 fprintf(stderr, "Error : struct %s was not declared\n", key);

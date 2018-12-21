@@ -104,13 +104,11 @@ void codegen(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        //char* struct_name = (ast->lhs->op == AST_ID || ast->lhs->op == AST_STRUCT_ID) ? sym->type->name : sym->type->ptrof->name;
         char* struct_name = get_ptr_name(sym->type);
         if((struct_type = map_search(struct_dec, struct_name)) == NULL){
             fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
             assert(0);
         }
-        //if((member_type = map_search(struct_type->member, member_name)) == NULL){
         if((member_type = struct_search_wrapper(struct_type, member_name)) == NULL){
             fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
             assert(0);
@@ -120,9 +118,6 @@ void codegen(Node_t* ast){
         printf("  pop %%rbx\n");
         rsp_allign -= 8;
         int offset;
-        //offset = get_type_size(struct_type) - member_type->offset;
-        //Type_t* first_member = vector_get(struct_type->member->val, 0);
-        //offset = member_type->offset - first_member->offset;
         offset = member_type->offset;
         if(ast->type->ty == TYPE_ARRAY){
             printf("  leaq %d(%%rbx), %%rax\n", offset);
@@ -650,13 +645,11 @@ void codegen_lval(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        //char* struct_name = (ast->lhs->op == AST_ID || ast->lhs->op == AST_STRUCT_ID) ? sym->type->name : sym->type->ptrof->name;
         char* struct_name = get_ptr_name(sym->type);
         if((struct_type = map_search(struct_dec, struct_name)) == NULL){
                     fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
                     assert(0);
         }
-        //if((member_type = map_search(struct_type->member, member_name)) == NULL){
         if((member_type = struct_search_wrapper(struct_type, member_name)) == NULL){
                     fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
                     assert(0);
@@ -666,9 +659,6 @@ void codegen_lval(Node_t* ast){
         rsp_allign -= 8;
 
         int offset;
-        //offset = get_type_size(struct_type) - member_type->offset;
-        //Type_t* first_member = vector_get(struct_type->member->val, 0);
-        //offset = member_type->offset - first_member->offset;
         offset = member_type->offset;
         printf("  addq $%d, %%rax\n", offset);
         printf("  pushq  %%rax\n");
