@@ -121,8 +121,13 @@ void tokenize(char* p){
             int n = 0;
             char tmp[64];
             while(*p != '"'){
+                //if(*p == '\\' && *(p+1) == '\"'){
+                //    p += 2;
+                //    tmp[n++] = '\"';
+                //}
                 if(*p == '\\' && *(p+1) == '\"'){
                     p += 2;
+                    tmp[n++] = '\\';
                     tmp[n++] = '\"';
                 }
                 else{
