@@ -1,14 +1,20 @@
 #! /bin/sh
 
-# main : passed(vprintf error)
+# main : test passed(vprintf error if no input)
+# codegen : test error(test2 error)
+# tokenizer : compile error(mmap)
+# semantic : test error(test1 error)
+# vector_map : test error(test1 error)
+# parser : compile error(semantic error)
+
 OBJS=" 
        main.o 
-       parser.o 
-       vector_map.o 
+       codegen.o 
        tokenizer.o 
        semantic.o 
+       vector_map.o 
      "
-       #codegen.o 
+       #parser.o 
 
 if [ "$1" != "" ]
 then
@@ -16,6 +22,6 @@ then
     ./mycc self > self.s
     gcc -c self.s -g
 
-    gcc -o self -g self.o ./test/lib.o $OBJS
+    #gcc -o self -g self.o ./test/lib.o $OBJS
 fi
 

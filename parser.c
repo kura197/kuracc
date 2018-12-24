@@ -1157,7 +1157,8 @@ Node_t* iter_stmt(){
     else if(next->kind == TK_FOR){
         consume_token(TK_FOR);
         if(consume_token('(') < 0) assert(0);
-        Node_t* tmp[3] = {NULL};
+        Node_t* tmp[3];
+        for(int i = 0; i < 3; i++) tmp[i] = NULL;
         for(int i = 0; i < 2; i++){
             next = read_token(0);
             if(next->kind == ';')

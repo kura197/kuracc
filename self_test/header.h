@@ -7,6 +7,8 @@ int sprintf();
 int strcmp();
 int free();
 int getopt();
+int strtol();
+int strcpy();
 
 #define stderr 2
 
@@ -35,6 +37,8 @@ void map_push(Map_t* map, char* key, void* val);
 void* map_search(Map_t* map, char* key);
 int map_size(Map_t* map);
 void map_pop(Map_t* map);
+
+char get_special_char(char p);
 
 
 void test_vector();

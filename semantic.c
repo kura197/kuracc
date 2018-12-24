@@ -139,11 +139,11 @@ void sem_analy(Node_t* ast){
     else if(ast->op == AST_STRUCT_ID){
         sem_analy(ast->lhs);
         ast->ltype = ast->lhs->type;
-        int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
-        if((ast->op == AST_STRUCT_ID && left_ptr)){
-            fprintf(stderr, "Error : struct type is invalid.\n");
-            assert(0);
-        }
+        //int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+        //if((ast->op == AST_STRUCT_ID && left_ptr)){
+        //    fprintf(stderr, "Error : struct type is invalid.\n");
+        //    assert(0);
+        //}
         char *var_name = ast->lhs->name;
         //for array
         if(var_name == NULL) var_name = ast->lhs->lhs->lhs->name;
@@ -201,6 +201,8 @@ void sem_analy(Node_t* ast){
             else
                 ast->type = ast->rtype;
         }
+        //for struct array
+        ast->name = ast->lhs->name;
     }
 
     else if(ast->op == AST_MUL || ast->op == AST_DIV || ast->op == AST_REM){
