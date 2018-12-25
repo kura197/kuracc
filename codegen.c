@@ -418,8 +418,11 @@ void codegen(Node_t* ast){
                 printf("  movl %%ebx, (%%rax)\n");
             else if(get_type_size(ast->type) == 1)
                 printf("  movb %%bl, (%%rax)\n");
-            else
-                assert(0);
+            else{
+                //OK???
+                printf("  movq %%rbx, (%%rax)\n");
+                //assert(0);
+            }
         }
         if(!ast->global) {
             printf("  movl (%%rax), %%ebx\n");
@@ -544,18 +547,22 @@ void codegen(Node_t* ast){
             printf(".L%d:\n", tmp_num_jmp1);
         }
     }
-    //Error
     else if(ast->op == AST_SWITCH){
         case_label = num_jmp;
         codegen(ast->lhs);
         printf("  pop %%rax\n");
         rsp_allign -= 8;
         for(int i = 0; i < ast->num_case; i++){
-            if(ast->case_stmt[i]->lhs->op != AST_INT && ast->case_stmt[i]->lhs->op != AST_CHAR){
+            int label = ast->case_stmt[i]->lhs->val;
+            int *offset;
+            if((offset = map_search(enum_dec, ast->case_stmt[i]->lhs->name)) != NULL){
+                label = *offset;
+            }
+            else if(ast->case_stmt[i]->lhs->op != AST_INT && ast->case_stmt[i]->lhs->op != AST_CHAR){
                 fprintf(stderr, "Error : case label is only constant\n");
                 assert(0);
             }
-            printf("  cmpl $%d, %%eax\n", ast->case_stmt[i]->lhs->val);
+            printf("  cmpl $%d, %%eax\n", label);
             printf("  je .L%d\n", num_jmp++);
         }
         printf("  jmp .L%d\n", num_jmp);
@@ -717,14 +724,15 @@ void codegen_global_init(){
     for(int i = 0; i < map_size(global_init); i++){
         Node_t* ast = vector_get(global_init->val, i);
         Type_t* ast_type = ast->type;
-        ast = ast->rhs;
         char *name = vector_get(global_init->key, i);
+        printf("  .data\n");
+        printf("  .global %s\n", name);
+        ast = ast->rhs;
         if(ast->op == AST_UNARY_MINUS){
             ast = ast->lhs;
             ast->val *= -1;
         }
 
-        printf("  .data\n");
         if(ast->op == AST_STRING){
             char* label = map_search(strlabel, ast->name);
             printf("%s:\n", name);
@@ -743,8 +751,8 @@ void codegen_global_init(){
             }
             else{
                 int offset = 0;
-                Node_t* init_list[128];
-                for(int i = 0; i < 128; i++) init_list[i] = NULL;
+                Node_t* init_list[1024];
+                for(int i = 0; i < 1024; i++) init_list[i] = NULL;
                 int size = get_type_size(ast->type);
                 int array_size = ast_type->array_size;
                 while(ast != NULL){

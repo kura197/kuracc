@@ -244,16 +244,16 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
-        if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
-            fprintf(stderr, "Error : >= / <= / < / > TYPE_PTR.\n");
-            assert(0);
-        }
-        else{
+        //if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
+        //    fprintf(stderr, "Error : >= / <= / < / > TYPE_PTR.\n");
+        //    assert(0);
+        //}
+        //else{
             if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
                 ast->type = ast->ltype;
             else
                 ast->type = ast->rtype;
-        }
+        //}
     }
 
     else if(ast->op == AST_EQ || ast->op == AST_NEQ){
@@ -278,16 +278,16 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->rhs);
         ast->ltype = ast->lhs->type;
         ast->rtype = ast->rhs->type;
-        if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
-            fprintf(stderr, "Error : & / | / ^ TYPE_PTR.\n");
-            assert(0);
-        }
-        else{
+        //if(ast->ltype->ty == TYPE_PTR || ast->rtype->ty == TYPE_PTR){
+        //    fprintf(stderr, "Error : & / | / ^ TYPE_PTR.\n");
+        //    assert(0);
+        //}
+        //else{
             if(get_type_size(ast->ltype) >= get_type_size(ast->rtype))
                 ast->type = ast->ltype;
             else
                 ast->type = ast->rtype;
-        }
+        //}
     }
 
     else if(ast->op == AST_LOG_AND || ast->op == AST_LOG_OR){
@@ -327,12 +327,12 @@ void sem_analy(Node_t* ast){
             fprintf(stderr, "Error : cannot assign type void\n");
             assert(0);
         }
-        int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
-        int right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
-        if(left_ptr != right_ptr){
-            fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
-            assert(0);
-        }
+        //int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
+        //int right_ptr = (ast->rtype->ty == TYPE_PTR || ast->rtype->ty == TYPE_ARRAY);
+        //if(left_ptr != right_ptr){
+        //    fprintf(stderr, "left type(%s) does not match right type(%s)\n", type_name[ast->ltype->ty], type_name[ast->rtype->ty]);
+        //    assert(0);
+        //}
         ast->type = ast->ltype;
     }
 

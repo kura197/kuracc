@@ -9,7 +9,13 @@ int free();
 int getopt();
 int strtol();
 int strcpy();
+int fopen();
+int fclose();
+int getc();
 
+
+typedef int FILE;
+#define EOF -1
 #define stderr 2
 
 //vector_map

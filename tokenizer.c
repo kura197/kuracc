@@ -543,6 +543,7 @@ void dump_tokens(){
     }
 }
 
+/*
 char *map_file(char *filename){
     struct stat sbuf;
     char* ptr;
@@ -554,6 +555,25 @@ char *map_file(char *filename){
     fstat(fd, &sbuf);
     ptr = mmap(NULL, sbuf.st_size+1, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
     ptr[sbuf.st_size] = '\0';
+    return ptr;
+}
+*/
+
+char *map_file(char *filename){
+    FILE* fp;
+    if((fp = fopen(filename, "r")) < 0){
+        fprintf(stderr, "File open error at line %d.\n", row);
+        assert(0);
+    }
+
+    char *ptr = malloc(8*65536 * sizeof(char));
+    int idx = 0;
+    char ch;
+    while((ch = getc(fp)) != EOF){
+        ptr[idx++] = ch;
+    }
+    ptr[idx] = '\0';
+    fclose(fp);
     return ptr;
 }
 
