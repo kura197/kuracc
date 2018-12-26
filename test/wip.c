@@ -1,30 +1,22 @@
 
-struct gchild{
-    int a;
-};
-
-struct child{
-    int x; 
-    struct gchild* next;
-};
-
-
-struct parent{
-    struct child* next[20];
-};
-
+typedef struct Symbol{
+    int *name;
+    int *type;
+    int *ast;
+    int name_space;
+    int offset;
+    int role;
+}Symbol_t;
 
 int printf();
 
 int main(){
-    struct parent t0;
-    struct child t1;
-    struct gchild t2;
-
-    t0.next[10] = &t1;
-    t0.next[10]->next = &t2;
-    t0.next[10]->next->a = 10;
-
-    printf("OK\n");
+    Symbol_t s;
+    int *a = s.name;
+    a = s.type;
+    a = s.ast;
+    int x = s.name_space;
+    x = s.offset;
+    x = s.role;
     return 0;
 }

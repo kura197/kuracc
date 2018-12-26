@@ -26,6 +26,6 @@ wip: $(OUTPUT)
 	./run_test.sh wip
 
 clean:
-	rm $(OUTPUT) *.o
+	rm $(OUTPUT) *.o *.s
 
 
