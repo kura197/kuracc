@@ -13,7 +13,6 @@ Map_t* global_init;
 Vector_t* str_lit;
 Type_t* type;
 char* func_name;
-Map_t* is_searched;
 
 SymTable_t* sym_table_new(){
     SymTable_t* symt = (SymTable_t*)malloc(sizeof(SymTable_t));
@@ -135,43 +134,42 @@ void sem_analy(Node_t* ast){
         sem_analy(ast->lhs);
         ast->ltype = ast->lhs->type;
     }
-
     else if(ast->op == AST_STRUCT_ID){
         sem_analy(ast->lhs);
         ast->ltype = ast->lhs->type;
-        //int left_ptr = (ast->ltype->ty == TYPE_PTR || ast->ltype->ty == TYPE_ARRAY);
-        //if((ast->op == AST_STRUCT_ID && left_ptr)){
-        //    fprintf(stderr, "Error : struct type is invalid.\n");
-        //    assert(0);
-        //}
-        char *var_name = ast->lhs->name;
-        //for array
-        if(var_name == NULL) var_name = ast->lhs->lhs->lhs->name;
-        if(var_name == NULL) var_name = ast->lhs->lhs->lhs->lhs->name;
-
-        if((sym = local_sym_search(sym_table, var_name)) == NULL)
-            if((sym = map_search(sym_table->arg, var_name)) == NULL)
-                if((sym = map_search(sym_table->global, var_name)) == NULL) {
-                    fprintf(stderr, "Error : %s was not declared\n", var_name);
-                    assert(0);
-                }
         Type_t* struct_type;
         Type_t* member_type;
-        //char* struct_name = (ast->lhs->op == AST_ID || ast->lhs->op == AST_STRUCT_ID) ? sym->type->name : sym->type->ptrof->name;
-        char* struct_name = get_ptr_name(sym->type);
+        char* struct_name;
+        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && ast->lhs->lhs->op == AST_ID)){
+            char *var_name = ast->lhs->name;
+            //for array
+            //if(var_name == NULL) var_name = ast->lhs->lhs->lhs->name;
+            //if(var_name == NULL) var_name = ast->lhs->lhs->lhs->lhs->name;
+            if((sym = local_sym_search(sym_table, var_name)) == NULL)
+                if((sym = map_search(sym_table->arg, var_name)) == NULL)
+                    if((sym = map_search(sym_table->global, var_name)) == NULL) {
+                        fprintf(stderr, "Error : %s was not declared\n", var_name);
+                        assert(0);
+                    }
+            struct_name = get_ptr_name(sym->type);
+        }
+        else{
+            struct_name = ast->lhs->name;
+        }
+
         if((struct_type = map_search(struct_dec, struct_name)) == NULL){
                     fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
                     assert(0);
         }
         char *member_name = ast->rhs->name;
-        //if((member_type = map_search(struct_type->member, member_name)) == NULL){
-        if((member_type = struct_search_wrapper(struct_type, member_name)) == NULL){
-                    fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
+        if((member_type = struct_search(struct_type, member_name)) == NULL){
+                    fprintf(stderr, "Error : struct %s does not have %s\n", struct_type->name,  member_name);
                     assert(0);
         }
         ast->type = member_type; 
         ast->sym = sym;
-        ast->name = ast->lhs->name;
+        while(member_type->ty == TYPE_PTR || member_type->ty == TYPE_ARRAY) member_type = member_type->ptrof;
+        ast->name = member_type->name;
     }
 
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
@@ -514,32 +512,13 @@ void sem_analy(Node_t* ast){
     }
 }
 
-Type_t* struct_search_wrapper(Type_t* st, char* name){
-    is_searched = map_new();
-    Type_t* ret = struct_search(st, name);
-    free(is_searched);
-    is_searched = NULL;
-    return ret;
-}
-
 Type_t* struct_search(Type_t* st, char* name){
     Map_t* member = st->member;
-    map_push(is_searched, st->name, st);
     for(int i = 0; i < map_size(member); i++){
         char* key = member->key->item[i];
         Type_t* type = member->val->item[i];
         if(!strcmp(key, name)){
             return type;
-        }
-        while(type->ty == TYPE_PTR || type->ty == TYPE_ARRAY) type = type->ptrof;
-        if(type->ty == TYPE_STRUCT && map_search(is_searched, type->name) == NULL){
-            if((type = map_search(struct_dec, type->name)) == NULL){
-                fprintf(stderr, "Error : struct %s was not declared\n", key);
-                assert(0);
-            }
-            if((type = struct_search(type, name)) != NULL){
-                return type;
-            }
         }
     }
     return NULL;

@@ -1,11 +1,11 @@
 #! /bin/bash
 
 # main : test passed(vprintf error if no input)
-# codegen : test error(test2 error)
-# tokenizer : test error(test1 error)
+# codegen : test error(test40? error)
+# tokenizer : compile error()
 # semantic : test error(test1 error)
 # vector_map : test error(test1 error)
-# parser : test error(test1 error)
+# parser : compile error()
 
 OBJS=(main.o  
       vector_map.o  

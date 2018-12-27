@@ -125,7 +125,7 @@ Type_t* make_type(){
     type->name = NULL;
     type->member = NULL;
     type->offset = 0;
-    type->typeof = NULL;
+    type->typeto = NULL;
     return type;
 }
 
@@ -763,7 +763,7 @@ Type_t* declaration_specifier(){
         Type_t* tmp = type_specifier();
         type = make_type();
         type->ty = TYPE_TYPEDEF;
-        type->typeof = tmp;
+        type->typeto = tmp;
         next = read_token(0);
         if(consume_token(TK_ID) < 0) assert(0);
         type->name = next->name;
@@ -904,7 +904,7 @@ Type_t* type_specifier(){
             fprintf(stderr, "Error : unknown type name '%s' at line %d.\n", next->name, next->row);
             assert(0);
         }
-        type = tmp->typeof;
+        type = tmp->typeto;
     }
     else{
         fprintf(stderr, "not yet implemented at line %d\n", next->row);

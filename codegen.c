@@ -104,12 +104,18 @@ void codegen(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        char* struct_name = get_ptr_name(sym->type);
+        char* struct_name;
+        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && ast->lhs->lhs->op == AST_ID)){
+            struct_name = get_ptr_name(sym->type);
+        }
+        else{
+            struct_name = ast->lhs->name;
+        }
         if((struct_type = map_search(struct_dec, struct_name)) == NULL){
             fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
             assert(0);
         }
-        if((member_type = struct_search_wrapper(struct_type, member_name)) == NULL){
+        if((member_type = struct_search(struct_type, member_name)) == NULL){
             fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
             assert(0);
         }
@@ -652,12 +658,18 @@ void codegen_lval(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
-        char* struct_name = get_ptr_name(sym->type);
+        char* struct_name;
+        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && ast->lhs->lhs->op == AST_ID)){
+            struct_name = get_ptr_name(sym->type);
+        }
+        else{
+            struct_name = ast->lhs->name;
+        }
         if((struct_type = map_search(struct_dec, struct_name)) == NULL){
                     fprintf(stderr, "Error : struct %s was not declared\n", struct_name);
                     assert(0);
         }
-        if((member_type = struct_search_wrapper(struct_type, member_name)) == NULL){
+        if((member_type = struct_search(struct_type, member_name)) == NULL){
                     fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
                     assert(0);
         }

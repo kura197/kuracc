@@ -561,7 +561,7 @@ char *map_file(char *filename){
 
 char *map_file(char *filename){
     FILE* fp;
-    if((fp = fopen(filename, "r")) < 0){
+    if((fp = fopen(filename, "r")) == NULL){
         fprintf(stderr, "File open error at line %d.\n", row);
         assert(0);
     }

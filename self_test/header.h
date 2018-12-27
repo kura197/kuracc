@@ -146,7 +146,7 @@ typedef struct Type{
     int offset;
 
     //for typedef
-    struct Type* typeof;
+    struct Type* typeto;
 }Type_t;
 
 typedef struct Node{
@@ -359,7 +359,6 @@ typedef struct SymTable{
 SymTable_t* sym_table_new();
 Symbol_t* sym_new(char* name, struct Type* type, struct Node* ast, int name_space, int num_var, int role);
 void sem_analy(struct Node* ast);
-Type_t* struct_search_wrapper(Type_t* st, char* name);
 Type_t* struct_search(Type_t* st, char* name);
 Symbol_t* local_sym_search(SymTable_t* symt, char* name);
 char* get_ptr_name(Type_t* type);
