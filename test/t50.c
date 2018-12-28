@@ -48,6 +48,16 @@ int main(){
         return 0;
     }
 
+    struct child c0[10];
+    c0[2].x = 3;
+    int u = c0[2].x;
+    if(c0[2].x != 3 || u != 3){
+        printf("Error 4 : ");
+        printf("%d %d\n", c0[2].x, u);
+        return 0;
+    }
+
+
     printf("OK\n");
     return 0;
 }

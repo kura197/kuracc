@@ -2,7 +2,7 @@
 
 # main : test passed(vprintf error if no input)
 # codegen : test error(test40? error)
-# tokenizer : compile error()
+# tokenizer : test error(test1 error)
 # semantic : test error(test1 error)
 # vector_map : test error(test1 error)
 # parser : compile error()
@@ -25,9 +25,9 @@ then
     ./mycc self > self.s
     gcc -c self.s -g
 
-    #TARGET=${1/.c/.o}
-    #OTHERS=${OBJS[@]#$TARGET}
-    #gcc -o self -g $OTHERS self.o ./test/lib.o 
+    TARGET=${1/.c/.o}
+    OTHERS=${OBJS[@]#$TARGET}
+    gcc -o self -g $OTHERS self.o ./test/lib.o 
 
 else
     for item in ${SRCS[@]}; do

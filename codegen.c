@@ -14,6 +14,8 @@ char* arg_regl_name[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 int case_label;
 int break_label;
 int cont_label;
+int struct_var_flag;
+int struct_var_en;
 
 void codegen(Node_t* ast){
     if(ast == NULL){
@@ -32,6 +34,10 @@ void codegen(Node_t* ast){
     else if(ast->op == AST_ID){
         sym = ast->sym;
         int *offset;
+        if(struct_var_en){
+            struct_var_en = 0;
+            struct_var_flag = 1;
+        }
         if((offset = map_search(enum_dec, ast->name)) != NULL){
             printf("  movl $%d, %%eax\n", *offset);
         }
@@ -100,12 +106,14 @@ void codegen(Node_t* ast){
         rsp_allign += 8;
     }
     else if(ast->op == AST_STRUCT_ID){
-        sym = ast->sym;
+        struct_var_en = 1;
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
         char* struct_name;
-        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && (ast->lhs->lhs->op == AST_ID || ast->lhs->lhs->op == AST_ADD))){
+        codegen_lval(ast->lhs);
+        sym = ast->sym;
+        if(struct_var_flag){
             struct_name = get_ptr_name(sym->type);
         }
         else{
@@ -120,7 +128,6 @@ void codegen(Node_t* ast){
             assert(0);
         }
 
-        codegen_lval(ast->lhs);
         printf("  pop %%rbx\n");
         rsp_allign -= 8;
         int offset;
@@ -142,6 +149,7 @@ void codegen(Node_t* ast){
         }
         printf("  pushq %%rax\n");
         rsp_allign += 8;
+        struct_var_flag = 0;
     }
     else if(ast->op == AST_UNARY_PTR){
         codegen(ast->lhs);
@@ -632,6 +640,10 @@ void codegen(Node_t* ast){
 void codegen_lval(Node_t* ast){
     if(ast->op == AST_ID){
         sym = ast->sym;
+        if(struct_var_en){
+            struct_var_en = 0;
+            struct_var_flag = 1;
+        }
         if(sym->name_space == NS_GLOBAL){
             printf("  leaq %s(%%rip), %%rax\n", ast->name);
             printf("  pushq  %%rax\n");
@@ -654,12 +666,14 @@ void codegen_lval(Node_t* ast){
         rsp_allign += 8;
     }    
     else if(ast->op == AST_STRUCT_ID){
-        sym = ast->sym;
+        struct_var_en = 1;
         Type_t* struct_type;
         Type_t* member_type;
         char* member_name = ast->rhs->name;
         char* struct_name;
-        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && (ast->lhs->lhs->op == AST_ID || ast->lhs->lhs->op == AST_ADD))){
+        codegen_lval(ast->lhs);
+        sym = ast->sym;
+        if(struct_var_flag){
             struct_name = get_ptr_name(sym->type);
         }
         else{
@@ -673,7 +687,6 @@ void codegen_lval(Node_t* ast){
                     fprintf(stderr, "Error : struct %s does not have %s\n", struct_name, member_name);
                     assert(0);
         }
-        codegen_lval(ast->lhs);
         printf("  pop %%rax\n");
         rsp_allign -= 8;
 
@@ -682,6 +695,7 @@ void codegen_lval(Node_t* ast){
         printf("  addq $%d, %%rax\n", offset);
         printf("  pushq  %%rax\n");
         rsp_allign += 8;
+        struct_var_flag = 0;
     }
     else{
         fprintf(stderr, "not ID lvalue\n");

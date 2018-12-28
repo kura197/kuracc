@@ -13,6 +13,8 @@ Map_t* global_init;
 Vector_t* str_lit;
 Type_t* type;
 char* func_name;
+int struct_var_flag;
+int struct_var_en;
 
 SymTable_t* sym_table_new(){
     SymTable_t* symt = (SymTable_t*)malloc(sizeof(SymTable_t));
@@ -49,6 +51,10 @@ Symbol_t* local_sym_search(SymTable_t* symt, char* name){
 void sem_analy(Node_t* ast){
     if(ast->op == AST_ID){
         int *offset;
+        if(struct_var_en){
+            struct_var_en = 0;
+            struct_var_flag = 1;
+        }
         if((offset = map_search(enum_dec, ast->name)) != NULL){
             ast->type = (Type_t*)malloc(sizeof(Type_t));
             ast->type->ty = TYPE_INT;
@@ -135,12 +141,13 @@ void sem_analy(Node_t* ast){
         ast->ltype = ast->lhs->type;
     }
     else if(ast->op == AST_STRUCT_ID){
+        struct_var_en = 1;
         sem_analy(ast->lhs);
         ast->ltype = ast->lhs->type;
         Type_t* struct_type;
         Type_t* member_type;
         char* struct_name;
-        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && (ast->lhs->lhs->op == AST_ID || ast->lhs->lhs->op == AST_ADD))){
+        if(struct_var_flag){
             char *var_name = ast->lhs->name;
             //for array
             //if(var_name == NULL) var_name = ast->lhs->lhs->lhs->name;
@@ -152,6 +159,7 @@ void sem_analy(Node_t* ast){
                         assert(0);
                     }
             struct_name = get_ptr_name(sym->type);
+            ast->sym = sym;
         }
         else{
             struct_name = ast->lhs->name;
@@ -167,9 +175,9 @@ void sem_analy(Node_t* ast){
                     assert(0);
         }
         ast->type = member_type; 
-        ast->sym = sym;
         while(member_type->ty == TYPE_PTR || member_type->ty == TYPE_ARRAY) member_type = member_type->ptrof;
         ast->name = member_type->name;
+        struct_var_flag = 0;
     }
 
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
