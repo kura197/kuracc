@@ -105,7 +105,7 @@ void codegen(Node_t* ast){
         Type_t* member_type;
         char* member_name = ast->rhs->name;
         char* struct_name;
-        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && ast->lhs->lhs->op == AST_ID)){
+        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && (ast->lhs->lhs->op == AST_ID || ast->lhs->lhs->op == AST_ADD))){
             struct_name = get_ptr_name(sym->type);
         }
         else{
@@ -659,7 +659,7 @@ void codegen_lval(Node_t* ast){
         Type_t* member_type;
         char* member_name = ast->rhs->name;
         char* struct_name;
-        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && ast->lhs->lhs->op == AST_ID)){
+        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && (ast->lhs->lhs->op == AST_ID || ast->lhs->lhs->op == AST_ADD))){
             struct_name = get_ptr_name(sym->type);
         }
         else{

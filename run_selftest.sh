@@ -25,9 +25,9 @@ then
     ./mycc self > self.s
     gcc -c self.s -g
 
-    TARGET=${1/.c/.o}
-    OTHERS=${OBJS[@]#$TARGET}
-    gcc -o self -g $OTHERS self.o ./test/lib.o 
+    #TARGET=${1/.c/.o}
+    #OTHERS=${OBJS[@]#$TARGET}
+    #gcc -o self -g $OTHERS self.o ./test/lib.o 
 
 else
     for item in ${SRCS[@]}; do

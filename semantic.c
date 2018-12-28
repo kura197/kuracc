@@ -140,7 +140,7 @@ void sem_analy(Node_t* ast){
         Type_t* struct_type;
         Type_t* member_type;
         char* struct_name;
-        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && ast->lhs->lhs->op == AST_ID)){
+        if(ast->lhs->op == AST_ID || (ast->lhs->op != AST_STRUCT_ID && ast->lhs->lhs != NULL && (ast->lhs->lhs->op == AST_ID || ast->lhs->lhs->op == AST_ADD))){
             char *var_name = ast->lhs->name;
             //for array
             //if(var_name == NULL) var_name = ast->lhs->lhs->lhs->name;

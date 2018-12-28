@@ -1,41 +1,55 @@
 
+
+struct child{
+    int x; 
+};
+
+struct parent{
+    struct child next[10];
+    struct child* pnext[20];
+};
+
+
 int printf();
 
-struct test2{
-    int z;
-};
-
-struct test{
-    int x;
-    int y;
-    struct test2 tz;
-    struct test2* tz_ptr;
-};
-
 int main(){
-    struct test t0;
-    struct test* t1;
-    struct test2 t2;
+    struct parent t0;
+    t0.next[2].x = 30;
+    int z = t0.next[2].x;
 
-    t0.tz.z = 10;
-    if(t0.tz.z != 10){
-        printf("Error 0 : %d\n", t0.tz.z);
-        return -1;
+    if(t0.next[2].x != 30 || z != 30){
+        printf("Error 0 : ");
+        printf("%d %d\n", t0.next[2].x, z);
+        return 0;
     }
 
-    t1 = &t0;
-    t1->tz_ptr = &t2;
-    t1->tz_ptr->z = 30;
-    if(t1->tz_ptr->z != 30){
-        printf("Error 1 : %d\n", t1->tz_ptr->z);
-        return -1;
-    }
+    //t0.pnext[5] = &t0.next[2];
+    //t0.pnext[5]->x = 10;
+    //int y = t0.pnext[5]->x;
 
-    t1->tz.z = 50;
-    if(t1->tz.z != 50){
-        printf("Error 2 : %d\n", t1->tz.z);
-        return -1;
-    }
+    //if(t0.pnext[5]->x != 10 || y != 10){
+    //    printf("Error 1 : ");
+    //    printf("%d %d\n", t0.pnext[5]->x, y);
+    //    return 0;
+    //}
+
+    //if(t0.next[2].x != 10 || z != 30){
+    //    printf("Error 2 : ");
+    //    printf("%d %d\n", t0.next[2].x, z);
+    //    return 0;
+    //}
+
+    //int i = 5;
+    //t0.pnext[i]->x = 100;
+    //int t = t0.pnext[i]->x;
+    //if(t0.next[2].x != 100 || t != 100){
+    //    printf("Error 3 : ");
+    //    printf("%d %d\n", t0.next[5].x, t);
+    //    return 0;
+    //}
+
+    //struct child c0[10];
+    //c0[2].x = 3;
 
     printf("OK\n");
     return 0;
