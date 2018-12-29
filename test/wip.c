@@ -1,63 +1,35 @@
 
 
-struct child{
+struct test{
+    char a;
+    char b;
     int x; 
-};
-
-struct parent{
-    struct child next[10];
-    struct child* pnext[20];
+    int y; 
+    char c;
+    char* t;
+    int z; 
+    char* s;
+    int w;
+    int v;
+    int u;
 };
 
 
 int printf();
+char* str = "hello";
 
 int main(){
-    struct parent t0;
-    t0.next[2].x = 30;
-    int z = t0.next[2].x;
-
-    if(t0.next[2].x != 30 || z != 30){
-        printf("Error 0 : ");
-        printf("%d %d\n", t0.next[2].x, z);
-        return 0;
-    }
-
-    t0.pnext[5] = &t0.next[2];
-    t0.pnext[5]->x = 10;
-    int y = t0.pnext[5]->x;
-
-    if(t0.pnext[5]->x != 10 || y != 10){
-        printf("Error 1 : ");
-        printf("%d %d\n", t0.pnext[5]->x, y);
-        return 0;
-    }
-
-    if(t0.next[2].x != 10 || z != 30){
-        printf("Error 2 : ");
-        printf("%d %d\n", t0.next[2].x, z);
-        return 0;
-    }
-
-    int i = 5;
-    t0.pnext[i]->x = 100;
-    int t = t0.pnext[i]->x;
-    if(t0.next[2].x != 100 || t != 100){
-        printf("Error 3 : ");
-        printf("%d %d\n", t0.next[5].x, t);
-        return 0;
-    }
-
-    struct child c0[10];
-    c0[2].x = 3;
-    int u = c0[2].x;
-    if(c0[2].x != 3 || u != 3){
-        printf("Error 4 : ");
-        printf("%d %d\n", c0[2].x, u);
-        return 0;
-    }
-
-
-    printf("OK\n");
+    struct test t0;
+    t0.a = 100;
+    t0.b = 101;
+    t0.x = 102;
+    t0.y = 103;
+    t0.z = 104;
+    t0.s = str;
+    t0.w = 105;
+    t0.c = 106;
+    t0.t = str;
+    t0.v = 107;
+    t0.u = 108;
     return 0;
 }

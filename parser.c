@@ -270,7 +270,6 @@ int get_type_size_char(char* str){
 
     return size;
 }
-
 ///////////////////////////////////
 ////////////expression/////////////
 ///////////////////////////////////
@@ -304,7 +303,8 @@ Node_t* primary_expr(){
     else if(next->kind == '('){
         consume_token('(');
         node = expr();
-        if(read_token(0)->kind != ')'){
+        next = read_token(0);
+        if(next->kind != ')'){
             error(read_token(0));
             assert(0);
         }
@@ -357,14 +357,15 @@ Node_t* postfix_expr(){
         }
         else if(next->kind == '.'){
             consume_token('.');
-            node = new_node(AST_STRUCT_ID, node, new_node_ID(read_token(0)->name));
+            next = read_token(0);
+            node = new_node(AST_STRUCT_ID, node, new_node_ID(next->name));
             if(consume_token(TK_ID) < 0) assert(0);
         }
         else if(next->kind == TK_ARROW){
             consume_token(TK_ARROW);
-            //node = new_node(AST_STRUCT_ID_ARR, node, new_node_ID(read_token(0)->name));
             Node_t* st = new_node(AST_UNARY_PTR, node, NULL);
-            node = new_node(AST_STRUCT_ID, st, new_node_ID(read_token(0)->name));
+            next = read_token(0);
+            node = new_node(AST_STRUCT_ID, st, new_node_ID(next->name));
             if(consume_token(TK_ID) < 0) assert(0);
         }
         else break;
@@ -484,7 +485,8 @@ Node_t* cast_expr(){
 Node_t* mul_expr(){
     Node_t* node = cast_expr();
     Token_t* next = read_token(0);
-    if(read_token(1)->kind == '=') return node;
+    Token_t* nnext = read_token(1);
+    if(nnext->kind == '=') return node;
     while(next->kind == '*' || next->kind == '/' || next->kind == '%'){
         if(next->kind == '*'){
             consume_token('*');
@@ -507,7 +509,8 @@ Node_t* mul_expr(){
 Node_t* add_expr(){
     Node_t *node = mul_expr();
     Token_t* next = read_token(0);
-    if(read_token(1)->kind == '=') return node;
+    Token_t* nnext = read_token(1);
+    if(nnext->kind == '=') return node;
     while(next->kind == '+' || next->kind == '-'){
         if(next->kind == '+'){
             consume_token('+');
@@ -526,7 +529,8 @@ Node_t* add_expr(){
 Node_t* shift_expr(){
     Node_t *node = add_expr();
     Token_t* next = read_token(0);
-    if(read_token(1)->kind == '=') return node;
+    Token_t* nnext = read_token(1);
+    if(nnext->kind == '=') return node;
     while(next->kind == TK_LSHIFT || next->kind == TK_RSHIFT){
         if(next->kind == TK_LSHIFT){
             consume_token(TK_LSHIFT);
@@ -588,7 +592,8 @@ Node_t* equ_expr(){
 Node_t* and_expr(){
     Node_t* node = equ_expr();
     Token_t* next = read_token(0);
-    if(read_token(1)->kind == '=') return node;
+    Token_t* nnext = read_token(1);
+    if(nnext->kind == '=') return node;
     while(next->kind == '&'){
         consume_token('&');
         node = new_node(AST_AND, node, equ_expr());
@@ -600,7 +605,8 @@ Node_t* and_expr(){
 Node_t* exor_expr(){
     Node_t* node = and_expr();
     Token_t* next = read_token(0);
-    if(read_token(1)->kind == '=') return node;
+    Token_t* nnext = read_token(1);
+    if(nnext->kind == '=') return node;
     while(next->kind == '^'){
         consume_token('^');
         node = new_node(AST_EXOR, node, and_expr());
@@ -612,7 +618,8 @@ Node_t* exor_expr(){
 Node_t* or_expr(){
     Node_t* node = exor_expr();
     Token_t* next = read_token(0);
-    if(read_token(1)->kind == '=') return node;
+    Token_t* nnext = read_token(1);
+    if(nnext->kind == '=') return node;
     while(next->kind == '|'){
         consume_token('|');
         node = new_node(AST_OR, node, exor_expr());
@@ -743,7 +750,8 @@ Node_t* expr(){
 Node_t* declaration(){
     Node_t* node;
     Type_t* type = declaration_specifier();
-    if(read_token(0)->kind == ';'){
+    Token_t* next = read_token(0);
+    if(next->kind == ';'){
         node = new_node(AST_DECLN, NULL, NULL);
         node->type = type;
         consume_token(';');
@@ -843,7 +851,7 @@ Type_t* type_specifier(){
                 }
                 if(consume_token('}') < 0) assert(0);
                 map_push(struct_dec, type->name, type);
-                type->offset = offset;
+                type->offset = allign(offset, 16);
             }
         }
         else{
@@ -870,7 +878,8 @@ Type_t* type_specifier(){
                 next = read_token(0);
                 if(next->kind == '='){
                     consume_token('=');
-                    offset = read_token(0)->value;
+                    next = read_token(0);
+                    offset = next->value;
                     if(consume_token(TK_INT) < 0) assert(0);
                     next = read_token(0);
                 }
@@ -955,7 +964,8 @@ Node_t* direct_declarator(Type_t** root){
         }
         else if(next->kind == '['){
             consume_token('[');
-            int size = read_token(0)->value;
+            next = read_token(0);
+            int size = next->value;
             Type_t* tmp = make_type();
             tmp->ty = TYPE_ARRAY;
             tmp->array_size = size;

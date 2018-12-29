@@ -13,10 +13,10 @@ int fopen();
 int fclose();
 int getc();
 
-
 typedef int FILE;
 #define EOF -1
 #define stderr 2
+
 
 //vector_map
 typedef struct Vector{
@@ -37,14 +37,13 @@ void* vector_get(Vector_t *vec, int idx);
 int vector_size(Vector_t *vec);
 void vector_pop(Vector_t *vec);
 void vector_delete(Vector_t *vec, int idx);
+char get_special_char(char p);
 
 Map_t* map_new();
 void map_push(Map_t* map, char* key, void* val);
 void* map_search(Map_t* map, char* key);
 int map_size(Map_t* map);
 void map_pop(Map_t* map);
-
-char get_special_char(char p);
 
 
 void test_vector();
@@ -146,7 +145,7 @@ typedef struct Type{
     int offset;
 
     //for typedef
-    struct Type* typeto;
+    struct Type *typeto;
 }Type_t;
 
 typedef struct Node{
@@ -374,7 +373,7 @@ void codegen(Node_t *node);
 void codegen_lval(Node_t *node);
 int codegen_arg(Node_t* node, int num);
 int is_ptr(Type_t* type);
-int allign8(int x);
+int allign(int x, int t);
 void codegen_str();
 void codegen_global_init();
 void codegen_global();

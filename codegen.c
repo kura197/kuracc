@@ -472,8 +472,8 @@ void codegen(Node_t* ast){
 
         symt = ast->sym_table;
         if(symt->offset > 0){
-            printf("  subq $%d, %%rsp\n", allign8(symt->offset)+8);
-            rsp_allign += allign8(symt->offset) + 8;
+            printf("  subq $%d, %%rsp\n", allign(symt->offset, 8)+8);
+            rsp_allign += allign(symt->offset, 8) + 8;
         }
         for(int arg = 0; arg < map_size(symt->arg); arg++){
             //max:6
@@ -727,10 +727,10 @@ int is_ptr(Type_t* type){
         return 0;
 }
 
-int allign8(int x){
+int allign(int x, int t){
     int n = 0;
     while(x > n){
-        n += 8;
+        n += t;
     }
     return n;
 }
