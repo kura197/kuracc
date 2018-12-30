@@ -103,11 +103,22 @@ void codegen(Node_t* ast){
             add_val = get_type_size(ast->ltype->ptrof);
         }
         printf("  movq (%%rax), %%rbx\n");
+        int size = get_type_size(ast->lhs->type);
         if(ast->op == AST_POST_INC){
-            printf("  addq $%d, (%%rax)\n", add_val);
+            if(size == 8)
+                printf("  addq $%d, (%%rax)\n", add_val);
+            else if(size == 4)
+                printf("  addl $%d, (%%rax)\n", add_val);
+            else
+                printf("  addb $%d, (%%rax)\n", add_val);
         }
         else if(ast->op == AST_POST_DEC){
-            printf("  subq $%d, (%%rax)\n", add_val);
+            if(size == 8)
+                printf("  subq $%d, (%%rax)\n", add_val);
+            else if(size == 4)
+                printf("  subl $%d, (%%rax)\n", add_val);
+            else
+                printf("  subb $%d, (%%rax)\n", add_val);
         }
         printf("  pushq %%rbx\n");
         rsp_allign += 8;
@@ -198,11 +209,23 @@ void codegen(Node_t* ast){
         if(ast->type->ty == TYPE_PTR || ast->type->ty == TYPE_ARRAY){
             add_val = get_type_size(ast->ltype->ptrof);
         }
+
+        int size = get_type_size(ast->lhs->type);
         if(ast->op == AST_PRE_INC){
-            printf("  addq $%d, (%%rax)\n", add_val);
+            if(size == 8)
+                printf("  addq $%d, (%%rax)\n", add_val);
+            else if(size == 4)
+                printf("  addl $%d, (%%rax)\n", add_val);
+            else
+                printf("  addb $%d, (%%rax)\n", add_val);
         }
         else if(ast->op == AST_PRE_DEC){
-            printf("  subq $%d, (%%rax)\n", add_val);
+            if(size == 8)
+                printf("  subq $%d, (%%rax)\n", add_val);
+            else if(size == 4)
+                printf("  subl $%d, (%%rax)\n", add_val);
+            else
+                printf("  subb $%d, (%%rax)\n", add_val);
         }
         printf("  movq (%%rax), %%rbx\n");
         printf("  pushq %%rbx\n");
@@ -255,12 +278,21 @@ void codegen(Node_t* ast){
                 mul_val = get_type_size(ast->rtype->ptrof);
                 printf("  imul $%d, %%eax\n", mul_val);
             }
+
+            if(ast->op == AST_ADD){
+                printf("  addq %%rbx, %%rax\n");
+            }
+            else if(ast->op == AST_SUB){
+                printf("  subq %%rbx, %%rax\n");
+            }
         }
-        if(ast->op == AST_ADD){
-            printf("  addq %%rbx, %%rax\n");
-        }
-        else if(ast->op == AST_SUB){
-            printf("  subq %%rbx, %%rax\n");
+        else{
+            if(ast->op == AST_ADD){
+                printf("  addl %%ebx, %%eax\n");
+            }
+            else if(ast->op == AST_SUB){
+                printf("  subl %%ebx, %%eax\n");
+            }
         }
         printf("  pushq %%rax\n");
         rsp_allign += 8;
@@ -660,8 +692,8 @@ void codegen(Node_t* ast){
             codegen(ast->lhs);
             printf("  popq %%rax\n");
             rsp_allign -= 8;
-            printf("  jmp .End%d\n", num_ret);
         }
+        printf("  jmp .End%d\n", num_ret);
     }
     else if(ast->op == AST_BREAK){
         printf("  jmp .L%d\n", break_label[break_idx]);

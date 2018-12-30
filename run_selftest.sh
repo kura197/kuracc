@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # main : test passed
-# codegen : test error(test48 error)
+# codegen : test passed
 # tokenizer : test passed
-# semantic : test error(test1 error)
+# semantic : test passed
 # vector_map : test passed
 # parser : test error(test1 error)
 

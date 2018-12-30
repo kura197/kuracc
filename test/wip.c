@@ -1,6 +1,7 @@
 
+//int printf(int t);
 
 int main(){
-    char x;    
+    int x;
     return 0;
 }
