@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# main : test passed(vprintf error if no input)
+# main : test passed
 # codegen : test error(test48 error)
 # tokenizer : test error(test1 error)
 # semantic : test error(test1 error)

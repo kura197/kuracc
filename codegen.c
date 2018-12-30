@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "mycc.h"
 
+#define B_SIZE 32
+#define C_SIZE 32
 
 int rsp_allign;
 int num_jmp;
@@ -13,8 +15,10 @@ Map_t* strlabel;
 char* arg_regq_name[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 char* arg_regl_name[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 int case_label;
-int break_label;
-int cont_label;
+int break_label[B_SIZE];
+int break_idx;
+int cont_label[C_SIZE];
+int cont_idx;
 int struct_var_flag;
 int struct_var_en;
 
@@ -54,7 +58,7 @@ void codegen(Node_t* ast){
                         if(get_type_size(ast->type) == 4)
                             printf("  movl %s(%%rip), %%eax\n", ast->name);
                         else if(get_type_size(ast->type) == 1)
-                            printf("  movzbl %s(%%rip), %%eax\n", ast->name);
+                            printf("  movsbl %s(%%rip), %%eax\n", ast->name);
                         else
                             assert(0);
                     }
@@ -71,7 +75,7 @@ void codegen(Node_t* ast){
                         if(get_type_size(ast->type) == 4)
                             printf("  movl -%d(%%rbp), %%eax\n", sym->offset);
                         else if(get_type_size(ast->type) == 1)
-                            printf("  movzbl -%d(%%rbp), %%eax\n", sym->offset);
+                            printf("  movsbl -%d(%%rbp), %%eax\n", sym->offset);
                         else
                             assert(0);
                     }
@@ -143,7 +147,7 @@ void codegen(Node_t* ast){
                 if(get_type_size(ast->type) == 4)
                     printf("  movl %d(%%rbx), %%eax\n", offset);
                 else if(get_type_size(ast->type) == 1)
-                    printf("  movzbl %d(%%rbx), %%eax\n", offset);
+                    printf("  movsbl %d(%%rbx), %%eax\n", offset);
                 else
                     assert(0);
             }
@@ -175,7 +179,7 @@ void codegen(Node_t* ast){
         rsp_allign -= 8;
         printf("  cmpl $0, %%eax\n");
         printf("  sete %%al\n");
-        printf("  movzbl %%al, %%eax\n");
+        printf("  movsbl %%al, %%eax\n");
         printf("  pushq %%rax\n");
     }
     else if(ast->op == AST_PRE_INC || ast->op == AST_PRE_DEC){
@@ -302,7 +306,7 @@ void codegen(Node_t* ast){
             printf("  setg %%al\n");
         else if(ast->op == AST_SMALL || ast->op == AST_SEQ)   
             printf("  setle %%al\n");
-        printf("  movzbl %%al, %%eax\n");
+        printf("  movsbl %%al, %%eax\n");
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
@@ -317,7 +321,7 @@ void codegen(Node_t* ast){
             printf("  sete %%al\n");
         else if(ast->op == AST_NEQ)   
             printf("  setne %%al\n");
-        printf("  movzbl %%al, %%eax\n");
+        printf("  movsbl %%al, %%eax\n");
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
@@ -401,18 +405,24 @@ void codegen(Node_t* ast){
         printf("  popq %%rbx\n");
         printf("  popq %%rax\n");
         rsp_allign -= 16;
-        if(is_ptr(ast->type))
+        if(is_ptr(ast->type)){
             printf("  movq %%rbx, (%%rax)\n");
+        }
         else{
-            if(get_type_size(ast->type) == 4)
+            if(get_type_size(ast->type) == 4){
                 printf("  movl %%ebx, (%%rax)\n");
-            else if(get_type_size(ast->type) == 1)
+                printf("  movslq %%ebx, %%rax\n");
+            }
+            else if(get_type_size(ast->type) == 1){
                 printf("  movb %%bl, (%%rax)\n");
+                printf("  movsbq %%bl, %%rax\n");
+            }
             else
                 assert(0);
         }
-        printf("  movl (%%rax), %%ebx\n");
-        printf("  pushq %%rbx\n");
+        //printf("  movl (%%rax), %%ebx\n");
+        //printf("  pushq %%rbx\n");
+        printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
     else if(ast->op == AST_EXPR){
@@ -527,8 +537,10 @@ void codegen(Node_t* ast){
     else if(ast->op == AST_WHILE){
         int tmp_num_jmp0 = num_jmp++;
         int tmp_num_jmp1 = num_jmp++;
-        cont_label = tmp_num_jmp0;
-        break_label = tmp_num_jmp1;
+        cont_idx++;
+        break_idx++;
+        cont_label[cont_idx] = tmp_num_jmp0;
+        break_label[break_idx] = tmp_num_jmp1;
         printf(".L%d:\n", tmp_num_jmp0);
         codegen(ast->lhs);
         printf("  popq %%rax\n");
@@ -537,6 +549,8 @@ void codegen(Node_t* ast){
         codegen(ast->rhs);
         printf("  jmp .L%d\n", tmp_num_jmp0);
         printf(".L%d:\n", tmp_num_jmp1);
+        cont_idx--;
+        break_idx--;
     }
     else if(ast->op == AST_IF){
         if(ast->else_stmt == NULL){
@@ -586,9 +600,11 @@ void codegen(Node_t* ast){
         if(ast->default_stmt != NULL){
             num_jmp++;
         }
-        break_label = num_jmp;
+        break_idx++;
+        break_label[break_idx] = num_jmp;
         codegen(ast->rhs);
         printf(".L%d:\n", num_jmp++);
+        break_idx--;
     }
     else if(ast->op == AST_CASE){
         printf(".L%d:\n", case_label++);
@@ -603,8 +619,10 @@ void codegen(Node_t* ast){
         int tmp_num_jmp1 = num_jmp++;
         int tmp_num_jmp2 = num_jmp++;
         int tmp_num_jmp3 = num_jmp++;
-        cont_label = tmp_num_jmp1;
-        break_label = tmp_num_jmp3;
+        cont_idx++;
+        break_idx++;
+        cont_label[cont_idx] = tmp_num_jmp1;
+        break_label[break_idx] = tmp_num_jmp3;
         if(ast->lfor != NULL) codegen(ast->lfor);
         printf("  jmp .L%d\n", tmp_num_jmp2);
         printf(".L%d:\n", tmp_num_jmp0);
@@ -618,6 +636,8 @@ void codegen(Node_t* ast){
         printf("  cmp $0, %%rax\n");
         printf("  jne .L%d\n", tmp_num_jmp0);
         printf(".L%d:\n", tmp_num_jmp3);
+        cont_idx--;
+        break_idx--;
     }
     else if(ast->op == AST_RET){
         if(ast->lhs != NULL){
@@ -628,10 +648,10 @@ void codegen(Node_t* ast){
         }
     }
     else if(ast->op == AST_BREAK){
-        printf("  jmp .L%d\n", break_label);
+        printf("  jmp .L%d\n", break_label[break_idx]);
     }
     else if(ast->op == AST_CONT){
-        printf("  jmp .L%d\n", cont_label);
+        printf("  jmp .L%d\n", cont_label[cont_idx]);
     }
     else{
         fprintf(stderr, "Unknown AST : %s\n", ast_name[ast->op]);

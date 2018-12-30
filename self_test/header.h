@@ -15,7 +15,7 @@ int getc();
 
 typedef int FILE;
 #define EOF -1
-#define stderr 2
+#define stderr 0
 
 
 //vector_map
