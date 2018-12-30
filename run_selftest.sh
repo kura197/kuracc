@@ -21,8 +21,8 @@ NEWOBJS=${OBJS[@]/.o/_self.o}
 
 if [ "$1" != "" ]
 then
-    ./self_test/replace.sh "$1" > self
-    ./mycc self > self.s
+    ./self_test/replace.sh "$1" > tmp
+    ./mycc tmp > self.s
     gcc -c self.s -g
 
     TARGET=${1/.c/.o}

@@ -161,6 +161,12 @@ void codegen(Node_t* ast){
         printf("  popq %%rbx\n");
         rsp_allign -= 8;
         printf("  movq (%%rbx), %%rax\n");
+        if(get_type_size(ast->type) == 4){
+            printf("  movslq %%eax, %%rax\n");
+        }
+        else if(get_type_size(ast->type) == 1){
+            printf("  movsbq %%al, %%rax\n");
+        }
         printf("  pushq %%rax\n");
     }
     else if(ast->op == AST_UNARY_ADR){
@@ -407,6 +413,7 @@ void codegen(Node_t* ast){
         rsp_allign -= 16;
         if(is_ptr(ast->type)){
             printf("  movq %%rbx, (%%rax)\n");
+            printf("  movq %%rbx, %%rax\n");
         }
         else{
             if(get_type_size(ast->type) == 4){

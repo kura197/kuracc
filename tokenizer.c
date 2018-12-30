@@ -452,8 +452,8 @@ void tokenize(char* p){
 
 int get_ident(char *id, char **p){
     int num = 0;
+    int out = 0;
     while(1){
-        int out = 0;
         switch(**p){
             case ' ':
             case '+':
