@@ -2,10 +2,10 @@
 
 # main : test passed
 # codegen : test passed
-# tokenizer : test passed
+# tokenizer : test passed (./self tokenizer.c fail)
 # semantic : test passed
 # vector_map : test passed
-# parser : test error(test1 error)
+# parser : test passed
 
 OBJS=(main.o  
       vector_map.o  

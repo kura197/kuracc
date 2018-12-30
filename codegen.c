@@ -648,10 +648,12 @@ void codegen(Node_t* ast){
         if(ast->default_stmt != NULL){
             num_jmp++;
         }
+        int tmp_num_jmp = num_jmp++;
         break_idx++;
-        break_label[break_idx] = num_jmp;
+        break_label[break_idx] = tmp_num_jmp;
         codegen(ast->rhs);
-        printf(".L%d:\n", num_jmp++);
+        //printf(".L%d:\n", num_jmp++);
+        printf(".L%d:\n", tmp_num_jmp);
         break_idx--;
     }
     else if(ast->op == AST_CASE){
