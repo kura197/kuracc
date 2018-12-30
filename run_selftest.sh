@@ -2,7 +2,7 @@
 
 # main : test passed
 # codegen : test error(test48 error)
-# tokenizer : test error(test1 error)
+# tokenizer : test passed
 # semantic : test error(test1 error)
 # vector_map : test passed
 # parser : test error(test1 error)

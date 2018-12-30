@@ -14,6 +14,7 @@ Symbol_t* sym;
 Map_t* strlabel;
 char* arg_regq_name[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 char* arg_regl_name[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+char* arg_regb_name[6] = {"dil", "sil", "dl", "cl", "r8b", "r9b"};
 int case_label;
 int break_label[B_SIZE];
 int break_idx;
@@ -33,6 +34,7 @@ void codegen(Node_t* ast){
     }
     else if(ast->op == AST_CHAR){
         printf("  movb $%d, %%al\n", ast->val);
+        printf("  movsbq %%al, %%rax\n");
         printf("  pushq %%rax\n");
         rsp_allign += 8;
     }
@@ -497,10 +499,17 @@ void codegen(Node_t* ast){
             //max:6
             Symbol_t* sym = (Symbol_t*)vector_get(symt->arg->val, arg);
             int offset = sym->offset;
-            if(is_ptr(sym->type))
+            int size = get_type_size(sym->type);
+            //if(is_ptr(sym->type))
+            //    printf("  movq %%%s, -%d(%%rbp)\n", arg_regq_name[arg], offset);
+            //else
+            //    printf("  movl %%%s, -%d(%%rbp)\n", arg_regl_name[arg], offset);
+            if(size == 8)
                 printf("  movq %%%s, -%d(%%rbp)\n", arg_regq_name[arg], offset);
-            else
+            else if(size == 4)
                 printf("  movl %%%s, -%d(%%rbp)\n", arg_regl_name[arg], offset);
+            else if(size == 1)
+                printf("  movb %%%s, -%d(%%rbp)\n", arg_regb_name[arg], offset);
         }
         printf("  pushq %%rbx\n");
 
