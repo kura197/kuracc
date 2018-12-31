@@ -1,2 +1,22 @@
-# compiler
-tiny compiler
+# kuracc
+
+A self-hosted C compiler made to study how compilers work.   
+There are many unimplemented things.
+
+## Usage
+````
+make
+./kuracc filename.c > tmp.s
+gcc -o tmp tmp.s
+./tmp
+````
+
+## Run test
+````
+make test
+````
+
+## Self-compile & Run test
+````
+make self_test
+````
