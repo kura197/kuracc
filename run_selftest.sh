@@ -1,12 +1,5 @@
 #! /bin/bash
 
-# main : test passed
-# codegen : test passed
-# tokenizer : test passed (./self tokenizer.c fail)
-# semantic : test passed
-# vector_map : test passed
-# parser : test passed
-
 OBJS=(main.o  
       vector_map.o  
       semantic.o  
@@ -21,9 +14,10 @@ NEWOBJS=${OBJS[@]/.o/_self.o}
 
 if [ "$1" != "" ]
 then
-    ./self_test/replace.sh "$1" > tmp
-    ./mycc tmp > self.s
+    ./self_test/replace.sh "$1" > self.c
+    ./mycc self.c > self.s
     gcc -c self.s -g
+    rm self.c
 
     TARGET=${1/.c/.o}
     OTHERS=${OBJS[@]#$TARGET}
@@ -31,12 +25,11 @@ then
 
 else
     for item in ${SRCS[@]}; do
-        #echo $item
         ./self_test/replace.sh $item > self.c
-        ASM=${item/.c/_self.s}
-        ./mycc self.c > $ASM
+        TMP=${item/.c/_self.s}
+        ./mycc self.c > $TMP
         rm self.c
-        gcc -c $ASM -g 
+        gcc -c $TMP -g 
     done
     gcc -o self -g ${NEWOBJS[@]} ./test/lib.o 
 
