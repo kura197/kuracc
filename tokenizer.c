@@ -78,7 +78,7 @@ char *token_name[256] = {
 void tokenize(char* p){
     while(*p){
         if('0' <= *p && *p <= '9'){
-            char values[16];
+            char values[32];
             int num_values = 0;
             values[num_values++] = *p;
             while(1){
@@ -121,10 +121,6 @@ void tokenize(char* p){
             int n = 0;
             char tmp[64];
             while(*p != '"'){
-                //if(*p == '\\' && *(p+1) == '\"'){
-                //    p += 2;
-                //    tmp[n++] = '\"';
-                //}
                 if(*p == '\\' && *(p+1) == '\"'){
                     p += 2;
                     tmp[n++] = '\\';

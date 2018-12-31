@@ -20,6 +20,9 @@ test: $(OUTPUT)
 	./run_test.sh $(OUTPUT)
 
 self: $(OUTPUT)
+	./run_selftest.sh
+
+self_test: self
 	./run_test.sh self
 
 wip: $(OUTPUT)

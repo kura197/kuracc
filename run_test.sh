@@ -1,20 +1,5 @@
 #! /bin/sh
 
-runtest_return() {
-    ./mycc "$1" > tmp.s
-
-    gcc -o tmp tmp.s -g
-    ./tmp
-
-    out=$?
-    if [ "$out" != "$2" ]; then
-        echo "$1: $2 expected, but got $out"
-        exit 1
-    fi
-    echo "$1 => $2"
-    rm tmp 
-}
-
 runtest_print() {
     ./$1 "$2" > tmp.s
 
@@ -31,7 +16,7 @@ runtest_print() {
 
 if [ "$1" = "wip" ] ;
 then
-    ./mycc "test/wip.c" > tmp.s
+    ./kuracc "test/wip.c" > tmp.s
     gcc -o tmp tmp.s ./test/lib.o -g
     ./tmp
 else
