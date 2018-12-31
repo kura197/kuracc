@@ -5,7 +5,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "mycc.h"
+#include "kuracc.h"
 
 Token_t tokens[NUM_TK];
 int token_idx;

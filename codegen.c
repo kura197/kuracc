@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "mycc.h"
+#include "kuracc.h"
 
 #define B_SIZE 32
 #define C_SIZE 32

@@ -3,9 +3,9 @@ CFLAGS = -Wall -O0 -g -std=c11
 
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
-OUTPUT = mycc
+OUTPUT = kuracc
 
-HEADER = mycc.h 
+HEADER = kuracc.h 
 
 .PHONY: test
 .PHONY: self

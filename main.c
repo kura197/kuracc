@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
-#include "mycc.h"
+#include "kuracc.h"
 
 
 int main(int argc, char** argv){

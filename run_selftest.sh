@@ -2,7 +2,7 @@
 
 OBJS=(main.o  
       vector_map.o  
-      semantic.o  
+      sem_analy.o  
       tokenizer.o  
       parser.o  
       codegen.o  
@@ -15,7 +15,7 @@ NEWOBJS=${OBJS[@]/.o/_self.o}
 if [ "$1" != "" ]
 then
     ./self_test/replace.sh "$1" > self.c
-    ./mycc self.c > self.s
+    ./kuracc self.c > self.s
     gcc -c self.s -g
     rm self.c
 
@@ -27,7 +27,7 @@ else
     for item in ${SRCS[@]}; do
         ./self_test/replace.sh $item > self.c
         TMP=${item/.c/_self.s}
-        ./mycc self.c > $TMP
+        ./kuracc self.c > $TMP
         rm self.c
         gcc -c $TMP -g 
     done

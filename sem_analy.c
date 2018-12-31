@@ -1,10 +1,8 @@
-//#include "semantic.h"
-//#include "parser.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include "mycc.h"
+#include "kuracc.h"
 
 SymTable_t* sym_table;
 Symbol_t* sym;
