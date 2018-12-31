@@ -1,7 +1,14 @@
 
 CFLAGS = -Wall -O0 -g -std=c11
 
-SRCS = $(wildcard *.c)
+#SRCS = $(wildcard *.c)
+SRCS = main.c \
+	   vector_map.c \
+	   tokenizer.c \
+	   parser.c \
+	   sem_analy.c \
+	   codegen.c
+
 OBJS = $(SRCS:.c=.o)
 OUTPUT = kuracc
 
