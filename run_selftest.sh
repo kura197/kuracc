@@ -21,7 +21,7 @@ then
 
     TARGET=${1/.c/.o}
     OTHERS=${OBJS[@]#$TARGET}
-    gcc -o self -g $OTHERS self.o ./test/lib.o 
+    gcc -o self_kuracc -g $OTHERS self.o ./test/lib.o 
 
 else
     for item in ${SRCS[@]}; do
@@ -31,6 +31,6 @@ else
         rm self.c
         gcc -c $TMP -g 
     done
-    gcc -o self -g ${NEWOBJS[@]} ./test/lib.o 
+    gcc -o self_kuracc -g ${NEWOBJS[@]} ./test/lib.o 
 
 fi

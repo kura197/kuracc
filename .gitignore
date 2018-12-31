@@ -3,9 +3,10 @@
 *.s
 *.pdf
 *.html
-mycc
+kuracc
 tmp
 test/tmp.c
 self
+self_kuracc
 bak
 core

@@ -30,7 +30,7 @@ self: $(OUTPUT)
 	./run_selftest.sh
 
 self_test: self
-	./run_test.sh self
+	./run_test.sh self_kuracc
 
 wip: $(OUTPUT)
 	./run_test.sh wip
