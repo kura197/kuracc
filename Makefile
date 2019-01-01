@@ -23,10 +23,13 @@ $(OUTPUT): $(OBJS)
 
 $(OBJS): $(HEADER)
 
-test: $(OUTPUT)
+test: $(OUTPUT) lib.o
 	./run_test.sh $(OUTPUT)
 
-self: $(OUTPUT)
+lib.o: ./test/lib.c
+	gcc -c $<
+
+self: $(OUTPUT) lib.o
 	./run_selftest.sh
 
 self_test: self

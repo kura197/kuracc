@@ -20,7 +20,7 @@ then
     gcc -o tmp tmp.s ./test/lib.o -g
     ./tmp
 else
-    gcc ./test/lib.c -c -o ./test/lib.o
+    #gcc ./test/lib.c -c -o ./test/lib.o
     runtest_print "$1" test/t1.c 10
     runtest_print "$1" test/t2.c 3
     runtest_print "$1" test/t3.c 1024
