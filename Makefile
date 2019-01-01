@@ -27,7 +27,7 @@ test: $(OUTPUT) lib.o
 	./run_test.sh $(OUTPUT)
 
 lib.o: ./test/lib.c
-	gcc -c $<
+	gcc -c $< -o ./test/lib.o
 
 self: $(OUTPUT) lib.o
 	./run_selftest.sh
