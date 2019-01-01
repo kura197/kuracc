@@ -500,8 +500,9 @@ int consume_token(char token){
         return 1;
     }
     else{
-        fprintf(stderr, "does not match consume_token at line %d.\ntoken : %d\tneed : %s\n" 
-                               , tokens[token_idx].row, token, token_name[tokens[token_idx].kind]);
+        //fprintf(stderr, "does not match consume_token at line %d.\ntoken : %d\tneed : %s\n" 
+        //                       , tokens[token_idx].row, token, token_name[tokens[token_idx].kind]);
+        fprintf(stderr, "does not match consume_token at line %d", tokens[token_idx].row);
         return -1;
     }
 }
