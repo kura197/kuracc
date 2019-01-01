@@ -1,6 +1,6 @@
 # kuracc
 
-A self-hosted C compiler made to study how compilers work.   
+A self-hosted C compiler I made to learn how compilers work.   
 There are many unimplemented things.
 
 ## Usage
