@@ -15,8 +15,3 @@ gcc -o tmp tmp.s
 ````
 make test
 ````
-
-## Self-compile & Run test
-````
-make self_test
-````
